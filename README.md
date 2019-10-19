@@ -1,6 +1,6 @@
-# Famine [![Codacy Badge](https://api.codacy.com/project/badge/Grade/efc1afaa78b64fa399a860550e86d8a8)](https://app.codacy.com/app/agrumbac/Famine?utm_source=github.com&utm_medium=referral&utm_content=grumbach/Famine&utm_campaign=Badge_Grade_Dashboard)
+# War [WIP]
 
-A packed Virus for Elf64 binaries
+A polymorphic Virus for Elf64 binaries
 
 ## Installation
 
@@ -8,46 +8,9 @@ This might trigger your anti-virus, which is normal. Use at your own risk!
 
 ```bash
 # clone it
-git clone https://github.com/grumbach/Famine.git && cd Famine
+git clone https://github.com/spolowy/War.git && cd War
 # build it and run it
-make && ./famine
+make && ./war
 # remove installation files
-cd .. && rm -rf Famine
-```
-
-## Insides
-
-```
-  Infected program memory overview
-  ================================
-
-                          .        .
-                          |  ...   |
-              p_offset -> |========| PT_LOAD  - relative_pt_load_address
-                          |  ...   |          ^
-                          |  ...   |          |
-             sh_offset -> |--------|          |
-                      |   |  ...   |          |
-                      V   |  ...   |          |
-    offset_in_section -   |>>>>>>>>| entry    |- relative_entry_address
-                          |  ...   |          |^
-                          |--------|          ||
-                          |  ...   |          ||
-                          |  ...   |          ||
-   end_of_last_section -> |--------| -  -  -  -- -  -  -  -  -  -
-         @famine_entry -> |@@@@@@@@| |                          |
-                          |@      @| |                          |
-                          |@      @| |                          |
-                          |@@@@@@@@| V                          |
-         packed @virus -> |~~~~~~~~| - relative_virus_addresss  |
-                          |########| |                          |
-                          |########| |                          |
-                          |########| |                          |
-                          |########| V                          V
- @_start (placeholder) -> |~~~~~~~~| - virus_size               - payload_size
-                          |  ...   |
-                          |  ...   |
-                          |========|
-                          |  ...   |
-                          .        .
+cd .. && rm -rf War
 ```
