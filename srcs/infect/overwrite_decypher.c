@@ -1,23 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   deamon.c                                           :+:      :+:    :+:   */
+/*   overwrite_decypher.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfortin <jfortin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/06/13 22:08:26 by jfortin           #+#    #+#             */
-/*   Updated: 2019/06/13 23:56:47 by jfortin          ###   ########.fr       */
+/*   Created: 2019/12/11 01:29:20 by anselme           #+#    #+#             */
+/*   Updated: 2019/12/11 01:38:17 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <time.h>
-
-int	main(void)
+bool		generate_cypher(char *buffer, uint64_t seed, size_t size)
 {
-	printf("deamon started\n");
-	daemon(1, 1);
-	while (42)
-		sleep(1);
+
+}
+
+bool		generate_decypher(char *buffer, uint64_t seed, size_t size)
+{
+
+}
+
+bool		overwrite_decypher()
+{
+	return true;
 }

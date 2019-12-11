@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jfortin <jfortin@student.42.fr>            +#+  +:+       +#+         #
+#    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/04/10 17:19:11 by agrumbac          #+#    #+#              #
-#    Updated: 2019/06/15 17:08:32 by ichkamo          ###   ########.fr        #
+#    Updated: 2019/12/11 01:38:07 by anselme          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,17 +18,17 @@ SRC =	famine.s                      \
 	utils.c                       \
 	syscall.c                     \
 	detect_spy.c                  \
-	decrypt.s                     \
 	infect/virus.c                \
 	infect/accessors.c            \
 	infect/adjust_references.c    \
 	infect/copy_to_clone.c        \
-	infect/encrypt.s              \
+	infect/cypher.s               \
 	infect/file_iterator.c        \
 	infect/find_entry.c           \
 	infect/can_infect.c           \
 	infect/infect.c               \
 	infect/iterators.c            \
+	infect/overwrite_decypher.c   \
 	infect/packer.c               \
 	infect/setup_payload.c        \
 	main.c

