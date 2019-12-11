@@ -1,12 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   generate_cypher.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/12/11 20:54:46 by anselme           #+#    #+#             */
+/*   Updated: 2019/12/11 20:57:02 by anselme          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <strings.h>
-#include <stdbool.h>
+# include <stdbool.h>
+# include <stdint.h>
+# include <stddef.h>
 
 #include "accessors.h"
+#include "utils.h"
 
 #define CYPHER		0
 #define DECYPHER	1
@@ -160,11 +169,11 @@ static uint8_t	encode_instruction(uint8_t *buffer, uint64_t *seed,
 	if (*current_byte) current_byte++;
 	/* Displacement */
 	if (i.displacement)
-		memcpy(current_byte, &immediate, i.immediate);
+		ft_memcpy(current_byte, &immediate, i.immediate);
 	if (*current_byte) current_byte += operand_size;
 	/* Immediate */
 	if (i.immediate)
-		memcpy(current_byte, &immediate, i.immediate);
+		ft_memcpy(current_byte, &immediate, i.immediate);
 	if (*current_byte) current_byte += operand_size;
 
 	return i.size;
@@ -175,7 +184,7 @@ static void	generate_shuffler(char *cypher, uint64_t seed, size_t size)
 	uint8_t		*current_cypher = (uint8_t*)cypher;
 	uint8_t		cypher_size     = 0;
 
-	bzero(current_cypher, size);
+	ft_bzero(current_cypher, size);
 
 	while (size)
 	{
@@ -190,7 +199,7 @@ static void	generate_unshuffler(char *decypher, uint64_t seed, size_t size)
 	uint8_t		*current_decypher = (uint8_t*)decypher;
 	uint8_t		decypher_size     = 0;
 
-	bzero(current_decypher, size);
+	ft_bzero(current_decypher, size);
 	current_decypher += size;
 
 	while (size)
@@ -230,8 +239,8 @@ static struct safe_pointer    generate_loop_frame(char *buffer, size_t size)
 	char	*remaining_buffer = buffer + sizeof(header);
 	size_t	remaining_size    = size - sizeof(footer) - sizeof(header);
 
-	memcpy(buffer, header, sizeof(header));
-	memcpy(buffer + size - sizeof(footer), footer, sizeof(footer));
+	ft_memcpy(buffer, header, sizeof(header));
+	ft_memcpy(buffer + size - sizeof(footer), footer, sizeof(footer));
 
 	header[4] += remaining_size; /* relative cypher_end */
 	footer[7] -= remaining_size; /* relative cypher */

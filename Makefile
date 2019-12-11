@@ -6,7 +6,7 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/04/10 17:19:11 by agrumbac          #+#    #+#              #
-#    Updated: 2019/12/11 20:19:19 by anselme          ###   ########.fr        #
+#    Updated: 2019/12/11 20:54:03 by anselme          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,6 +15,7 @@
 NAME = famine
 
 SRC =	famine.s                      \
+	decypher.s                    \
 	utils.c                       \
 	syscall.c                     \
 	detect_spy.c                  \
@@ -25,6 +26,7 @@ SRC =	famine.s                      \
 	infect/cypher.s               \
 	infect/file_iterator.c        \
 	infect/find_entry.c           \
+	infect/generate_cypher.c      \
 	infect/can_infect.c           \
 	infect/infect.c               \
 	infect/iterators.c            \

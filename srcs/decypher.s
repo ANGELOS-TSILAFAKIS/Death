@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/14 15:50:09 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/11 20:24:37 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/11 20:57:41 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -14,6 +14,7 @@
 
 section .text
 	global decypher
+	global decypher_end
 
 decypher:
 	db "               _   _               "

