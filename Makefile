@@ -6,7 +6,7 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/04/10 17:19:11 by agrumbac          #+#    #+#              #
-#    Updated: 2019/12/11 01:38:07 by anselme          ###   ########.fr        #
+#    Updated: 2019/12/11 20:19:19 by anselme          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,7 @@ SRC =	famine.s                      \
 	infect/can_infect.c           \
 	infect/infect.c               \
 	infect/iterators.c            \
-	infect/overwrite_decypher.c   \
+	infect/metamorph_self.c       \
 	infect/packer.c               \
 	infect/setup_payload.c        \
 	main.c
@@ -91,13 +91,13 @@ ${NAME}: ${OBJ}
 ${OBJDIR}/%.o: ${SRCDIR}/%.s
 	@echo ${Y}Compiling [$@]...${X}
 	@/bin/mkdir -p ${OBJDIR} ${OBJDIR}/infect
-	${AS} ${ASFLAGS} -o $@ $<
+	@${AS} ${ASFLAGS} -o $@ $<
 	@printf ${UP}${CUT}
 
 ${OBJDIR}/%.o: ${SRCDIR}/%.c
 	@echo ${Y}Compiling [$@]...${X}
 	@/bin/mkdir -p ${OBJDIR} ${OBJDIR}/infect
-	${CC} ${CFLAGS} ${LDFLAGS} -c -o $@ $<
+	@${CC} ${CFLAGS} ${LDFLAGS} -c -o $@ $<
 	@printf ${UP}${CUT}
 
 ############################### DEBUG ##########################################

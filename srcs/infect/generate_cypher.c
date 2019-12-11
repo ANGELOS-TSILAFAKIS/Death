@@ -6,73 +6,32 @@
 #include <strings.h>
 #include <stdbool.h>
 
-bool	generate_cypher(char *buffer, uint64_t seed, size_t size);
-bool	generate_decypher(char *buffer, uint64_t seed, size_t size);
+#include "accessors.h"
 
 #define CYPHER		0
 #define DECYPHER	1
 
-struct safe_pointer
-{
-	void		*ptr;
-	size_t		size;
-};
+#define IMM_IB		1
+#define IMM_IW		2
+#define IMM_ID		4
+#define IMM_IO		8
 
 #define ENCODE_VALUE(value, mask, shift_bit)	((value & mask) << shift_bit)
 
-/*
-static void             hexdump_text(const char *text, uint64_t offset, uint64_t size)
+enum
 {
-        uint64_t                        i;
-        uint64_t                        j;
+	I_BASE,
+	XOR_RM64_IMM8,		// REX.W + 83 /6 ib XOR r/m64, imm8
+	ADD_RM64_IMM8,		// REX.W + 83 /0 ib ADD r/m64, imm8
+	SUB_RM64_IMM8,		// REX.W + 83 /5 ib SUB r/m64, imm8
 
-	printf("\e[32m");
-        i = 0;
-        while (i < size)
-        {
-                j = 0;
-                while (j < 0x10 && i + j < size)
-                        printf("%02hhx ", text[i + j++]);
-                printf("\n");
-                i += 0x10;
-        }
-	printf("\e[0m");
-}
-*/
+	XOR_RAX_IMM32,		// REX.W + 35 id XOR RAX, imm32
+	ADD_RAX_IMM32,		// REX.W + 05 id ADD RAX, imm32
+	SUB_RAX_IMM32,		// REX.W + 2D id SUB RAX, imm32
+	I_SIZE
+};
 
-int64_t		get_random_inrange(uint64_t *seed, int64_t lower, int64_t upper)
-{
-	uint64_t	rand = *seed;
-
-	rand += 0xf0760a3c4;
-	rand ^= rand << 13;
-	rand ^= rand >> 17;
-	rand -= 0x6fa624c2;
-	rand ^= rand << 5;
-
-	*seed = rand;
-
-	return (rand % (upper - lower + 1)) + lower;
-}
-
-int64_t		get_random_exrange(uint64_t *seed, int64_t lower, int64_t upper)
-{
-	uint64_t	rand = *seed;
-
-	rand += 0xf0760a3c4;
-	rand ^= rand << 13;
-	rand ^= rand >> 17;
-	rand -= 0x6fa624c2;
-	rand ^= rand << 5;
-
-	*seed = rand;
-
-	return (rand % (upper - lower - 1)) + lower + 1;
-}
-
-#pragma pack(push)
-#pragma pack(1)
-struct	x86_64_encode //__attribute__((packed))
+struct	x86_64_encode
 {
 	uint8_t		size:8;
 	uint8_t		prefix_rex:4;
@@ -91,43 +50,39 @@ struct	x86_64_encode //__attribute__((packed))
 	uint8_t		base:3;
 	uint32_t	displacement:32;
 	uint32_t	immediate:32;
-};
-#pragma pack(pop)
+}__attribute__((packed));
 
-#define IMM_IB		1
-#define IMM_IW		2
-#define IMM_ID		4
-#define IMM_IO		8
-
-enum
+static int64_t	get_random_inrange(uint64_t *seed, int64_t lower, int64_t upper)
 {
-	I_BASE,
-	XOR_RM64_IMM8,		// REX.W + 83 /6 ib XOR r/m64, imm8 MI Valid N.E. r/m64 XOR imm8 (sign-extended).
-	ADD_RM64_IMM8,		// REX.W + 83 /0 ib ADD r/m64, imm8 MI Valid N.E. Add sign-extended imm8 to r/m64.
-	SUB_RM64_IMM8,		// REX.W + 83 /5 ib SUB r/m64, imm8 MI Valid N.E. Subtract sign-extended imm8 from r/m64.
+	uint64_t	rand = *seed;
 
-	XOR_RAX_IMM32,		// REX.W + 35 id XOR RAX, imm32 I Valid N.E. RAX XOR imm32 (sign-extended).
-	ADD_RAX_IMM32,		// REX.W + 05 id ADD RAX, imm32 I Valid N.E. Add imm32 sign-extended to 64-bits to RAX.
-	SUB_RAX_IMM32,		// REX.W + 2D id SUB RAX, imm32 I Valid N.E. Subtract imm32 sign-extended to 64-bits from RAX.
-	I_SIZE
-};
+	rand += 0xf0760a3c4;
+	rand ^= rand << 13;
+	rand ^= rand >> 17;
+	rand -= 0x6fa624c2;
+	rand ^= rand << 5;
 
-static char	*_debug_i(int i)
-{
-	char	*instr[I_SIZE] =
-	{
-		[XOR_RM64_IMM8] = "xor imm8",
-		[ADD_RM64_IMM8] = "add imm8",
-		[SUB_RM64_IMM8] = "sub imm8",
+	*seed = rand;
 
-		[XOR_RAX_IMM32] = "xor imm32",
-		[ADD_RAX_IMM32] = "add imm32",
-		[SUB_RAX_IMM32] = "sub imm32"
-	};
-	return instr[i];
+	return (rand % (upper - lower + 1)) + lower;
 }
 
-uint8_t		encode_instruction(uint8_t *buffer, uint64_t *seed,
+static int64_t	get_random_exrange(uint64_t *seed, int64_t lower, int64_t upper)
+{
+	uint64_t	rand = *seed;
+
+	rand += 0xf0760a3c4;
+	rand ^= rand << 13;
+	rand ^= rand >> 17;
+	rand -= 0x6fa624c2;
+	rand ^= rand << 5;
+
+	*seed = rand;
+
+	return (rand % (upper - lower - 1)) + lower + 1;
+}
+
+static uint8_t	encode_instruction(uint8_t *buffer, uint64_t *seed,
 			size_t size, bool operation)
 {
 	const struct x86_64_encode	instructions[I_SIZE] =
@@ -154,7 +109,6 @@ uint8_t		encode_instruction(uint8_t *buffer, uint64_t *seed,
 	uint8_t		instruction = get_random_exrange(seed, I_BASE, I_SIZE);
 	uint64_t	immediate   = get_random_inrange(seed, 0x1, 0x7fffffff);
 
-	printf("\e[33mimmediate: %llx | instruction: %s\e[0m\n", immediate, _debug_i(operation == CYPHER ? instruction : instructions_match[instruction]));
 	struct x86_64_encode	i;
 
 	i = (operation == CYPHER) ? instructions[instruction] : instructions[instructions_match[instruction]];
@@ -163,7 +117,6 @@ uint8_t		encode_instruction(uint8_t *buffer, uint64_t *seed,
 	{
 		buffer -= operation == CYPHER ? 0 : 1;
 		*buffer = 0x90;
-		printf("\e[31mNOP\e[0m\n");
 		return 1;
 	}
 	else if (operation == DECYPHER)
@@ -214,11 +167,10 @@ uint8_t		encode_instruction(uint8_t *buffer, uint64_t *seed,
 		memcpy(current_byte, &immediate, i.immediate);
 	if (*current_byte) current_byte += operand_size;
 
-	hexdump_text((const char *)(buffer), 0, (void*)current_byte - (void*)buffer);
 	return i.size;
 }
 
-void		generate_shuffler(char *cypher, uint64_t seed, size_t size)
+static void	generate_shuffler(char *cypher, uint64_t seed, size_t size)
 {
 	uint8_t		*current_cypher = (uint8_t*)cypher;
 	uint8_t		cypher_size     = 0;
@@ -233,7 +185,7 @@ void		generate_shuffler(char *cypher, uint64_t seed, size_t size)
 	}
 }
 
-void		generate_unshuffler(char *decypher, uint64_t seed, size_t size)
+static void	generate_unshuffler(char *decypher, uint64_t seed, size_t size)
 {
 	uint8_t		*current_decypher = (uint8_t*)decypher;
 	uint8_t		decypher_size     = 0;
@@ -256,7 +208,7 @@ void		generate_unshuffler(char *decypher, uint64_t seed, size_t size)
 **   - returns a safe pointer to the middle of the buffer
 **   - returns a NULL safe pointer in case size is too small
 */
-struct safe_pointer    generate_loop_frame(char *buffer, size_t size)
+static struct safe_pointer    generate_loop_frame(char *buffer, size_t size)
 {
 	int8_t		header[] = {
 		                   /* cypher: */
@@ -266,10 +218,10 @@ struct safe_pointer    generate_loop_frame(char *buffer, size_t size)
 	};
 	int8_t		footer[] = {
 		0x48, 0x89, 0x07,  /*     mov [rdi], rax */
-		0x48, 0xff, 0xce,  /*     dec rsi */
-		0xeb, 0xd2,        /*     jmp cypher */
-		                   /* cypher_end: */
-		0xc3               /*     ret */
+		0x48, 0xff, 0xce,  /*     dec rsi        */
+		0xeb, 0xd2,        /*     jmp cypher     */
+		                   /* cypher_end:        */
+		0xc3               /*     ret            */
 	};
 
 	if (size < sizeof(footer) + sizeof(header))
@@ -308,21 +260,3 @@ bool		generate_decypher(char *buffer, uint64_t seed, size_t size)
 	generate_unshuffler(frame.ptr, seed, frame.size);
 	return true;
 }
-
-/*
-int		main(int ac, char **av)
-{
-	size_t		size = 64;
-	char		buffer[size];
-
-	printf("\e[36m----- CYPHER -----\e[0m\n");
-	generate_cypher(buffer, 1, size);
-	hexdump_text((const char *)buffer, 0, size);
-
-	printf("\e[36m----- DECYPHER -----\e[0m\n");
-	generate_decypher(buffer, 1, size);
-	hexdump_text((const char *)buffer, 0, size);
-
-	return 0;
-}
-*/
