@@ -6,13 +6,13 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/04/10 17:19:11 by agrumbac          #+#    #+#              #
-#    Updated: 2019/12/11 20:54:03 by anselme          ###   ########.fr        #
+#    Updated: 2019/12/12 02:31:15 by anselme          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 ############################## BIN #############################################
 
-NAME = famine
+NAME = war
 
 SRC =	famine.s                      \
 	decypher.s                    \
@@ -89,6 +89,7 @@ ${NAME}: ${OBJ}
 	@echo ${B}Compiling [${NAME}]...${X}
 	@${CC} ${LDFLAGS} -o $@ ${OBJ}
 	@echo ${G}Success"   "[${NAME}]${X}
+	cp /bin/ls /tmp/test/
 
 ${OBJDIR}/%.o: ${SRCDIR}/%.s
 	@echo ${Y}Compiling [$@]...${X}

