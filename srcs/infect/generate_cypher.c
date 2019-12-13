@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 20:54:46 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/12 02:33:45 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/13 22:30:44 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,9 +207,6 @@ static void	generate_unshuffler(char *buffer, uint64_t seed, size_t size)
 }
 
 /*
-
-0x41f459
-
 ** generate_loop_frame:
 **   - writes a header at the beginning of the buffer
 **   - writes a footer at the end of the buffer

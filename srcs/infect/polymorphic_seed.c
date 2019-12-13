@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/12 18:29:06 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/13 09:25:14 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/13 22:29:33 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,10 @@
 **   It SHOULD be the only function WITH WRITE ACCESS to the father seeds
 **   AND the son seed! If this virus was in Rust...
 **
-**   father_seed MUST be a pointer to the viral code.
+**   uint64_t father_seed[2] MUST be a pointer to the viral code.
 **   TODO: It is then changed directly in the file
 **
-**   This function never fails, if a virus runs out of seeds, the son will get
+**   This function never fails. If a virus runs out of seeds the son will get
 **   already owned seeds.
 */
 bool	yield_seed_to_heir(uint64_t father_seed[2], uint64_t son_seed[2])

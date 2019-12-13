@@ -21,8 +21,7 @@ function compile()
 	clean_dirs
 
 	mkdir -p /tmp/test /tmp/test2
-	make
-	make -C ..
+	make re -C ..
 	cp ../war .
 }
 

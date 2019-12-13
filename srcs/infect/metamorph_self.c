@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 01:29:20 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/13 09:13:48 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/13 21:51:22 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,13 @@
 
 /*
 ** metamorph_self is a metamorphic generator for the virus loader.
-**   It works by regenerating its own loader (the one that is loaded in memory)
+**   It works by regenerating its own loader
+**   (overwriting the one that is loaded in memory)
 **   before it is copied by our virus later on.
 **
 **   The uint64_t seed[2] is the range of seeds that belongs to our virus.
-**   The first number is the seed of the current virus.
-**   The last number is the last seed that belongs to the current virus.
+**   seed[0] is the seed of the current virus.
+**   seed[1] is the last seed that belongs to the current virus.
 **   All the numbers that aren't in this range are owned by other UNIQUE copies
 **   of this virus.
 **
