@@ -99,3 +99,52 @@ char	*ft_strstr(const char *s1, const char *s2)
 	}
 	return (NULL);
 }
+
+int             ft_putchar(char c)
+{
+        return (famine_write(1, &c, 1));
+}
+
+int             ft_putstr(char *s)
+{
+        return (famine_write(1, s, ft_strlen(s)));
+}
+
+void    ft_putnbr(int n)
+{
+	if (n == -2147483648)
+	{
+		ft_putstr("-214748364");
+		n = 8;
+	}
+	if (n < 0)
+	{
+		ft_putchar('-');
+		n = n * -1;
+	}
+	if (n > 9)
+	{
+		ft_putnbr(n / 10);
+		ft_putnbr(n % 10);
+	}
+	else
+	{
+		n = n + '0';
+		ft_putchar(n);
+	}
+}
+
+void            *ft_memset(void *b, int c, unsigned long len)
+{
+	unsigned long   m;
+	unsigned char   *r;
+
+	m = len >> 3;
+	r = b + (m << 3);
+	while (m--)
+		((unsigned long*)b)[m] = c;
+	len &= 7;
+	while (len--)
+		r[len] = c;
+	return (b);
+}
