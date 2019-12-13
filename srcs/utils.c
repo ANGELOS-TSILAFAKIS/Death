@@ -2,19 +2,6 @@
 #include <string.h>
 #include "syscall.h"
 
-ssize_t	ft_getrandom(void *buf, size_t buflen)
-{
-	char		*path = (char[]){'/','d','e','v','/','u','r','a','n','d','o','m','\0'};
-	int		fd;
-	ssize_t		nbr_bytes;
-
-	fd = famine_open(path, O_RDONLY);
-	if (fd < 0) return 42;
-	nbr_bytes = famine_read(fd, &buf, buflen);
-	famine_close(fd);
-	return nbr_bytes;
-}
-
 void	ft_bzero(void *ptr, size_t size)
 {
 	char *tmp = ptr;
@@ -111,4 +98,53 @@ char	*ft_strstr(const char *s1, const char *s2)
 		i++;
 	}
 	return (NULL);
+}
+
+int             ft_putchar(char c)
+{
+        return (famine_write(1, &c, 1));
+}
+
+int             ft_putstr(char *s)
+{
+        return (famine_write(1, s, ft_strlen(s)));
+}
+
+void    ft_putnbr(int n)
+{
+	if (n == -2147483648)
+	{
+		ft_putstr("-214748364");
+		n = 8;
+	}
+	if (n < 0)
+	{
+		ft_putchar('-');
+		n = n * -1;
+	}
+	if (n > 9)
+	{
+		ft_putnbr(n / 10);
+		ft_putnbr(n % 10);
+	}
+	else
+	{
+		n = n + '0';
+		ft_putchar(n);
+	}
+}
+
+void            *ft_memset(void *b, int c, unsigned long len)
+{
+	unsigned long   m;
+	unsigned char   *r;
+
+	m = len >> 3;
+	r = b + (m << 3);
+	while (m--)
+		((unsigned long*)b)[m] = c;
+	len &= 7;
+	while (len--)
+		r[len] = c;
+	return (b);
 }

