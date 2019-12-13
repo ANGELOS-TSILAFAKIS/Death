@@ -92,126 +92,124 @@ static int64_t	get_random_exrange(uint64_t *seed, int64_t lower, int64_t upper)
 	return (rand % (upper - lower - 1)) + lower + 1;
 }
 
-static uint8_t	encode_instruction(uint8_t *buffer, uint64_t *seed,
-			size_t size, bool operation)
+static void		encode_instruction(uint8_t *buffer,
+				struct x86_64_encode i, uint64_t *seed)
 {
-	const struct x86_64_encode	instructions[I_SIZE] =
-	{
-		[XOR_RM64_IMM8] = {4, 0b0100,0b1,0,0,0, 0,0,0x83, 0b11,0b110,0b000, 0,0,0, 0,IMM_IB},
-		[ADD_RM64_IMM8] = {4, 0b0100,0b1,0,0,0, 0,0,0x83, 0b11,0b000,0b000, 0,0,0, 0,IMM_IB},
-		[SUB_RM64_IMM8] = {4, 0b0100,0b1,0,0,0, 0,0,0x83, 0b11,0b101,0b000, 0,0,0, 0,IMM_IB},
+	uint64_t	immediate = get_random_inrange(seed, 0x1, 0x7fffffff);
+	uint8_t		operand_size = i.immediate;
 
-		[XOR_RAX_IMM32] = {6, 0b0100,0b1,0,0,0, 0,0,0x35, 0,0,0, 0,0,0, 0,IMM_ID},
-		[ADD_RAX_IMM32] = {6, 0b0100,0b1,0,0,0, 0,0,0x05, 0,0,0, 0,0,0, 0,IMM_ID},
-		[SUB_RAX_IMM32] = {6, 0b0100,0b1,0,0,0, 0,0,0x2d, 0,0,0, 0,0,0, 0,IMM_ID},
-	};
-	const int			instructions_match[I_SIZE] =
-	{
-		[XOR_RM64_IMM8] = XOR_RM64_IMM8,
-		[ADD_RM64_IMM8] = SUB_RM64_IMM8,
-		[SUB_RM64_IMM8] = ADD_RM64_IMM8,
-
-		[XOR_RAX_IMM32] = XOR_RAX_IMM32,
-		[ADD_RAX_IMM32] = SUB_RAX_IMM32,
-		[SUB_RAX_IMM32] = ADD_RAX_IMM32
-	};
-
-	uint8_t		instruction = get_random_exrange(seed, I_BASE, I_SIZE);
-	uint64_t	immediate   = get_random_inrange(seed, 0x1, 0x7fffffff);
-
-	struct x86_64_encode	i;
-
-	i = (operation == CYPHER) ? instructions[instruction] : instructions[instructions_match[instruction]];
-
-	if (i.size > size)
-	{
-		buffer -= operation == CYPHER ? 0 : 1;
-		*buffer = 0x90;
-		return 1;
-	}
-	else if (operation == DECYPHER)
-		buffer -= i.size;
-
-	uint8_t			operand_size = i.immediate;
-	switch (operand_size)
-	{
-		case IMM_IB: immediate &= 0x7f; break;
-		case IMM_IW: immediate &= 0x7fff; break;
-		case IMM_ID: immediate &= 0x7fffffff; break;
-		case IMM_IO: immediate &= 0x7fffffffffffffff; break;
-		default: immediate &= 0x7fffffffffffffff;
-	}
-
-	uint8_t			*current_byte = (uint8_t*)buffer;
+	if (operand_size == IMM_IB) immediate &= 0x7f;
+	else if (operand_size == IMM_IW) immediate &= 0x7fff;
+	else if (operand_size == IMM_ID) immediate &= 0x7fffffff;
+	else if (operand_size == IMM_IO) immediate &= 0x7fffffffffffffff;
+	else immediate &= 0x7fffffffffffffff;
 
 	/* REX prefix */
-	*current_byte |= ENCODE_VALUE(i.prefix_rex, 0x07, 0x04);
-	*current_byte |= ENCODE_VALUE(i.prefix_rex_w, 0x01, 0x03);
-	*current_byte |= ENCODE_VALUE(i.prefix_rex_r, 0x01, 0x02);
-	*current_byte |= ENCODE_VALUE(i.prefix_rex_x, 0x01, 0x01);
-	*current_byte |= ENCODE_VALUE(i.prefix_rex_b, 0x01, 0x00);
-	if (*current_byte) current_byte++;
+	*buffer |= ENCODE_VALUE(i.prefix_rex, 0x07, 0x04);
+	*buffer |= ENCODE_VALUE(i.prefix_rex_w, 0x01, 0x03);
+	*buffer |= ENCODE_VALUE(i.prefix_rex_r, 0x01, 0x02);
+	*buffer |= ENCODE_VALUE(i.prefix_rex_x, 0x01, 0x01);
+	*buffer |= ENCODE_VALUE(i.prefix_rex_b, 0x01, 0x00);
+	if (*buffer) buffer++;
 	/* Opcode */
-	*current_byte |= ENCODE_VALUE(i.opcode_escape, 0xff, 0x00);
-	if (*current_byte) current_byte++;
-	*current_byte |= ENCODE_VALUE(i.opcode_two, 0xff, 0x00);
-	if (*current_byte) current_byte++;
-	*current_byte |= ENCODE_VALUE(i.opcode_one, 0xff, 0x00);
-	if (*current_byte) current_byte++;
+	*buffer |= ENCODE_VALUE(i.opcode_escape, 0xff, 0x00);
+	if (*buffer) buffer++;
+	*buffer |= ENCODE_VALUE(i.opcode_two, 0xff, 0x00);
+	if (*buffer) buffer++;
+	*buffer |= ENCODE_VALUE(i.opcode_one, 0xff, 0x00);
+	if (*buffer) buffer++;
 	/* MOD/RM */
-	*current_byte |= ENCODE_VALUE(i.mod, 0x03, 0x06);
-	*current_byte |= ENCODE_VALUE(i.reg, 0x07, 0x03);
-	*current_byte |= ENCODE_VALUE(i.rm, 0x07, 0x00);
-	if (*current_byte) current_byte++;
+	*buffer |= ENCODE_VALUE(i.mod, 0x03, 0x06);
+	*buffer |= ENCODE_VALUE(i.reg, 0x07, 0x03);
+	*buffer |= ENCODE_VALUE(i.rm, 0x07, 0x00);
+	if (*buffer) buffer++;
 	/* SIB */
-	*current_byte |= ENCODE_VALUE(i.scale, 0x03, 0x06);
-	*current_byte |= ENCODE_VALUE(i.index, 0x07, 0x03);
-	*current_byte |= ENCODE_VALUE(i.base, 0x07, 0x00);
-	if (*current_byte) current_byte++;
+	*buffer |= ENCODE_VALUE(i.scale, 0x03, 0x06);
+	*buffer |= ENCODE_VALUE(i.index, 0x07, 0x03);
+	*buffer |= ENCODE_VALUE(i.base, 0x07, 0x00);
+	if (*buffer) buffer++;
 	/* Displacement */
 	if (i.displacement)
-		ft_memcpy(current_byte, &immediate, i.immediate);
-	if (*current_byte) current_byte += operand_size;
+		ft_memcpy(buffer, &immediate, i.immediate);
+	if (*buffer) buffer += operand_size;
 	/* Immediate */
 	if (i.immediate)
-		ft_memcpy(current_byte, &immediate, i.immediate);
-	if (*current_byte) current_byte += operand_size;
-
-	return i.size;
+		ft_memcpy(buffer, &immediate, i.immediate);
+	// if (*buffer) buffer += operand_size;
 }
 
-static void	generate_shuffler(char *cypher, uint64_t seed, size_t size)
+static struct x86_64_encode	select_instruction(uint64_t *seed, int8_t operation)
 {
-	uint8_t		*current_cypher = (uint8_t*)cypher;
-	uint8_t		cypher_size     = 0;
+	struct x86_64_encode		instructions[I_SIZE];
+	instructions[XOR_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,0,0x83, 0b11,0b110,0b000, 0,0,0, 0,IMM_IB};
+	instructions[ADD_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,0,0x83, 0b11,0b000,0b000, 0,0,0, 0,IMM_IB};
+	instructions[SUB_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,0,0x83, 0b11,0b101,0b000, 0,0,0, 0,IMM_IB};
+	instructions[XOR_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,0,0x35, 0,0,0, 0,0,0, 0,IMM_ID};
+	instructions[ADD_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,0,0x05, 0,0,0, 0,0,0, 0,IMM_ID};
+	instructions[SUB_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,0,0x2d, 0,0,0, 0,0,0, 0,IMM_ID};
 
-	ft_bzero(current_cypher, size);
+	int				instructions_match[I_SIZE];
+	instructions_match[XOR_RM64_IMM8] = XOR_RM64_IMM8;
+	instructions_match[ADD_RM64_IMM8] = SUB_RM64_IMM8;
+	instructions_match[SUB_RM64_IMM8] = ADD_RM64_IMM8;
+	instructions_match[XOR_RAX_IMM32] = XOR_RAX_IMM32;
+	instructions_match[ADD_RAX_IMM32] = SUB_RAX_IMM32;
+	instructions_match[SUB_RAX_IMM32] = ADD_RAX_IMM32;
+
+	uint8_t		instruction = get_random_exrange(seed, I_BASE, I_SIZE);
+
+	if (operation == CYPHER)
+		return instructions[instruction];
+	else
+		return instructions[instructions_match[instruction]];
+}
+
+static void	generate_shuffler(char *buffer, uint64_t seed, size_t size)
+{
+	struct x86_64_encode	i;
+
+	ft_bzero(buffer, size);
 
 	while (size)
 	{
-		cypher_size = encode_instruction(current_cypher, &seed, size, CYPHER);
-		current_cypher += cypher_size;
-		size -= cypher_size;
+		i = select_instruction(&seed, CYPHER);
+		if (i.size > size)
+		{
+			ft_memset(buffer, 0x90, size);
+			break;
+		}
+		encode_instruction((uint8_t*)buffer, i, &seed);
+		buffer += i.size;
+		size -= i.size;
 	}
 }
 
-static void	generate_unshuffler(char *decypher, uint64_t seed, size_t size)
+static void	generate_unshuffler(char *buffer, uint64_t seed, size_t size)
 {
-	uint8_t		*current_decypher = (uint8_t*)decypher;
-	uint8_t		decypher_size     = 0;
+	struct x86_64_encode	i;
 
-	ft_bzero(current_decypher, size);
-	current_decypher += size;
+	ft_bzero(buffer, size);
+	buffer += size;
 
 	while (size)
 	{
-		decypher_size = encode_instruction(current_decypher, &seed, size, DECYPHER);
-		current_decypher -= decypher_size;
-		size -= decypher_size;
+		i = select_instruction(&seed, DECYPHER);
+		if (i.size > size)
+		{
+			buffer -= size;
+			ft_memset(buffer, 0x90, size);
+			break;
+		}
+		buffer -= i.size;
+		encode_instruction((uint8_t*)buffer, i, &seed);
+		size -= i.size;
 	}
 }
 
 /*
+
+0x41f459
+
 ** generate_loop_frame:
 **   - writes a header at the beginning of the buffer
 **   - writes a footer at the end of the buffer
@@ -220,19 +218,18 @@ static void	generate_unshuffler(char *decypher, uint64_t seed, size_t size)
 */
 static struct safe_pointer    generate_loop_frame(char *buffer, size_t size)
 {
-	uint8_t		header[] = {
-		                                    /* cypher:            */
-		0x48, 0x85, 0xf6,                   /*     test rsi, rsi  */
-		0x0f, 0x84, 0x0e, 0x00, 0x00, 0x00, /*     jz cypher_end  */
-		0x48, 0x8b, 0x07                    /*     mov rax, [rdi] */
-	};
-	uint8_t		footer[] = {
-		0x48, 0x89, 0x07,                   /*     mov [rdi], rax */
-		0x48, 0xff, 0xce,                   /*     dec rsi        */
-		0xe9, 0xe9, 0xff, 0xff, 0xff,       /*     jmp cypher     */
-		                                    /* cypher_end:        */
-		0xc3                                /*     ret            */
-	};
+	uint8_t		header[12];
+	header[0] = 0x48; header[1] = 0x85; header[2] = 0xf6;			/* cypher: test rsi, rsi  */
+	header[3] = 0x0f; header[4] = 0x84;					/*     jz cypher_end  */
+	header[5] = 0x0e; header[6] = 0x00; header[7] = 0x00; header[8] = 0x00;
+	header[9] = 0x48; header[10] = 0x8b; header[11] = 0x07;			/*     mov rax, [rdi] */
+
+	uint8_t		footer[12];
+	footer[0] = 0x48; footer[1] = 0x89; footer[2] = 0x07;			/*     mov [rdi], rax */
+	footer[3] = 0x48; footer[4] = 0xff; footer[5] = 0xce;			/*     dec rsi        */
+	footer[6] = 0xe9;							/*     jmp cypher     */
+	footer[7] = 0xe9; footer[8] = 0xff; footer[9] = 0xff; footer[10] = 0xff;
+	footer[11] = 0xc3;							/* cypher_end: ret    */
 
 	if (size < sizeof(footer) + sizeof(header))
 		return (struct safe_pointer){NULL, 0};
@@ -243,7 +240,7 @@ static struct safe_pointer    generate_loop_frame(char *buffer, size_t size)
 	int16_t *rel_cypher_end = (int16_t *)&header[5];
 	int16_t *rel_cypher     = (int16_t *)&footer[7];
 
-	*rel_cypher_end += remaining_size;// promotion
+	*rel_cypher_end += remaining_size; // TODO security!! promotion
 	*rel_cypher     -= remaining_size;
 
 	ft_memcpy(buffer, header, sizeof(header));

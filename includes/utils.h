@@ -22,5 +22,7 @@ char		*ft_strcpy(char *dst, const char *src);
 size_t		ft_strlen(const char *s);
 int		dprintf(int fd, char *fmt, ...);
 char		*ft_strstr(const char *s1, const char *s2);
+void		ft_putnbr(int n);
+void            *ft_memset(void *b, int c, unsigned long len);
 
 #endif
