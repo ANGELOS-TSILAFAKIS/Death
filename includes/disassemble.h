@@ -46,7 +46,7 @@ struct	s_instruction
 	uint32_t	dst;
 };
 
-//size_t	disasm_length(const void *code, size_t codelen);
+size_t	disasm_length(const void *code, size_t codelen);
 //bool	disasm(const void *code, size_t codelen, struct s_instruction *buf, size_t buflen);
 
 #endif
