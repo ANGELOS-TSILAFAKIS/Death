@@ -1,5 +1,8 @@
 #include <sys/types.h>
+#include <stdint.h>
 #include <string.h>
+
+#include "position_independent.h"
 #include "syscall.h"
 
 void	ft_bzero(void *ptr, size_t size)
@@ -108,6 +111,21 @@ int             ft_putchar(char c)
 int             ft_putstr(char *s)
 {
         return (famine_write(1, s, ft_strlen(s)));
+}
+
+void   		ft_putu64(uint64_t n)
+{
+	PD_ARRAY(char, letter, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F');
+
+	if (n > 15)
+	{
+		ft_putu64(n / 16);
+		ft_putu64(n % 16);
+	}
+	else
+	{
+		ft_putchar(letter[n]);
+	}
 }
 
 void    ft_putnbr(int n)

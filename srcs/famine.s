@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/12 18:01:06 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/14 18:31:36 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -21,6 +21,7 @@
 section .text
 	global famine_entry
 	global _start
+	global return_to_client
 
 extern detect_spy
 extern decypher

