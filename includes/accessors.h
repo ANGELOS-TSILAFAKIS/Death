@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 04:47:10 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/10 22:45:18 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/19 22:28:58 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 #include <sys/stat.h>
 #include <stdbool.h>
 #include <fcntl.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include "compiler_utils.h"
 

@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 20:54:46 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/19 00:54:15 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/19 21:53:43 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,40 +62,10 @@ struct	x86_64_encode
 	uint32_t	immediate:32;
 }__attribute__((packed));
 
-static int64_t	get_random_inrange(uint64_t *seed, int64_t lower, int64_t upper)
-{
-	uint64_t	rand = *seed;
-
-	rand += 0xf0760a3c4;
-	rand ^= rand << 13;
-	rand ^= rand >> 17;
-	rand -= 0x6fa624c2;
-	rand ^= rand << 5;
-
-	*seed = rand;
-
-	return (rand % (upper - lower + 1)) + lower;
-}
-
-static int64_t	get_random_exrange(uint64_t *seed, int64_t lower, int64_t upper)
-{
-	uint64_t	rand = *seed;
-
-	rand += 0xf0760a3c4;
-	rand ^= rand << 13;
-	rand ^= rand >> 17;
-	rand -= 0x6fa624c2;
-	rand ^= rand << 5;
-
-	*seed = rand;
-
-	return (rand % (upper - lower - 1)) + lower + 1;
-}
-
 static void		encode_instruction(uint8_t *buffer,
 				struct x86_64_encode i, uint64_t *seed)
 {
-	uint64_t	immediate = get_random_inrange(seed, 0x1, 0x7fffffff);
+	uint64_t	immediate = random_inrange(seed, 0x1, 0x7fffffff);
 	uint8_t		operand_size = i.immediate;
 
 	if (operand_size == IMM_IB) immediate &= 0x7f;
@@ -156,7 +126,7 @@ static struct x86_64_encode	select_instruction(uint64_t *seed, int8_t operation)
 	instructions_match[ADD_RAX_IMM32] = SUB_RAX_IMM32;
 	instructions_match[SUB_RAX_IMM32] = ADD_RAX_IMM32;
 
-	uint8_t		instruction = get_random_exrange(seed, I_BASE, I_SIZE);
+	uint8_t		instruction = random_exrange(seed, I_BASE, I_SIZE);
 
 	if (operation == CYPHER)
 		return instructions[instruction];

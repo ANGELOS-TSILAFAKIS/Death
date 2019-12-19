@@ -6,12 +6,11 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/11 00:10:33 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/19 01:00:41 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/19 22:28:53 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdint.h>
-#include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
 #include <linux/elf.h>
