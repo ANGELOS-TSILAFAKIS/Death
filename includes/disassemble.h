@@ -13,6 +13,10 @@
 #ifndef DISASSEMBLE_H
 # define DISASSEMBLE_H
 
+# include <sys/types.h>
+# include <stdint.h>
+# include <stdbool.h>
+
 /*
 ** Source and Dest
 */
@@ -34,7 +38,9 @@
 # define		R15       (1 << 13)
 # define		RBP       (1 << 14)
 # define		RSP       (1 << 15)
+# define		RIP       (1 << 16)
 
+# define		FLAGS     (1 << 30)
 # define		MEMORY    (1 << 31)
 # define		UNKNOWN   (~0)
 
@@ -46,7 +52,7 @@ struct	s_instruction
 	uint32_t	dst;
 };
 
-size_t	disasm_length(const void *code, size_t codelen);
-//bool	disasm(const void *code, size_t codelen, struct s_instruction *buf, size_t buflen);
+size_t		disasm_length(const void *code, size_t codelen);
+uint64_t	disasm(const void *code, size_t codelen, struct s_instruction *buf, size_t buflen);
 
 #endif

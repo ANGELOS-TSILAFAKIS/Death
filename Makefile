@@ -32,6 +32,7 @@ SRC =	famine.s                      \
 	infect/iterators.c            \
 	infect/metamorph_self.c       \
 	infect/disasm_length.c        \
+	infect/disasm.c               \
 	infect/packer.c               \
 	infect/permutation.c          \
 	infect/polymorphic_seed.c     \

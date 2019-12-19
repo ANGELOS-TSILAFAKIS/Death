@@ -2,12 +2,18 @@
 #ifndef _DISASM_H
 # define _DISASM_H
 
+# include "disassemble.h"
 # include <sys/types.h>
 # include <stdint.h>
+# include <stdbool.h>
 
 size_t	 	disasm_length(const void *code, size_t codelen);
 
+# define REG_PACK(xreg, reg)		(((xreg) | (reg)) & 0b1111)
+# define OP_PACK(reg, ext, stat)	(stat | ((ext & 0b111) << 3) | (reg & 0b111))
+
 # define EDISASM_LENGTH		0
+# define EDISASM_INSTRUCTION	false
 # define INSTRUCTION_MAXLEN	15
 
 # define BYTE			0b00000001 /* 1  byte */
@@ -31,8 +37,13 @@ size_t	 	disasm_length(const void *code, size_t codelen);
 # define OP_F30F		(OP_PREFIX_F3 | OP_PREFIX_0F)
 
 # define MODRM			0b00000001
-# define TEST_F6		0b00000010
-# define TEST_F7		0b00000100
+# define EXT			0b00000010
+# define REX			0b00000100
+# define TEST_F6		0b00001000
+# define TEST_F7		0b00010000
+# define KEEP_SRC		0b00100000
+# define KEEP_DST		0b01000000
+# define IMPLICIT		0b10000000
 # define TEST			(TEST_F6 | TEST_F7)
 
 # define TABLESIZE		8
@@ -54,7 +65,6 @@ size_t	 	disasm_length(const void *code, size_t codelen);
 )
 
 # define CHECK_TABLE(t, v)   	((t[(v)>>5]>>((v)&0x1f))&1)
-
 
 /*
 **
@@ -534,6 +544,29 @@ size_t	 	disasm_length(const void *code, size_t codelen);
 // 	BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* a */
 // 		  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0), /* b */
 // 	BITMASK32(0,0,1,0,1,1,1,0, 0,0,0,0,0,0,0,0,  /* c */
+// 		  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0), /* d */
+// 	BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* e */
+// 		  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0)  /* f */
+// };
+
+
+
+// static const uint32_t		table_supported_opcode[] =
+// {
+// 	       /* 0 1 2 3 4 5 6 7  8 9 a b c d e f */
+// 	BITMASK32(0,1,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 0 */
+// 		  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0), /* 1 */
+// 	BITMASK32(0,0,0,0,0,0,0,0, 0,1,0,0,0,0,0,0,  /* 2 */
+// 		  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0), /* 3 */
+// 	BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 4 */
+// 		  1,1,1,1,0,0,1,1, 1,0,0,0,0,0,0,1), /* 5 */
+// 	BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 6 */
+// 		  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0), /* 7 */
+// 	BITMASK32(0,0,0,1,0,0,0,1, 0,1,0,1,0,0,0,0,  /* 8 */
+// 		  1,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0), /* 9 */
+// 	BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* a */
+// 		  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0), /* b */
+// 	BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* c */
 // 		  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0), /* d */
 // 	BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* e */
 // 		  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0)  /* f */

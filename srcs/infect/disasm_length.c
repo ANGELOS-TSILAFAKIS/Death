@@ -184,7 +184,7 @@ size_t		disasm_length(const void *code, size_t codelen)
 	table_660f_opcode_imm8[6]        = BITMASK32(0,0,1,0,1,1,1,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0);
 	table_660f_opcode_imm8[7]        = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0);
 
-	int8_t		defmem   = QWORD;
+	int8_t		defmem   = DWORD;
 	int8_t		defdata  = DWORD;
 	int8_t		datasize = 0;
 	int8_t		memsize  = 0;
