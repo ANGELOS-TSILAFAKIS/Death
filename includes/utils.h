@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/06 03:51:06 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/18 23:22:49 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/19 01:38:51 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ char		*ft_strstr(const char *s1, const char *s2);
 int		ft_putstr(const char *str);
 void   		ft_putu64(uint64_t n);
 void		ft_putnbr(int n);
+int             ft_putchar(char c);
 void            *ft_memset(void *b, int c, unsigned long len);
 
 #endif
