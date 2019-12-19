@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/13 09:30:34 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/20 00:16:40 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/20 00:50:44 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 
 static bool	want_to_permutate(uint64_t *seed)
 {
-	return true;
+	return random(seed) % 2;
 }
 
 static bool	can_permutate(const struct s_instruction *a, const struct s_instruction *b)
@@ -92,10 +92,11 @@ bool		permutate_instructions(void *buffer, uint64_t seed, size_t size)
 	// if failed to disassemble any instruction
 	if (n_inst == 0) return true;
 
-	// permutate single instructions
-	for (size_t i = 0; i < n_inst - 1; i++)
+	// randomly permutate instructions
+	for (size_t i = 0; i < n_inst * 4; i++)
 	{
-		maybe_permutate(&inst[i], &inst[i + 1], &seed);
+		uint64_t	rand = random_inrange(&seed, 0, n_inst - 2);
+		maybe_permutate(&inst[rand], &inst[rand + 1], &seed);
 	}
 
 	return true;
