@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/06 03:51:06 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/17 06:55:12 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/18 23:22:49 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@ int		ft_memcmp(const void *s1, const void *s2, size_t n);
 char		*ft_strcat(char *s1, char *s2);
 char		*ft_strcpy(char *dst, const char *src);
 size_t		ft_strlen(const char *s);
-int		dprintf(int fd, char *fmt, ...);
 char		*ft_strstr(const char *s1, const char *s2);
+int		ft_putstr(const char *str);
 void   		ft_putu64(uint64_t n);
 void		ft_putnbr(int n);
 void            *ft_memset(void *b, int c, unsigned long len);

@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/12 18:29:06 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/17 09:24:13 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/19 01:15:39 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,12 @@
 
 static  void	print_original(uint64_t father_seed[2])
 {
-	PD_ARRAY(char, original, 'O','R','I','G','I','N','A','L',':',' ',0);
+	PD_ARRAY(char, original, 'o','r','i','g','i','n','a','l',':',' ',' ',' ',' ',0);
 	PD_ARRAY(char, semicolon, ';',0);
 
-	dprintf(1, original);
+	ft_putstr(original);
 	ft_putu64(father_seed[0]);
-	dprintf(1, semicolon);
+	ft_putstr(semicolon);
 	ft_putu64(father_seed[1]);
 }
 
@@ -47,19 +47,19 @@ static void	print_new(uint64_t father_seed[2], uint64_t son_seed[2])
 	PD_ARRAY(char, semicolon, ';',0);
 	PD_ARRAY(char, newline, '\n',0);
 	PD_ARRAY(char, father, 'f','a','t','h','e','r','_','s','e','e','d',':',' ',0);
-	PD_ARRAY(char, son, 's','o','n','_','s','e','e','d',':',' ',0);
+	PD_ARRAY(char, son, 's','o','n','_','s','e','e','d',':',' ',' ',' ',' ',0);
 
-	dprintf(1, newline);
-	dprintf(1, father);
+	ft_putstr(newline);
+	ft_putstr(father);
 	ft_putu64(father_seed[0]);
-	dprintf(1, semicolon);
+	ft_putstr(semicolon);
 	ft_putu64(father_seed[1]);
-	dprintf(1, newline);
-	dprintf(1, son);
+	ft_putstr(newline);
+	ft_putstr(son);
 	ft_putu64(son_seed[0]);
-	dprintf(1, semicolon);
+	ft_putstr(semicolon);
 	ft_putu64(son_seed[1]);
-	dprintf(1, newline);
+	ft_putstr(newline);
 }
 
 #endif

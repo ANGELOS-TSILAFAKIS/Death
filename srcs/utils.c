@@ -78,11 +78,6 @@ char	*ft_strcat(char *dest, char *source)
 	return dest;
 }
 
-int	dprintf(int fd, char *fmt, ...)
-{
-	return famine_write(fd, fmt, ft_strlen(fmt));
-}
-
 char	*ft_strstr(const char *s1, const char *s2)
 {
 	unsigned int	i;
@@ -108,7 +103,7 @@ int             ft_putchar(char c)
         return (famine_write(1, &c, 1));
 }
 
-int             ft_putstr(char *s)
+int             ft_putstr(const char *s)
 {
         return (famine_write(1, s, ft_strlen(s)));
 }
