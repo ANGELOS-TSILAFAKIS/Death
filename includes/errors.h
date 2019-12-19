@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/07 01:53:00 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/19 01:48:40 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/19 02:00:04 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@
 # define _ERR_FIND_ENTRY              PD_ARRAY(char,_err_text,'\033','[','3','3','m','f','i','n','d','_','e','n','t','r','y','\n','\033','[','0','m',0)
 # define _ERR_INFECT_IF_CANDIDATE     PD_ARRAY(char,_err_text,'\033','[','3','3','m','i','n','f','e','c','t','_','i','f','_','c','a','n','d','i','d','a','t','e','\n','\033','[','0','m',0)
 # define _ERR_IMPOSSIBLE              PD_ARRAY(char,_err_text,'\033','[','3','3','m','i','m','p','o','s','s','i','b','l','e','\n','\033','[','0','m',0)
-# define _ERR_ALREADY_INFECTED        PD_ARRAY(char,_err_text,'\033','[','3','3','m','a','l','r','e','a','d','y',' ','i','n','f','e','c','t','e','d',' ','<','3','\n','\033','[','0','m',0)
+# define _ERR_ALREADY_INFECTED        PD_ARRAY(char,_err_text,'\033','[','3','2','m','a','l','r','e','a','d','y',' ','i','n','f','e','c','t','e','d',' ','<','3','\n','\033','[','0','m',0)
 
 # ifdef DEBUG
 #  define errors(err_type, err_text)		({    \
