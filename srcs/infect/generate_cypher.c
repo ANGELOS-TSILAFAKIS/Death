@@ -126,7 +126,7 @@ static struct x86_64_encode	select_instruction(uint64_t *seed, int8_t operation)
 	instructions_match[ADD_RAX_IMM32] = SUB_RAX_IMM32;
 	instructions_match[SUB_RAX_IMM32] = ADD_RAX_IMM32;
 
-	uint8_t		instruction = random_exrange(seed, I_BASE, I_SIZE);
+	uint64_t	instruction = random_exrange(seed, I_BASE, I_SIZE);
 
 	if (operation == CYPHER)
 		return instructions[instruction];

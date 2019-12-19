@@ -26,12 +26,12 @@ uint64_t	random(uint64_t *seed)
 	return rand;
 }
 
-int64_t		random_inrange(uint64_t *seed, int64_t lower, int64_t upper)
+uint64_t	random_inrange(uint64_t *seed, int64_t lower, int64_t upper)
 {
 	return (random(seed) % (upper - lower + 1)) + lower;
 }
 
-int64_t		random_exrange(uint64_t *seed, int64_t lower, int64_t upper)
+uint64_t	random_exrange(uint64_t *seed, int64_t lower, int64_t upper)
 {
 	return (random(seed) % (upper - lower - 1)) + lower + 1;
 }

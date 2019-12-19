@@ -31,7 +31,7 @@ int             ft_putchar(char c);
 void            *ft_memset(void *b, int c, unsigned long len);
 
 uint64_t	random(uint64_t *seed);
-int64_t		random_inrange(uint64_t *seed, int64_t lower, int64_t upper);
-int64_t		random_exrange(uint64_t *seed, int64_t lower, int64_t upper);
+uint64_t	random_inrange(uint64_t *seed, int64_t lower, int64_t upper);
+uint64_t	random_exrange(uint64_t *seed, int64_t lower, int64_t upper);
 
 #endif
