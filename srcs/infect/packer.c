@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 15:42:04 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/20 22:24:20 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/21 00:37:31 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ bool		get_client_id(uint64_t *client_id, const struct safe_pointer info)
 	Elf64_Ehdr	*elf_hdr = safe(0, sizeof(Elf64_Ehdr));
 	if (elf_hdr == NULL)
 		return errors(ERR_FILE, _ERR_CANT_READ_ELFHDR);
-	*client_id = checksum((void *)elf_hdr, sizeof(Elf64_Ehdr));
+	*client_id = hash((void *)elf_hdr, sizeof(Elf64_Ehdr));
 	return true;
 }
 

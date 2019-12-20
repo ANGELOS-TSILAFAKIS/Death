@@ -170,3 +170,16 @@ uint64_t	checksum(const char *buff, size_t buffsize)
 		sum += buff[buffsize];
 	return sum;
 }
+
+uint64_t	hash(const char *buff, size_t buffsize)
+{
+	uint64_t	state = 0xDEADC0DE;
+	uint64_t	block;
+
+	while (buffsize--)
+	{
+		block = buff[buffsize];
+		state = (block * state) ^ ((block << 3) + (state >> 2));
+	}
+	return state;
+}
