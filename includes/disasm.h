@@ -15,18 +15,19 @@ size_t	 	disasm_length(const void *code, size_t codelen);
 # define EDISASM_LENGTH		0
 # define EDISASM_INSTRUCTION	false
 
-# define BYTE			0b00000001 /* 1  byte */
-# define WORD			0b00000010 /* 2  byte */
-# define DWORD			0b00000100 /* 4  byte */
-# define PWORD			0b00001000 /* 6  byte */
-# define QWORD			0b00010000 /* 8  byte */
-# define TWORD			0b00100000 /* 10 byte */
 
-# define OP_PREFIX_0F		0b00000001
-# define OP_PREFIX_66		0b00000010
-# define OP_PREFIX_F2		0b00000100
-# define OP_PREFIX_F3		0b00001000
-# define OP_PREFIX_9B		0b00010000
+# define BYTE			(1 << 0) /* 1  byte */
+# define WORD			(1 << 1) /* 2  byte */
+# define DWORD			(1 << 2) /* 4  byte */
+# define PWORD			(1 << 3) /* 6  byte */
+# define QWORD			(1 << 4) /* 8  byte */
+# define TWORD			(1 << 5) /* 10 byte */
+
+# define OP_PREFIX_0F		(1 << 0)
+# define OP_PREFIX_66		(1 << 1)
+# define OP_PREFIX_F2		(1 << 2)
+# define OP_PREFIX_F3		(1 << 3)
+# define OP_PREFIX_9B		(1 << 4)
 
 # define OP_0F			OP_PREFIX_0F
 # define OP_F3			OP_PREFIX_F3
@@ -35,14 +36,18 @@ size_t	 	disasm_length(const void *code, size_t codelen);
 # define OP_F20F		(OP_PREFIX_F2 | OP_PREFIX_0F)
 # define OP_F30F		(OP_PREFIX_F3 | OP_PREFIX_0F)
 
-# define MODRM			0b00000001
-# define EXT			0b00000010
-# define REX			0b00000100
-# define TEST_F6		0b00001000
-# define TEST_F7		0b00010000
-# define KEEP_SRC		0b00100000
-# define KEEP_DST		0b01000000
-# define IMPLICIT		0b10000000
+# define MODRM			(1 << 0)
+# define EXT			(1 << 1)
+# define REX			(1 << 2)
+# define TEST_F6		(1 << 3)
+# define TEST_F7		(1 << 4)
+# define KEEP_SRC		(1 << 5)
+# define KEEP_DST		(1 << 6)
+# define IMPLICIT_SRC		(1 << 7)
+# define IMPLICIT_DST		(1 << 8)
+# define NO_SRC			(1 << 9)
+# define NO_DST			(1 << 10)
+
 # define TEST			(TEST_F6 | TEST_F7)
 
 # define TABLESIZE		8

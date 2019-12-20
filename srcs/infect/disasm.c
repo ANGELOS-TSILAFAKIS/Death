@@ -115,10 +115,10 @@ static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, 
 	{
 		if (!codelen--) return ; /* Error if instruction is too long */
 		uint8_t		modrm = *p++;
-		uint8_t		reg   = (modrm & 0b00111000) >> 3;
+		// uint8_t		reg   = (modrm & 0b00111000) >> 3;
 		uint8_t		rm    =  modrm & 0b00000111;
 
-		uint8_t		ext   = (i.src & 0b00111000) >> 3;
+		// uint8_t		ext   = (i.src & 0b00111000) >> 3;
 
 		uint8_t		rex_rxb  = rex & 0b00000111;
 		uint8_t		rm_mode  = !!(rex_rxb & 0b001) << 3;

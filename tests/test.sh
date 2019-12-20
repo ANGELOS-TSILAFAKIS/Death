@@ -9,6 +9,9 @@ CYAN="\033[36m"
 DARKGREY="\033[90m"
 NONE="\033[0m"
 
+mode=$1
+echo $mode
+
 function clean_dirs()
 {
 	rm -rf /tmp/test/*
@@ -21,8 +24,11 @@ function compile()
 	clean_dirs
 
 	mkdir -p /tmp/test /tmp/test2
-	make fclean debug -C ..
-	# make re -C ..
+	if [ "$mode" == "debug" ];then
+		make fclean debug -C ..
+	else
+		make re -C ..
+	fi
 	cp -f ../war .
 }
 
