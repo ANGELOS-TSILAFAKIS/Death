@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/20 02:52:59 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/20 22:20:27 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -84,21 +84,19 @@ mark_below:
 	push r11                   ; save entry addr    [rsp + 8]
 	push rdx                   ; save seed          [rsp]
 ;------------------------------; Show-off
-%ifdef DEBUG
-	mov rax, 0x00000a2e2e2e2e59
-	push rax
-	mov rax, 0x444f4f572e2e2e2e
-	push rax
-
-	; write(1, "....WOODY....\n", 14);
-	mov rdi, STDOUT
-	mov rsi, rsp
-	mov rdx, 14
-	mov rax, SYSCALL_WRITE
-	syscall
-
-	add rsp, 16
-%endif
+;%ifdef DEBUG
+;	mov rax, 0x0a594548
+;	push rax
+;
+;	; write(1, "HEY\n", 4);
+;	mov rdi, STDOUT
+;	mov rsi, rsp
+;	mov rdx, 4
+;	mov rax, SYSCALL_WRITE
+;	syscall
+;
+;	add rsp, 4
+;%endif
 ;------------------------------; check if client behaves well
 	call detect_spy
 	test rax, rax

