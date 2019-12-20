@@ -6,14 +6,12 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/12 18:29:06 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/20 23:10:33 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/20 23:40:19 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdbool.h>
 #include <stdint.h>
-
-#include "utils.h"
 
 /*
 ** yield_seed_to_heir is the seed inheritance manager.
