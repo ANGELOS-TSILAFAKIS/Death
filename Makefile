@@ -6,7 +6,7 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/04/10 17:19:11 by agrumbac          #+#    #+#              #
-#    Updated: 2019/12/20 02:23:50 by anselme          ###   ########.fr        #
+#    Updated: 2019/12/20 23:18:34 by anselme          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,6 +33,7 @@ SRC =	famine.s                      \
 	infect/can_infect.c           \
 	infect/infect.c               \
 	infect/iterators.c            \
+	infect/log.c                  \
 	infect/metamorph_self.c       \
 	infect/disasm_length.c        \
 	infect/disasm.c               \

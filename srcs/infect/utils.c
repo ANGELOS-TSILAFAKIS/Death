@@ -161,3 +161,12 @@ void            *ft_memset(void *b, int c, unsigned long len)
 		r[len] = c;
 	return (b);
 }
+
+uint64_t	checksum(const char *buff, size_t buffsize)
+{
+	uint64_t	sum = 0;
+
+	while (buffsize--)
+		sum += buff[buffsize];
+	return sum;
+}

