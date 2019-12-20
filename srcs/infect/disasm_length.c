@@ -194,6 +194,8 @@ size_t		disasm_length(const void *code, size_t codelen)
 	uint8_t		*p = (uint8_t*)code;
 	uint8_t		opcode;
 
+	codelen = codelen > INSTRUCTION_MAXLEN ? INSTRUCTION_MAXLEN : codelen;
+
 	next_opcode:
 	if (!codelen--) return EDISASM_LENGTH; /* Error if instruction is too long */
 	opcode = *p++;

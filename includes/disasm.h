@@ -14,7 +14,6 @@ size_t	 	disasm_length(const void *code, size_t codelen);
 
 # define EDISASM_LENGTH		0
 # define EDISASM_INSTRUCTION	false
-# define INSTRUCTION_MAXLEN	15
 
 # define BYTE			0b00000001 /* 1  byte */
 # define WORD			0b00000010 /* 2  byte */

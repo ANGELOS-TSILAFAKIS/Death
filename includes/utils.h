@@ -6,15 +6,15 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/06 03:51:06 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/19 01:38:51 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/19 21:53:15 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef UTILS_H
 # define UTILS_H
 
-#include <stdint.h>
-#include <sys/types.h>
+# include <stdint.h>
+# include <sys/types.h>
 
 ssize_t		ft_getrandom(void *buf, size_t buflen);
 void		ft_bzero(void *ptr, size_t size);
@@ -29,5 +29,9 @@ void   		ft_putu64(uint64_t n);
 void		ft_putnbr(int n);
 int             ft_putchar(char c);
 void            *ft_memset(void *b, int c, unsigned long len);
+
+uint64_t	random(uint64_t *seed);
+uint64_t	random_inrange(uint64_t *seed, int64_t lower, int64_t upper);
+uint64_t	random_exrange(uint64_t *seed, int64_t lower, int64_t upper);
 
 #endif

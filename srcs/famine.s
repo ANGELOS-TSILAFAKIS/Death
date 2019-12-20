@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/14 18:31:36 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/19 23:59:50 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -20,6 +20,7 @@
 
 section .text
 	global famine_entry
+	global mark_below
 	global _start
 	global return_to_client
 

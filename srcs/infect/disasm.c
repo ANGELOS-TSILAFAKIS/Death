@@ -11,6 +11,8 @@ static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, 
 	*src = UNKNOWN;
 	*dst = UNKNOWN;
 
+	codelen = codelen > INSTRUCTION_MAXLEN ? INSTRUCTION_MAXLEN : codelen;
+
 	/* Prefix loop */
 	next_opcode:
 	if (!codelen--) return ; /* Error if instruction is too long */
@@ -192,7 +194,7 @@ static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, 
 	*dst |= i.dst & 0xff000000;
 }
 
-uint64_t	disasm(const void *code, size_t codelen, struct s_instruction *buf, size_t buflen)
+size_t	disasm(const void *code, size_t codelen, struct s_instruction *buf, size_t buflen)
 {
 	void			*p_code = (void*)code;
 	struct s_instruction	*p_buf  = (void*)buf;

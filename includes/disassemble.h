@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/14 18:48:28 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/14 19:09:01 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/19 23:02:26 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 # include <sys/types.h>
 # include <stdint.h>
 # include <stdbool.h>
+
+# define INSTRUCTION_MAXLEN	15
 
 /*
 ** Source and Dest
@@ -53,6 +55,6 @@ struct	s_instruction
 };
 
 size_t		disasm_length(const void *code, size_t codelen);
-uint64_t	disasm(const void *code, size_t codelen, struct s_instruction *buf, size_t buflen);
+size_t		disasm(const void *code, size_t codelen, struct s_instruction *buf, size_t buflen);
 
 #endif
