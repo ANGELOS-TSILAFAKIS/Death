@@ -33,14 +33,23 @@ static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, 
 	else if (opcode >= 0x40 && opcode <= 0x4f) {rex = opcode; goto next_opcode;}
 
 	uint32_t	table_supported_opcode[TABLESIZE];
-	table_supported_opcode[0] = BITMASK32(0,1,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0);
-	table_supported_opcode[1] = BITMASK32(0,0,0,0,0,0,0,0, 0,1,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0);
-	table_supported_opcode[2] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 1,1,1,1,0,0,1,1, 1,0,0,0,0,0,0,1);
-	table_supported_opcode[3] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0);
-	table_supported_opcode[4] = BITMASK32(0,0,0,1,0,0,0,1, 0,1,0,1,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0);
-	table_supported_opcode[5] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0);
-	table_supported_opcode[6] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0);
-	table_supported_opcode[7] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0);
+					   /* 0 1 2 3 4 5 6 7  8 9 a b c d e f */
+	table_supported_opcode[0] = BITMASK32(1,1,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 0 */
+					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 1 */
+	table_supported_opcode[0] = BITMASK32(0,0,0,0,0,0,0,0, 0,1,0,0,0,0,0,0,  /* 2 */
+					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 3 */
+	table_supported_opcode[2] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 4 */
+					      1,1,1,1,0,0,1,1, 1,0,1,0,0,0,1,1); /* 5 */
+	table_supported_opcode[3] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 6 */
+					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 7 */
+	table_supported_opcode[4] = BITMASK32(0,0,0,1,0,1,0,1, 0,1,0,1,0,0,0,0,  /* 8 */
+					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 9 */
+	table_supported_opcode[5] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* a */
+					      0,0,0,0,0,0,0,0, 1,0,1,0,0,0,0,1); /* b */
+	table_supported_opcode[6] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* c */
+					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* d */
+	table_supported_opcode[7] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* e */
+					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0);  /* f */
 
 	if (!CHECK_TABLE(table_supported_opcode, opcode)) return ;
 
@@ -64,27 +73,32 @@ static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, 
 
 	struct x86_set
 	{
-		uint8_t		status;
+		uint32_t	status;
 		uint32_t	src;
 		uint32_t	dst;
 	} instructions[255];
 
-	// struct x86_set		instructions[255];
-	instructions[0x01] = (struct x86_set){MODRM|KEEP_DST,          OP_PACK(0,0,0),              OP_PACK(0,0,FLAGS)};
-	instructions[0x29] = (struct x86_set){MODRM|KEEP_DST,          OP_PACK(0,0,0),              OP_PACK(0,0,FLAGS)};
-	instructions[0x50] = (struct x86_set){IMPLICIT|KEEP_DST,       OP_PACK(0b000,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
-	instructions[0x51] = (struct x86_set){IMPLICIT|KEEP_DST,       OP_PACK(0b001,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
-	instructions[0x52] = (struct x86_set){IMPLICIT|KEEP_DST,       OP_PACK(0b010,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
-	instructions[0x53] = (struct x86_set){IMPLICIT|KEEP_DST,       OP_PACK(0b011,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
-	instructions[0x56] = (struct x86_set){IMPLICIT|KEEP_DST,       OP_PACK(0b110,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
-	instructions[0x57] = (struct x86_set){IMPLICIT|KEEP_DST,       OP_PACK(0b111,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
-	instructions[0x58] = (struct x86_set){IMPLICIT|KEEP_SRC,       OP_PACK(0b100,0b000,MEMORY), OP_PACK(0b000,0b000,0)};
-	instructions[0x5f] = (struct x86_set){IMPLICIT|KEEP_SRC,       OP_PACK(0b100,0b000,MEMORY), OP_PACK(0b111,0b000,0)};
-	instructions[0x83] = (struct x86_set){EXT|KEEP_DST,            OP_PACK(0b000,0b101,0),      OP_PACK(0b000,0b000,FLAGS)};
-	instructions[0x87] = (struct x86_set){MODRM|KEEP_SRC|KEEP_DST, OP_PACK(0,0,0),              OP_PACK(0,0,0)};
-	instructions[0x89] = (struct x86_set){MODRM,                   OP_PACK(0,0,0),              OP_PACK(0,0,0)};
-	instructions[0x8b] = (struct x86_set){MODRM,                   OP_PACK(0,0,0),              OP_PACK(0,0,0)};
-	instructions[0x90] = (struct x86_set){NONE,                    OP_PACK(0,0,0),              OP_PACK(0,0,0)};
+	instructions[0x00] = (struct x86_set){MODRM|KEEP_DST,                     OP_PACK(0,0,0),              OP_PACK(0,0,FLAGS)};
+	instructions[0x01] = (struct x86_set){MODRM|KEEP_DST,                     OP_PACK(0,0,0),              OP_PACK(0,0,FLAGS)};
+	instructions[0x29] = (struct x86_set){MODRM|KEEP_DST,                     OP_PACK(0,0,0),              OP_PACK(0,0,FLAGS)};
+	instructions[0x50] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_DST, OP_PACK(0b000,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
+	instructions[0x51] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_DST, OP_PACK(0b001,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
+	instructions[0x52] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_DST, OP_PACK(0b010,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
+	instructions[0x53] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_DST, OP_PACK(0b011,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
+	instructions[0x56] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_DST, OP_PACK(0b110,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
+	instructions[0x57] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_DST, OP_PACK(0b111,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
+	instructions[0x58] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_SRC, OP_PACK(0b100,0b000,MEMORY), OP_PACK(0b000,0b000,0)};
+	instructions[0x5a] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_SRC, OP_PACK(0b100,0,MEMORY),     OP_PACK(0b000,0,0)};
+	instructions[0x5e] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_SRC, OP_PACK(0b100,0,MEMORY),     OP_PACK(0b110,0,0)};
+	instructions[0x5f] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_SRC, OP_PACK(0b100,0b000,MEMORY), OP_PACK(0b111,0b000,0)};
+	instructions[0x83] = (struct x86_set){EXT|NO_SRC|KEEP_DST,                OP_PACK(0b000,0b101,0),      OP_PACK(0b000,0b000,FLAGS)};
+	instructions[0x85] = (struct x86_set){MODRM|KEEP_SRC,                     OP_PACK(0,0,0),              OP_PACK(0,0,FLAGS)};
+	instructions[0x87] = (struct x86_set){MODRM|KEEP_SRC|KEEP_DST,            OP_PACK(0,0,0),              OP_PACK(0,0,0)};
+	instructions[0x89] = (struct x86_set){MODRM,                              OP_PACK(0,0,0),              OP_PACK(0,0,0)};
+	instructions[0x8b] = (struct x86_set){MODRM|KEEP_SRC,                     OP_PACK(0,0,0),              OP_PACK(0,0,0)};
+	instructions[0xb8] = (struct x86_set){NO_SRC|IMPLICIT_DST,                OP_PACK(0,0,0),              OP_PACK(0b000,0,0)};
+	instructions[0xba] = (struct x86_set){NO_SRC|IMPLICIT_DST,                OP_PACK(0,0,0),              OP_PACK(0b010,0,0)};
+	instructions[0xbf] = (struct x86_set){NO_SRC|IMPLICIT_DST,                OP_PACK(0,0,0),              OP_PACK(0b111,0,0)};
 
 	struct x86_set		i = instructions[opcode];
 
@@ -97,18 +111,29 @@ static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, 
 		*dst = NONE;
 		return ;
 	}
-	else if (i.status & EXT) /* Assume that EXT status takes an immediate as a source, even if that is not always the case .. */
+	if (i.status & EXT)
 	{
 		if (!codelen--) return ; /* Error if instruction is too long */
 		uint8_t		modrm = *p++;
+		uint8_t		reg   = (modrm & 0b00111000) >> 3;
 		uint8_t		rm    =  modrm & 0b00000111;
+
+		uint8_t		ext   = (i.src & 0b00111000) >> 3;
+
 		uint8_t		rex_rxb  = rex & 0b00000111;
 		uint8_t		rm_mode  = !!(rex_rxb & 0b001) << 3;
 
-		*src = NONE;
 		*dst |= gp_registers[REG_PACK(rm, rm_mode)];
 	}
-	else if (i.status & IMPLICIT)
+	if (i.status & NO_SRC)
+	{
+		*src = NONE;
+	}
+	if (i.status & NO_DST)
+	{
+		*dst = NONE;
+	}
+	if (i.status & IMPLICIT_SRC)
 	{
 		uint8_t		rex_rxb  = rex & 0b00000111;
 		uint8_t		reg_mode = !!(rex_rxb & 0b100) << 3;
@@ -116,10 +141,18 @@ static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, 
 
 		/* Dirty hack to not mix extended registers with not extended one for 1 byte opcode-based instructions */
 		*src |= i.src & MEMORY ? gp_registers[REG_PACK(i.src & 0b111, reg_mode)] : gp_registers[REG_PACK(i.src & 0b111, rm_mode)];
+	}
+	if (i.status & IMPLICIT_DST)
+	{
+		uint8_t		rex_rxb  = rex & 0b00000111;
+		uint8_t		reg_mode = !!(rex_rxb & 0b100) << 3;
+		uint8_t		rm_mode  = !!(rex_rxb & 0b001) << 3;
+
+		/* Dirty hack to not mix extended registers with not extended one for 1 byte opcode-based instructions */
 		*dst |= i.dst & MEMORY ? gp_registers[REG_PACK(i.dst & 0b111, reg_mode)] : gp_registers[REG_PACK(i.dst & 0b111, rm_mode)];
 	}
 	/* If posseses MOD/RM byte with register usage */
-	else if (i.status & MODRM)
+	if (i.status & MODRM)
 	{
 		*src = 0;
 		*dst = 0;
@@ -150,15 +183,19 @@ static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, 
 			if (rm == 0b100) /* SIB */
 			{
 				/* reg is the destination */
-				*src |= gp_registers[REG_PACK(index, reg_mode)];
-				*src |= gp_registers[REG_PACK(base, reg_mode)];
+				*src |= gp_registers[REG_PACK(index, rm_mode)];
+				*src |= gp_registers[REG_PACK(base, rm_mode)];
 				*dst |= gp_registers[REG_PACK(reg, reg_mode)];
+				*src |= direction ? MEMORY : 0;
+				*dst |= direction ? 0 : MEMORY;
 			}
 			else if (rm == 0b101) /* Displacement only addressing [rip + disp] */
 			{
 				/* reg is the destination */
 				*src |= RIP;
 				*dst |= gp_registers[REG_PACK(reg, reg_mode)];
+				*src |= direction ? MEMORY : 0;
+				*dst |= direction ? 0 : MEMORY;
 			}
 			else /* Indirect register addressing */
 			{
@@ -174,9 +211,11 @@ static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, 
 			if (rm == 0b100) /* SIB with displacement */
 			{
 				/* reg is the destination */
-				*src |= gp_registers[REG_PACK(index, reg_mode)];
-				*src |= gp_registers[REG_PACK(base, reg_mode)];
+				*src |= gp_registers[REG_PACK(index, rm_mode)];
+				*src |= gp_registers[REG_PACK(base, rm_mode)];
 				*dst |= gp_registers[REG_PACK(reg, reg_mode)];
+				*src |= direction ? MEMORY : 0;
+				*dst |= direction ? 0 : MEMORY;
 			}
 			else /* Indirect register with displacement */
 			{
@@ -188,10 +227,10 @@ static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, 
 			}
 		}
 	}
-	if (i.status & KEEP_DST) *src |= *dst & 0xffff;
-	if (i.status & KEEP_SRC) *dst |= *src & 0xffff;
-	*src |= i.src & 0xff000000;
-	*dst |= i.dst & 0xff000000;
+	if (i.status & KEEP_DST) *src |= *dst & 0xffff; /* get register(s) from dst if have to add to permutation check */
+	if (i.status & KEEP_SRC) *dst |= *src & 0xffff; /* get register(s) from src if have to add to permutation check */
+	*src |= i.src & 0xff000000;                     /* get remaining flags */
+	*dst |= i.dst & 0xff000000;                     /* get remaining flags */
 }
 
 size_t	disasm(const void *code, size_t codelen, struct s_instruction *buf, size_t buflen)
