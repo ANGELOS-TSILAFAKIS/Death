@@ -29,6 +29,7 @@ static bool	want_to_permutate(uint64_t *seed)
 
 static bool	can_permutate(const struct s_instruction *a, const struct s_instruction *b)
 {
+	// TODO: UNKNOWN & NONE exception
 	bool	same_dest      = !!(a->dst & b->dst);
 	bool	a_dst_is_b_src = !!(a->dst & b->src);
 	bool	b_dst_is_a_src = !!(b->dst & a->src);

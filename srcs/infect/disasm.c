@@ -36,7 +36,7 @@ static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, 
 					   /* 0 1 2 3 4 5 6 7  8 9 a b c d e f */
 	table_supported_opcode[0] = BITMASK32(1,1,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 0 */
 					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 1 */
-	table_supported_opcode[0] = BITMASK32(0,0,0,0,0,0,0,0, 0,1,0,0,0,0,0,0,  /* 2 */
+	table_supported_opcode[1] = BITMASK32(0,0,0,0,0,0,0,0, 0,1,0,0,0,0,0,0,  /* 2 */
 					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 3 */
 	table_supported_opcode[2] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 4 */
 					      1,1,1,1,0,0,1,1, 1,0,1,0,0,0,1,1); /* 5 */
