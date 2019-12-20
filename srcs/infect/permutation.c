@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/13 09:30:34 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/20 00:50:44 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/20 02:49:15 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,12 @@
 
 #include "compiler_utils.h"
 #include "disassemble.h"
-#include "errors.h"
+#include "utils.h"
+
+#ifdef DEBUG
+# include "errors.h"
+# include "syscall.h"
+#endif
 
 static bool	want_to_permutate(uint64_t *seed)
 {
