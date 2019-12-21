@@ -93,6 +93,24 @@ size_t		disasm_length(const void *code, size_t codelen)
 					             0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* d */
 	table_opcode_imm32[7]            = BITMASK32(0,0,0,0,0,0,0,0, 1,1,0,0,0,0,0,0,  /* e */
 					             0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* f */
+	uint32_t	table_opcode_imm64[TABLESIZE];
+					          /* 0 1 2 3 4 5 6 7  8 9 a b c d e f */
+	table_opcode_imm64[0]            = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 0 */
+					             0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 1 */
+	table_opcode_imm64[1]            = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 2 */
+					             0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 3 */
+	table_opcode_imm64[2]            = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 4 */
+					             0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 5 */
+	table_opcode_imm64[3]            = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 6 */
+					             0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 7 */
+	table_opcode_imm64[4]            = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 8 */
+					             0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 9 */
+	table_opcode_imm64[5]            = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* a */
+					             0,0,0,0,0,0,0,0, 1,1,1,1,1,1,1,1); /* b */
+	table_opcode_imm64[6]            = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* c */
+					             0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* d */
+	table_opcode_imm64[7]            = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* e */
+					             0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* f */
 	uint32_t	table_opcode_mem16_32[TABLESIZE];
 					          /* 0 1 2 3 4 5 6 7  8 9 a b c d e f */
 	table_opcode_mem16_32[0]         = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 0 */
@@ -429,6 +447,7 @@ size_t		disasm_length(const void *code, size_t codelen)
 	/* REX.W prefix */
 	else if (opcode == 0x48)
 	{
+		flags |= REX;
 		defdata = DWORD, defmem = DWORD;
 		goto next_opcode;
 	}
@@ -474,6 +493,7 @@ size_t		disasm_length(const void *code, size_t codelen)
 	}
 	else
 	{
+		if (CHECK_TABLE(table_opcode_imm64, opcode) && (flags & REX)) return 10;
 		if (CHECK_TABLE(table_opcode_modrm_noext, opcode)
 		||  CHECK_TABLE(table_opcode_modrm_ext, opcode))
 			flags |= MODRM;

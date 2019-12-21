@@ -88,7 +88,7 @@ static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, 
 	instructions[0x56] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_DST, OP_PACK(0b110,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
 	instructions[0x57] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_DST, OP_PACK(0b111,0b000,0),      OP_PACK(0b100,0b000,MEMORY)};
 	instructions[0x58] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_SRC, OP_PACK(0b100,0b000,MEMORY), OP_PACK(0b000,0b000,0)};
-	instructions[0x5a] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_SRC, OP_PACK(0b100,0,MEMORY),     OP_PACK(0b000,0,0)};
+	instructions[0x5a] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_SRC, OP_PACK(0b100,0,MEMORY),     OP_PACK(0b010,0,0)};
 	instructions[0x5e] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_SRC, OP_PACK(0b100,0,MEMORY),     OP_PACK(0b110,0,0)};
 	instructions[0x5f] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_SRC, OP_PACK(0b100,0b000,MEMORY), OP_PACK(0b111,0b000,0)};
 	instructions[0x83] = (struct x86_set){EXT|NO_SRC|KEEP_DST,                OP_PACK(0b000,0b101,0),      OP_PACK(0b000,0b000,FLAGS)};

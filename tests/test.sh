@@ -10,7 +10,6 @@ DARKGREY="\033[90m"
 NONE="\033[0m"
 
 mode=$1
-echo $mode
 
 function clean_dirs()
 {
