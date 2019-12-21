@@ -6,7 +6,7 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/04/10 17:19:11 by agrumbac          #+#    #+#              #
-#    Updated: 2019/12/13 09:12:39 by anselme          ###   ########.fr        #
+#    Updated: 2019/12/20 23:18:34 by anselme          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,11 +14,14 @@
 
 NAME = war
 
+# SRC File order matters!
+# [LOADER]    famine_entry -> virus
+# [VIRUS]     virus        -> _start
+# [LAUNCHER]  _start       -> EOF
+
 SRC =	famine.s                      \
 	decypher.s                    \
-	utils.c                       \
-	syscall.c                     \
-	detect_spy.c                  \
+	detect_spy.s                  \
 	infect/virus.c                \
 	infect/accessors.c            \
 	infect/adjust_references.c    \
@@ -30,10 +33,17 @@ SRC =	famine.s                      \
 	infect/can_infect.c           \
 	infect/infect.c               \
 	infect/iterators.c            \
+	infect/log.c                  \
 	infect/metamorph_self.c       \
+	infect/disasm_length.c        \
+	infect/disasm.c               \
 	infect/packer.c               \
+	infect/permutation.c          \
 	infect/polymorphic_seed.c     \
+	infect/random.c               \
 	infect/setup_payload.c        \
+	infect/syscall.c              \
+	infect/utils.c                \
 	main.c
 
 CC = clang
@@ -106,7 +116,7 @@ ${OBJDIR}/%.o: ${SRCDIR}/%.c
 
 ############################### DEBUG ##########################################
 
-debug:
+debug: fclean
 	${MAKE} all CFLAGS:="-DDEBUG -g" ASFLAGS:="-dDEBUG -g"
 
 ############################## GENERAL #########################################

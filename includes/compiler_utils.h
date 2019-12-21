@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 17:20:06 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/04/19 17:16:54 by agrumbac         ###   ########.fr       */
+/*   Updated: 2019/12/19 20:50:30 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,5 +17,7 @@
 # define __noreturn			__attribute__((noreturn))
 # define __warn_unused_result		__attribute__((warn_unused_result))
 # define __nonull			__attribute__((nonnull))
+
+# define ARRAY_SIZE(x) (sizeof(x) / sizeof(*x))
 
 #endif

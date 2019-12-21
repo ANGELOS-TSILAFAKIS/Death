@@ -6,14 +6,13 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/07 06:36:21 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/12 18:01:52 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/19 20:50:12 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "famine.h"
 #include "syscall.h"
-
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(*x))
+#include "compiler_utils.h"
 
 void	virus(uint64_t seed[2])
 {

