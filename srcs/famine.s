@@ -85,19 +85,19 @@ mark_below:
 	push rdx                   ; save seed          [rsp]
 ;------------------------------; Show-off
 %ifdef DEBUG
-	; mov rax, 0x00000a2e2e2e2e59
-	; push rax
-	; mov rax, 0x444f4f572e2e2e2e
-	; push rax
-	;
-	; ; write(1, "....WOODY....\n", 14);
-	; mov rdi, STDOUT
-	; mov rsi, rsp
-	; mov rdx, 14
-	; mov rax, SYSCALL_WRITE
-	; syscall
-	;
-	; add rsp, 16
+	mov rax, 0x00000a2e2e2e2e59
+	push rax
+	mov rax, 0x444f4f572e2e2e2e
+	push rax
+
+	; write(1, "....WOODY....\n", 14);
+	mov rdi, STDOUT
+	mov rsi, rsp
+	mov rdx, 14
+	mov rax, SYSCALL_WRITE
+	syscall
+
+	add rsp, 16
 %endif
 ;------------------------------; check if client behaves well
 	call detect_spy
