@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 20:54:46 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/19 21:53:43 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/21 17:11:44 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "accessors.h"
 #include "utils.h"
 #include "errors.h"
+#include "position_independent.h"
 
 #define CYPHER		0
 #define DECYPHER	1
@@ -185,18 +186,19 @@ static void	generate_unshuffler(char *buffer, uint64_t seed, size_t size)
 */
 static struct safe_pointer    generate_loop_frame(char *buffer, size_t size)
 {
-	uint8_t		header[12];
-	header[0] = 0x48; header[1] = 0x85; header[2] = 0xf6;			/* cypher: test rsi, rsi  */
-	header[3] = 0x0f; header[4] = 0x84;					/*     jz cypher_end  */
-	header[5] = 0x0e; header[6] = 0x00; header[7] = 0x00; header[8] = 0x00;
-	header[9] = 0x48; header[10] = 0x8b; header[11] = 0x07;			/*     mov rax, [rdi] */
+	PD_ARRAY(uint8_t, header,
+		0x48, 0x85, 0xf6,                   /* cypher: test rsi, rsi  */
+		0x0f, 0x84, 0x10, 0x00, 0x00, 0x00, /*     jz cypher_end      */
+		0x8a, 0x07                          /*     mov al, BYTE [rdi] */
+	);
 
-	uint8_t		footer[12];
-	footer[0] = 0x48; footer[1] = 0x89; footer[2] = 0x07;			/*     mov [rdi], rax */
-	footer[3] = 0x48; footer[4] = 0xff; footer[5] = 0xce;			/*     dec rsi        */
-	footer[6] = 0xe9;							/*     jmp cypher     */
-	footer[7] = 0xe9; footer[8] = 0xff; footer[9] = 0xff; footer[10] = 0xff;
-	footer[11] = 0xc3;							/* cypher_end: ret    */
+	PD_ARRAY(uint8_t, footer,
+		0x88, 0x07,                         /*     mov BYTE [rdi], al */
+		0x48, 0xff, 0xc7,                   /*     inc rdi            */
+		0x48, 0xff, 0xce,                   /*     dec rsi            */
+		0xe9, 0xe8, 0xff, 0xff, 0xff,       /*     jmp cypher         */
+		0xc3                                /* cypher_end: ret        */
+	);
 
 	if (size < sizeof(footer) + sizeof(header))
 		return (struct safe_pointer){NULL, 0};
@@ -205,10 +207,15 @@ static struct safe_pointer    generate_loop_frame(char *buffer, size_t size)
 	size_t	remaining_size    = size - sizeof(footer) - sizeof(header);
 
 	int16_t *rel_cypher_end = (int16_t *)&header[5];
-	int16_t *rel_cypher     = (int16_t *)&footer[7];
+	int16_t *rel_cypher     = (int16_t *)&footer[9];
 
-	*rel_cypher_end += remaining_size; // TODO security!! promotion
-	*rel_cypher     -= remaining_size;
+	// check for overflows and underflows
+	if (*rel_cypher_end + (uint16_t)remaining_size < *rel_cypher_end
+	|| *rel_cypher - (uint16_t)remaining_size > *rel_cypher)
+		return (struct safe_pointer){NULL, 0};
+
+	*rel_cypher_end += (uint16_t)remaining_size;
+	*rel_cypher     -= (uint16_t)remaining_size;
 
 	ft_memcpy(buffer, header, sizeof(header));
 	ft_memcpy(buffer + size - sizeof(footer), footer, sizeof(footer));
