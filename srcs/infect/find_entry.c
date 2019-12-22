@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/10 23:43:29 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/19 01:01:32 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/22 23:14:04 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ struct	data
 	Elf64_Addr	e_entry;
 };
 
-static bool	find_entry_shdr(struct safe_pointer info, const size_t offset, void *data)
+static bool	find_entry_shdr(struct safe_ptr ref, const size_t offset, void *data)
 {
 	struct data		*closure        = data;
 	struct entry		*stored_entry   = closure->stored_entry;
@@ -51,7 +51,7 @@ static bool	find_entry_shdr(struct safe_pointer info, const size_t offset, void 
 	return true;
 }
 
-static bool	find_entry_phdr(struct safe_pointer info, const size_t offset, void *data)
+static bool	find_entry_phdr(struct safe_ptr ref, const size_t offset, void *data)
 {
 	struct data		*closure       = data;
 	struct entry		*stored_entry  = closure->stored_entry;
@@ -67,7 +67,7 @@ static bool	find_entry_phdr(struct safe_pointer info, const size_t offset, void 
 	return (true);
 }
 
-bool		find_entry(struct entry *original_entry, struct safe_pointer info)
+bool		find_entry(struct entry *original_entry, struct safe_ptr ref)
 {
 	struct data	closure;
 	Elf64_Ehdr	*safe_elf64_hdr;
@@ -79,15 +79,15 @@ bool		find_entry(struct entry *original_entry, struct safe_pointer info)
 	ft_bzero(original_entry, sizeof(*original_entry));
 	closure.stored_entry = original_entry;
 
-	if (!foreach_phdr(info, find_entry_phdr, &closure))
+	if (!foreach_phdr(ref, find_entry_phdr, &closure))
 		return errors(ERR_THROW, _ERR_FIND_ENTRY);
-	if (!original_entry->safe_phdr) // TODO is this check actually useful?
-		return false;
+	if (!original_entry->safe_phdr)
+		return errors(ERR_FILE, _ERR_NO_ENTRY_PHDR);
 
-	if (!foreach_shdr(info, find_entry_shdr, &closure))
+	if (!foreach_shdr(ref, find_entry_shdr, &closure))
 		return errors(ERR_THROW, _ERR_FIND_ENTRY);
-	if (!original_entry->safe_shdr) // TODO is this check actually useful?
-		return false;
+	if (!original_entry->safe_shdr)
+		return errors(ERR_FILE, _ERR_NO_ENTRY_SHDR);
 
 	const Elf64_Addr sh_addr  = (original_entry->safe_shdr->sh_addr);
 

@@ -6,14 +6,14 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/10 08:11:33 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/19 00:58:34 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/22 21:02:33 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "infect.h"
 #include "errors.h"
 
-bool	foreach_phdr(const struct safe_pointer info, f_iter_callback callback, void *data)
+bool	foreach_phdr(struct safe_ptr ref, f_iter_callback callback, void *data)
 {
 	const Elf64_Ehdr	*elf64_hdr = safe(0, sizeof(Elf64_Ehdr));
 
@@ -35,13 +35,13 @@ bool	foreach_phdr(const struct safe_pointer info, f_iter_callback callback, void
 		size_t	elf64_seg_hdr = (size_t)(*segments)[phnum];
 		size_t	offset        = (elf64_seg_hdr - (size_t)elf64_hdr);
 
-		if (!callback(info, offset, data))
+		if (!callback(ref, offset, data))
 			return errors(ERR_THROW, _ERR_FOREACH_PHDR);
 	}
 	return (true);
 }
 
-bool	foreach_shdr(const struct safe_pointer info, f_iter_callback callback, void *data)
+bool	foreach_shdr(struct safe_ptr ref, f_iter_callback callback, void *data)
 {
 	const Elf64_Ehdr	*elf64_hdr = safe(0, sizeof(Elf64_Ehdr));
 
@@ -63,7 +63,7 @@ bool	foreach_shdr(const struct safe_pointer info, f_iter_callback callback, void
 		size_t	elf64_section_hdr = (size_t)(*sections)[shnum];
 		size_t	offset = (elf64_section_hdr - (size_t)elf64_hdr);
 
-		if (!callback(info, offset, data))
+		if (!callback(ref, offset, data))
 			return errors(ERR_THROW, _ERR_FOREACH_SHDR);
 	}
 	return (true);

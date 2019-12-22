@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/13 14:56:28 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/19 00:36:26 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/22 21:02:10 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ struct		data
 	size_t	end_last_sect;
 };
 
-static bool	shift_phdr_position(struct safe_pointer info, const size_t offset, void *data)
+static bool	shift_phdr_position(struct safe_ptr ref, const size_t offset, void *data)
 {
 	struct data	*closure = data;
 	Elf64_Phdr	*phdr    = safe(offset, sizeof(Elf64_Phdr));
@@ -36,7 +36,7 @@ static bool	shift_phdr_position(struct safe_pointer info, const size_t offset, v
 	return true;
 }
 
-static bool	shift_shdr_position(struct safe_pointer info, const size_t offset, void *data)
+static bool	shift_shdr_position(struct safe_ptr ref, const size_t offset, void *data)
 {
 	struct data 	*closure = data;
 	Elf64_Shdr	*shdr    = safe(offset, sizeof(Elf64_Shdr));
@@ -75,7 +75,7 @@ static void	adjust_shdr_table_offset(Elf64_Ehdr *safe_elf_hdr, size_t shift_amou
 	safe_elf_hdr->e_shoff = e_shoff;
 }
 
-bool		adjust_references(const struct safe_pointer info, size_t shift_amount, const struct entry *original_entry)
+bool		adjust_references(struct safe_ptr ref, size_t shift_amount, const struct entry *original_entry)
 {
 	struct data	closure;
 
@@ -92,9 +92,9 @@ bool		adjust_references(const struct safe_pointer info, size_t shift_amount, con
 	adjust_phdr_table_offset(elf_hdr, shift_amount, closure.end_last_sect);
 	adjust_shdr_table_offset(elf_hdr, shift_amount, closure.end_last_sect);
 
-	if (!foreach_phdr(info, shift_phdr_position, &closure))
+	if (!foreach_phdr(ref, shift_phdr_position, &closure))
 		return errors(ERR_THROW, _ERR_ADJUST_REFERENCES);
-	if (!foreach_shdr(info, shift_shdr_position, &closure))
+	if (!foreach_shdr(ref, shift_shdr_position, &closure))
 		return errors(ERR_THROW, _ERR_ADJUST_REFERENCES);
 
 	return true;

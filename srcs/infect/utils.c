@@ -100,12 +100,12 @@ char	*ft_strstr(const char *s1, const char *s2)
 
 int             ft_putchar(char c)
 {
-        return (famine_write(1, &c, 1));
+        return (sys_write(1, &c, 1));
 }
 
 int             ft_putstr(const char *s)
 {
-        return (famine_write(1, s, ft_strlen(s)));
+        return (sys_write(1, s, ft_strlen(s)));
 }
 
 void   		ft_putu64(uint64_t n)
@@ -120,30 +120,6 @@ void   		ft_putu64(uint64_t n)
 	else
 	{
 		ft_putchar(letter[n]);
-	}
-}
-
-void    ft_putnbr(int n)
-{
-	if (n == -2147483648)
-	{
-		ft_putstr("-214748364");
-		n = 8;
-	}
-	if (n < 0)
-	{
-		ft_putchar('-');
-		n = n * -1;
-	}
-	if (n > 9)
-	{
-		ft_putnbr(n / 10);
-		ft_putnbr(n % 10);
-	}
-	else
-	{
-		n = n + '0';
-		ft_putchar(n);
 	}
 }
 

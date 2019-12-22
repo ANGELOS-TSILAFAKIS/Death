@@ -1,5 +1,5 @@
 
-#include "disasm.h"
+#include "disasm_utils.h"
 
 static void	disasm_instruction(const void *code, size_t codelen, uint32_t *src, uint32_t *dst)
 {

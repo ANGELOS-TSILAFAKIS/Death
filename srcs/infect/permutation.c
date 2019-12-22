@@ -14,7 +14,7 @@
 #include <stddef.h>
 
 #include "compiler_utils.h"
-#include "disassemble.h"
+#include "disasm.h"
 #include "utils.h"
 
 #ifdef DEBUG
@@ -52,7 +52,7 @@ static void	permutate_neighbors(struct s_instruction *a, struct s_instruction *b
 	// check if actually neighbours!
 	if (a->addr + a->length != b->addr)
 	{
-		famine_exit(errors(ERR_VIRUS, _ERR_IMPOSSIBLE));
+		sys_exit(errors(ERR_VIRUS, _ERR_IMPOSSIBLE));
 	}
 #endif
 

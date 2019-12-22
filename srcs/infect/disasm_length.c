@@ -1,5 +1,5 @@
 
-#include "disasm.h"
+#include "disasm_utils.h"
 
 size_t		disasm_length(const void *code, size_t codelen)
 {

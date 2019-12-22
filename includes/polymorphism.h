@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 20:01:16 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/19 21:00:01 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/22 21:13:57 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@
 # include <stdbool.h>
 # include <stdint.h>
 # include <stddef.h>
-
-# include "famine.h"
 
 bool		yield_seed_to_heir(uint64_t father_seed[2], uint64_t son_seed[2]);
 

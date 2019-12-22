@@ -184,7 +184,7 @@ static void	generate_unshuffler(char *buffer, uint64_t seed, size_t size)
 **   - returns a safe pointer to the middle of the buffer
 **   - returns a NULL safe pointer in case size is too small
 */
-static struct safe_pointer    generate_loop_frame(char *buffer, size_t size)
+static struct safe_ptr    generate_loop_frame(char *buffer, size_t size)
 {
 	PD_ARRAY(uint8_t, header,
 		0x48, 0x85, 0xf6,                   /* cypher: test rsi, rsi  */
@@ -201,7 +201,7 @@ static struct safe_pointer    generate_loop_frame(char *buffer, size_t size)
 	);
 
 	if (size < sizeof(footer) + sizeof(header))
-		return (struct safe_pointer){NULL, 0};
+		return (struct safe_ptr){NULL, 0};
 
 	char	*remaining_buffer = buffer + sizeof(header);
 	size_t	remaining_size    = size - sizeof(footer) - sizeof(header);
@@ -212,7 +212,7 @@ static struct safe_pointer    generate_loop_frame(char *buffer, size_t size)
 	// check for overflows and underflows
 	if (*rel_cypher_end + (uint16_t)remaining_size < *rel_cypher_end
 	|| *rel_cypher - (uint16_t)remaining_size > *rel_cypher)
-		return (struct safe_pointer){NULL, 0};
+		return (struct safe_ptr){NULL, 0};
 
 	*rel_cypher_end += (uint16_t)remaining_size;
 	*rel_cypher     -= (uint16_t)remaining_size;
@@ -220,12 +220,12 @@ static struct safe_pointer    generate_loop_frame(char *buffer, size_t size)
 	ft_memcpy(buffer, header, sizeof(header));
 	ft_memcpy(buffer + size - sizeof(footer), footer, sizeof(footer));
 
-	return (struct safe_pointer){remaining_buffer, remaining_size};
+	return (struct safe_ptr){remaining_buffer, remaining_size};
 }
 
 bool		generate_cypher(char *buffer, uint64_t seed, size_t size)
 {
-	struct safe_pointer	frame;
+	struct safe_ptr	frame;
 
 	frame = generate_loop_frame(buffer, size);
 	if (frame.ptr == NULL) return errors(ERR_VIRUS, _ERR_GEN_LOOP_FRAME);
@@ -236,7 +236,7 @@ bool		generate_cypher(char *buffer, uint64_t seed, size_t size)
 
 bool		generate_decypher(char *buffer, uint64_t seed, size_t size)
 {
-	struct safe_pointer	frame;
+	struct safe_ptr	frame;
 
 	frame = generate_loop_frame(buffer, size);
 	if (frame.ptr == NULL) return errors(ERR_VIRUS, _ERR_GEN_LOOP_FRAME);

