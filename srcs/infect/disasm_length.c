@@ -1,6 +1,29 @@
 
-#include "disasm.h"
+#include "disasm_utils.h"
 
+/*
+** sizes definition in byte
+*/
+# define BYTE		1
+# define WORD		2
+# define DWORD		4
+# define PWORD		6
+# define QWORD		8
+# define TWORD		10
+/*
+** opcode flags
+*/
+# define MODRM		(1 << 0) /* MODRM byte       */
+# define TEST_F6	(1 << 1) /* <test> exception */
+# define TEST_F7	(1 << 2) /* <test> exception */
+# define TEST		(TEST_F6 | TEST_F7)
+
+/*
+** Disassemble an instruction pointed by <code> for a maximum
+** length of <codelen>.
+** It HAVE to be a value between 1 and 15 included.
+** Returns 0 if failed.
+*/
 size_t		disasm_length(const void *code, size_t codelen)
 {
 	uint32_t	table_opcode_modrm_ext[TABLESIZE];
@@ -382,23 +405,25 @@ size_t		disasm_length(const void *code, size_t codelen)
 	table_660f_opcode_imm8[7]        = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* e */
 					             0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* f */
 
-	int8_t		defmem   = DWORD;
-	int8_t		defdata  = DWORD;
-	int8_t		datasize = 0;
-	int8_t		memsize  = 0;
-	int8_t		flags    = 0;
-	int8_t		prefix   = 0;
+	size_t		defmem   = DWORD;    /* memory size defined  */
+	size_t		defdata  = DWORD;    /* operand size defined */
+	size_t		memsize  = 0;        /* current memory size  */
+	size_t		datasize = 0;        /* current data size    */
+	int8_t		prefix   = 0;        /* prefix(es)           */
+	int8_t		flags    = 0;        /* flag(s)              */
 
 	uint8_t		*p = (uint8_t*)code;
-	uint8_t		opcode;
+	uint8_t		opcode;              /* current opcode */
 
+	/* If code length exceeds instruction maximum length then sets
+	** maximum allowed size to instruction maximum length. */
 	codelen = codelen > INSTRUCTION_MAXLEN ? INSTRUCTION_MAXLEN : codelen;
 
 	next_opcode:
-	if (!codelen--) return EDISASM_LENGTH; /* Error if instruction is too long */
+	if (!codelen--) return 0; /* error if instruction is too long */
 	opcode = *p++;
 
-	/* Legacy / REX prefixes unused for disasm */
+	/* Legacy / REX prefixes unused for length disassembler */
 	if (opcode == 0x26 || opcode == 0x2e
 	||  opcode == 0x36 || opcode == 0x3e
 	||  opcode == 0x64 || opcode == 0x65
@@ -447,12 +472,12 @@ size_t		disasm_length(const void *code, size_t codelen)
 	/* REX.W prefix */
 	else if (opcode == 0x48)
 	{
-		flags |= REX;
+		prefix |= OP_PREFIX_REX;
 		defdata = DWORD, defmem = DWORD;
 		goto next_opcode;
 	}
 
-
+	/* Chooses specific tables for each mapping */
 	if (prefix == OP_9B)
 	{
 		if (CHECK_TABLE(table_9b_opcode_modrm_ext, opcode))
@@ -493,11 +518,11 @@ size_t		disasm_length(const void *code, size_t codelen)
 	}
 	else
 	{
-		if (CHECK_TABLE(table_opcode_imm64, opcode) && (flags & REX)) return 10;
+		if (CHECK_TABLE(table_opcode_imm64, opcode) && (prefix & OP_PREFIX_REX)) return 10;
 		if (CHECK_TABLE(table_opcode_modrm_noext, opcode)
 		||  CHECK_TABLE(table_opcode_modrm_ext, opcode))
 			flags |= MODRM;
-		if      (opcode == 0xf6) /* Exeption for <test> which has the same opcode as other instructions with different length */
+		if      (opcode == 0xf6) /* exeption for <test> which has the same opcode as other instructions with different length */
 			flags |= TEST_F6;
 		else if (opcode == 0xf7)
 			flags |= TEST_F7;
@@ -510,9 +535,10 @@ size_t		disasm_length(const void *code, size_t codelen)
 			memsize  += defmem;
 	}
 
+	/* MODRM byte management */
 	if (flags & MODRM)
 	{
-		if (!codelen--) return EDISASM_LENGTH; /* Error if instruction is too long */
+		if (!codelen--) return 0; /* error if instruction is too long */
 		opcode = *p++;
 		uint8_t		mod = opcode & 0b11000000;
 		uint8_t		rm  = opcode & 0b00000111;
@@ -520,26 +546,26 @@ size_t		disasm_length(const void *code, size_t codelen)
 		{
 			datasize += flags & TEST_F7 ? defdata : BYTE;
 		}
-		else if (mod != 0b11000000) /* If addressing mode is not register addressing */
+		else if (mod != 0b11000000) /* addressing mode is not register addressing */
 		{
-			if      (mod == 0b01000000) /* One byte signed displacement */
+			if      (mod == 0b01000000) /* one byte signed displacement */
 			{ memsize += BYTE; }
-			else if (mod == 0b10000000) /* Four byte signed displacement */
+			else if (mod == 0b10000000) /* four byte signed displacement */
 			{ memsize += defmem; }
-			if (defmem == WORD) /* If 16-bit mode (no SIB) */
+			if (defmem == WORD) /* 16-bit mode (no SIB) */
 			{
 				if (mod == 0b00000000 && rm == 0b110) memsize += WORD; /* If 16-bit displacement */
 			}
 			else /* SIB may be present */
 			{
-				if (!codelen--) return EDISASM_LENGTH; /* Error if instruction is too long */
+				if (!codelen--) return 0; /* error if instruction is too long */
 				if (rm == 0b100) rm = *p++ & 0b111; /* SIB addressing and get base register */
 				if (mod == 0b00000000 && rm == 0b101) memsize += DWORD; /* 32-bit displacement mode */
 			}
 		}
 	}
 
-	if ((int64_t)codelen - (datasize + memsize) < 0) return EDISASM_LENGTH; /* Error if instruction is too long */
+	if ((datasize + memsize) > codelen) return 0; /* error if instruction is too long */
 	p += datasize + memsize;
 	return (void*)p - (void*)code;
 }
