@@ -23,6 +23,13 @@
 # define OP_F20F		(OP_PREFIX_F2 | OP_PREFIX_0F)
 # define OP_F30F		(OP_PREFIX_F3 | OP_PREFIX_0F)
 
+# define MAP_0F			OP_PREFIX_0F
+# define MAP_F3			OP_PREFIX_F3
+# define MAP_9B			OP_PREFIX_9B
+# define MAP_660F		(OP_PREFIX_66 | OP_PREFIX_0F)
+# define MAP_F20F		(OP_PREFIX_F2 | OP_PREFIX_0F)
+# define MAP_F30F		(OP_PREFIX_F3 | OP_PREFIX_0F)
+
 # define TABLESIZE		8
 
 # define BITMASK32(                                                            \
