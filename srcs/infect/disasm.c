@@ -53,9 +53,8 @@ static void	disasm_instruction(const void *code, size_t codelen,
 	*src = UNKNOWN;
 	*dst = UNKNOWN;
 
-	/* If code length exceeds instruction maximum length then sets
-	** maximum allowed size to instruction maximum length. */
-	codelen = codelen > INSTRUCTION_MAXLEN ? INSTRUCTION_MAXLEN : codelen;
+	/* set <codelen> to INSTRUCTION_MAXLEN if it exceeds it */
+	if (codelen > INSTRUCTION_MAXLEN) codelen = INSTRUCTION_MAXLEN;
 
 	/* prefix loop */
 	next_opcode:
@@ -66,8 +65,7 @@ static void	disasm_instruction(const void *code, size_t codelen,
 	if (opcode == 0x26 || opcode == 0x2e
 	||  opcode == 0x36 || opcode == 0x3e
 	||  opcode == 0x64 || opcode == 0x65 || opcode == 0x66 || opcode == 0x67
-	||  opcode == 0xf0)
-		goto next_opcode;
+	||  opcode == 0xf0) {goto next_opcode;}
 	/* mandatory prefix(es) */
 	else if (opcode == 0x0f) {prefix |= OP_PREFIX_0F; goto next_opcode;}
 	else if (opcode == 0xf2) {prefix |= OP_PREFIX_F2; goto next_opcode;}
@@ -76,7 +74,7 @@ static void	disasm_instruction(const void *code, size_t codelen,
 	/* REX prefix(es) */
 	else if (opcode >= 0x40 && opcode <= 0x4f) {rex = opcode; goto next_opcode;}
 
-	// TODO protect against other mappings
+	if (prefix) {return ;} /* dirty fix for non supported mappings */
 
 	/* table of supported instructions */
 	uint32_t	table_supported_opcode[TABLESIZE];
@@ -90,7 +88,7 @@ static void	disasm_instruction(const void *code, size_t codelen,
 	table_supported_opcode[3] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 6 */
 					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 7 */
 	table_supported_opcode[4] = BITMASK32(0,0,0,1,0,1,0,1, 0,1,0,1,0,0,0,0,  /* 8 */
-					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 9 */
+					      1,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 9 */
 	table_supported_opcode[5] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* a */
 					      0,0,0,0,0,0,0,0, 1,0,1,0,0,0,0,1); /* b */
 	table_supported_opcode[6] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* c */
@@ -100,7 +98,13 @@ static void	disasm_instruction(const void *code, size_t codelen,
 
 	if (!CHECK_TABLE(table_supported_opcode, opcode)) return ;
 
-	/* GP registers
+	/*
+	** Pack the register value to the following format:
+	** - reg: register number
+	** - xreg: register extension; promote to extended registers (r8-r15)
+	*/
+	# define REG_PACK(reg, xreg)	(((xreg << 3) | (reg)) & 0b1111)
+	/* GP registers.
 	** The 3 lower bytes stands for the register number.
 	** The higher byte stands for the extended version of the register.
 	*/
@@ -121,18 +125,12 @@ static void	disasm_instruction(const void *code, size_t codelen,
 	gp_registers[0b1101] = R13;
 	gp_registers[0b1110] = R14;
 	gp_registers[0b1111] = R15;
-	/*
-	** Pack the register value to the following format:
-	** - reg: register number
-	** - xreg: register extension; promote to extended registers (r8-r15)
-	*/
-	# define REG_PACK(xreg, reg)		(((xreg) | (reg)) & 0b1111)
 
 	struct op_pack
 	{
-		uint32_t	flags; /* additionnal flags to add to result */
-		uint8_t		reg:3; /* register affected; used for implicits modifications  */
-		uint8_t		ext:3; /* opcode extension; to check if the instruction is the one we need */
+		uint32_t	flags; /* additionnal flags to add to result                  */
+		uint8_t		reg;   /* register affected; used for implicits modifications */
+		uint8_t		ext;   /* opcode extension                                    */
 	};
 	/* structure describing how the instruction should be disassembled */
 	struct x86_set
@@ -163,11 +161,12 @@ static void	disasm_instruction(const void *code, size_t codelen,
 	instructions[0xb8] = (struct x86_set){NO_SRC|IMPLICIT_DST,                {     0,    0,    0}, {     0,0b000,    0}}; /* mov reAX imm16/32/64         */
 	instructions[0xba] = (struct x86_set){NO_SRC|IMPLICIT_DST,                {     0,    0,    0}, {     0,0b010,    0}}; /* mov reDX imm16/32/64         */
 	instructions[0xbf] = (struct x86_set){NO_SRC|IMPLICIT_DST,                {     0,    0,    0}, {     0,0b111,    0}}; /* mov reDI imm16/32/64         */
+	instructions[0x90] = (struct x86_set){NONE,                               {     0,    0,    0}, {     0,    0,    0}}; /* nop                          */
 
-	struct x86_set		i = instructions[opcode];
-	uint8_t			rex_rxb  = rex & 0b00000111;
-	uint8_t			reg_mode = !!(rex_rxb & 0b100) << 3;
-	uint8_t			rm_mode  = !!(rex_rxb & 0b001) << 3;
+	struct x86_set		i = instructions[opcode];       /* get instruction         */
+	uint8_t			rex_rxb  = rex & 0b00000111;    /* retrieve rex modes      */
+	uint8_t			reg_mode = !!(rex_rxb & 0b100); /* get reg extension field */
+	uint8_t			rm_mode  = !!(rex_rxb & 0b001); /* get r/m extension field */
 
 	*src = 0;
 	*dst = 0;
@@ -175,9 +174,9 @@ static void	disasm_instruction(const void *code, size_t codelen,
 	if (i.status == NONE)  {*src = NONE; *dst = NONE; return ;}
 	if (i.status & NO_SRC) {*src = NONE;}
 	if (i.status & NO_DST) {*dst = NONE;}
-	/* Dirty hack to not mix extended registers with not extended one for 1 byte opcode-based instructions */
-	if (i.status & IMPLICIT_SRC) {*src |= i.src.flags & MEMORY ? gp_registers[REG_PACK(i.src.reg, reg_mode)] : gp_registers[REG_PACK(i.src.reg, rm_mode)];}
-	if (i.status & IMPLICIT_DST) {*dst |= i.dst.flags & MEMORY ? gp_registers[REG_PACK(i.dst.reg, reg_mode)] : gp_registers[REG_PACK(i.dst.reg, rm_mode)];}
+	/* dirty hack to not mix extended registers with not extended one for 1 byte opcode-based instructions */
+	if (i.status & IMPLICIT_SRC) {*src |= i.src.flags & MEMORY ? gp_registers[REG_PACK(i.src.reg & 0b111, reg_mode)] : gp_registers[REG_PACK(i.src.reg & 0b111, rm_mode)];}
+	if (i.status & IMPLICIT_DST) {*dst |= i.dst.flags & MEMORY ? gp_registers[REG_PACK(i.dst.reg & 0b111, reg_mode)] : gp_registers[REG_PACK(i.dst.reg & 0b111, rm_mode)];}
 	if (i.status & EXT)
 	{
 		if (!codelen--) return ; /* error if instruction is too long */
@@ -186,23 +185,23 @@ static void	disasm_instruction(const void *code, size_t codelen,
 
 		*dst |= gp_registers[REG_PACK(rm, rm_mode)];
 	}
-	/* If posseses MODRM byte with register usage */
+	/* MODRM byte management */
 	if (i.status & MODRM)
 	{
 		if (!codelen--) return ; /* error if instruction is too long */
-		uint8_t		modrm = *p++;
+		uint8_t		modrm = *p++; /* get MODRM byte                                                         */
 		uint8_t		mod   = (modrm & 0b11000000) >> 6;
 		uint8_t		reg   = (modrm & 0b00111000) >> 3;
 		uint8_t		rm    =  modrm & 0b00000111;
 
 		uint8_t		direction = opcode & 0b10; /* d=1 memory to register (reg dest), d=0 register to memory (reg source) */
 
-		if (mod == 0b11) /* Direct register addressing */
+		if (mod == 0b11) /* direct register addressing */
 		{
 			*src |= direction ? gp_registers[REG_PACK(rm, rm_mode)] : gp_registers[REG_PACK(reg, reg_mode)];
 			*dst |= direction ? gp_registers[REG_PACK(reg, reg_mode)] : gp_registers[REG_PACK(rm, rm_mode)];
 		}
-		else if (mod == 0b00) /* Indirect register addressing */
+		else if (mod == 0b00) /* indirect register addressing */
 		{
 			if (rm == 0b100) /* SIB */
 			{
@@ -230,7 +229,7 @@ static void	disasm_instruction(const void *code, size_t codelen,
 			*src |= direction ? MEMORY : 0;
 			*dst |= direction ? 0 : MEMORY;
 		}
-		else if (mod == 0b01 || mod == 0b10) /* Indirect register addressing with 1 or 4 byte signed displacement */
+		else if (mod == 0b01 || mod == 0b10) /* indirect register addressing with 1 or 4 byte signed displacement */
 		{
 			if (rm == 0b100) /* SIB with displacement */
 			{
@@ -253,8 +252,9 @@ static void	disasm_instruction(const void *code, size_t codelen,
 			*dst |= direction ? 0 : MEMORY;
 		}
 	}
-	if (i.status & KEEP_DST) {*src |= i.dst.reg;} /* get register(s) from dst if have to add to permutation check */
-	if (i.status & KEEP_SRC) {*dst |= i.src.reg;} /* get register(s) from src if have to add to permutation check */
+	// printf("src:%u dst:%u\n", i.src.reg, i.dst.reg);
+	if (i.status & KEEP_DST) {*src |= *dst & 0xffff;} /* get register(s) from dst if have to add to permutation check */
+	if (i.status & KEEP_SRC) {*dst |= *src & 0xffff;} /* get register(s) from src if have to add to permutation check */
 	*src |= i.src.flags;                          /* get remaining flags */
 	*dst |= i.dst.flags;                          /* get remaining flags */
 }
