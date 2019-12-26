@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/07 01:53:00 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/22 23:13:39 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 00:14:29 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 # ifdef DEBUG
 
-#  include <string.h>
 #  include "utils.h"
 #  include "position_independent.h"
 
@@ -58,8 +57,8 @@
 #  define errors(err_type, err_text)		({    \
 	err_type;                                     \
 	err_text;                                     \
-	ft_putstr(_err_type);                         \
-	ft_putstr(_err_text);                         \
+	putstr(_err_type);                         \
+	putstr(_err_text);                         \
 	(false);                                      \
 })
 

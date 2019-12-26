@@ -6,21 +6,21 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:38:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/22 20:40:21 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 00:13:49 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FAMINE_H // TODO
-# define FAMINE_H
+#ifndef LOADER_H
+# define LOADER_H
 
-# include <limits.h> // TODO
-# include <linux/elf.h>
 # include <stdbool.h>
 # include <stdint.h>
 # include <stddef.h>
 # include <sys/types.h>
 
-struct virus_header
+#define CALL_INSTR_SIZE		0x05
+
+struct			virus_header
 {
 	uint64_t	seed[2];
 	uint64_t	relative_pt_load_address;
@@ -41,6 +41,8 @@ bool		detect_spy(void);
 */
 
 void		loader_entry(void);
+void		mark_below(void);
+void		return_to_client(void);
 
 /*
 ** Cypher and decypher

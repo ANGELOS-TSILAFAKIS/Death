@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 20:54:46 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/21 17:11:44 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/26 23:51:52 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,11 +101,11 @@ static void		encode_instruction(uint8_t *buffer,
 	if (*buffer) buffer++;
 	/* Displacement */
 	if (i.displacement)
-		ft_memcpy(buffer, &immediate, i.immediate);
+		memcpy(buffer, &immediate, i.immediate);
 	if (*buffer) buffer += operand_size;
 	/* Immediate */
 	if (i.immediate)
-		ft_memcpy(buffer, &immediate, i.immediate);
+		memcpy(buffer, &immediate, i.immediate);
 	// if (*buffer) buffer += operand_size;
 }
 
@@ -139,14 +139,14 @@ static void	generate_shuffler(char *buffer, uint64_t seed, size_t size)
 {
 	struct x86_64_encode	i;
 
-	ft_bzero(buffer, size);
+	bzero(buffer, size);
 
 	while (size)
 	{
 		i = select_instruction(&seed, CYPHER);
 		if (i.size > size)
 		{
-			ft_memset(buffer, 0x90, size);
+			memset(buffer, 0x90, size);
 			break;
 		}
 		encode_instruction((uint8_t*)buffer, i, &seed);
@@ -159,7 +159,7 @@ static void	generate_unshuffler(char *buffer, uint64_t seed, size_t size)
 {
 	struct x86_64_encode	i;
 
-	ft_bzero(buffer, size);
+	bzero(buffer, size);
 	buffer += size;
 
 	while (size)
@@ -168,7 +168,7 @@ static void	generate_unshuffler(char *buffer, uint64_t seed, size_t size)
 		if (i.size > size)
 		{
 			buffer -= size;
-			ft_memset(buffer, 0x90, size);
+			memset(buffer, 0x90, size);
 			break;
 		}
 		buffer -= i.size;
@@ -217,8 +217,8 @@ static struct safe_ptr    generate_loop_frame(char *buffer, size_t size)
 	*rel_cypher_end += (uint16_t)remaining_size;
 	*rel_cypher     -= (uint16_t)remaining_size;
 
-	ft_memcpy(buffer, header, sizeof(header));
-	ft_memcpy(buffer + size - sizeof(footer), footer, sizeof(footer));
+	memcpy(buffer, header, sizeof(header));
+	memcpy(buffer + size - sizeof(footer), footer, sizeof(footer));
 
 	return (struct safe_ptr){remaining_buffer, remaining_size};
 }

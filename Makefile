@@ -6,7 +6,7 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/04/10 17:19:11 by agrumbac          #+#    #+#              #
-#    Updated: 2019/12/26 22:16:46 by anselme          ###   ########.fr        #
+#    Updated: 2019/12/26 23:53:18 by anselme          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,6 @@ SRC =	loader.s                      \
 	virus/virus.c                \
 	virus/accessors.c            \
 	virus/adjust_references.c    \
-	virus/can_infect.c           \
 	virus/copy_to_clone.c        \
 	virus/cypher.s               \
 	virus/disasm_length.c        \
@@ -104,13 +103,13 @@ ${NAME}: ${OBJ}
 
 ${OBJDIR}/%.o: ${SRCDIR}/%.s
 	@echo ${Y}Compiling [$@]...${X}
-	@/bin/mkdir -p ${OBJDIR} ${OBJDIR}/infect
+	@/bin/mkdir -p ${OBJDIR} ${OBJDIR}/virus
 	@${AS} ${ASFLAGS} -o $@ $<
 	@printf ${UP}${CUT}
 
 ${OBJDIR}/%.o: ${SRCDIR}/%.c
 	@echo ${Y}Compiling [$@]...${X}
-	@/bin/mkdir -p ${OBJDIR} ${OBJDIR}/infect
+	@/bin/mkdir -p ${OBJDIR} ${OBJDIR}/virus
 	@${CC} ${CFLAGS} ${LDFLAGS} -c -o $@ $<
 	@printf ${UP}${CUT}
 

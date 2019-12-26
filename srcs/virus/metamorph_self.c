@@ -6,12 +6,13 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 01:29:20 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/20 23:14:27 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 00:12:30 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "polymorphism.h"
 #include "errors.h"
+#include "loader.h"
 #include "log.h"
 
 /*
@@ -34,9 +35,6 @@
 **   (3)    father[n, p] and son[p + 1, m] with n < p < m
 **
 */
-
-void		mark_below(void);
-void		return_to_client(void);
 
 bool		metamorph_self(uint64_t seed[2], uint64_t son_seed[2], uint64_t client_id)
 {

