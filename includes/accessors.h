@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 04:47:10 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/22 20:18:48 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/26 21:36:40 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ struct	safe_ptr
 	size_t	size;
 };
 
-void	*safe(size_t offset, size_t size, struct safe_ptr ref);
+void	*safe(struct safe_ptr ref, size_t offset, size_t size);
 bool	free_safe(struct safe_ptr *ref);
 bool	write_file(struct safe_ptr ref, const char *filename);
 

