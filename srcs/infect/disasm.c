@@ -2,9 +2,9 @@
 #include "disasm_utils.h"
 
 /*
-** Flags used to precise operand or status.
+** Flags used to specify operand or status.
 ** Although GP registers can have a 8-bit, 16-bit or 32-bit size we consider
-** for this disassembly that the whole 64-bit register is affected.
+** for this disassembler that the whole 64-bit register is affected.
 */
 # define NONE		(0)       /* nothing                            */
 # define RAX		(1 << 0)  /* al   || ax   || eax  || rax        */
@@ -161,7 +161,7 @@ static void	disasm_instruction(const void *code, size_t codelen,
 	instructions[0xb8] = (struct x86_set){NO_SRC|IMPLICIT_DST,                {     0,    0,    0}, {     0,0b000,    0}}; /* mov reAX imm16/32/64         */
 	instructions[0xba] = (struct x86_set){NO_SRC|IMPLICIT_DST,                {     0,    0,    0}, {     0,0b010,    0}}; /* mov reDX imm16/32/64         */
 	instructions[0xbf] = (struct x86_set){NO_SRC|IMPLICIT_DST,                {     0,    0,    0}, {     0,0b111,    0}}; /* mov reDI imm16/32/64         */
-	instructions[0x90] = (struct x86_set){NONE,                               {     0,    0,    0}, {     0,    0,    0}}; /* nop                          */
+	instructions[0x90] = (struct x86_set){NO_SRC|NO_DST,                      {     0,    0,    0}, {     0,    0,    0}}; /* nop                          */
 
 	struct x86_set		i = instructions[opcode];       /* get instruction         */
 	uint8_t			rex_rxb  = rex & 0b00000111;    /* retrieve rex modes      */
@@ -171,12 +171,11 @@ static void	disasm_instruction(const void *code, size_t codelen,
 	*src = 0;
 	*dst = 0;
 
-	if (i.status == NONE)  {*src = NONE; *dst = NONE; return ;}
-	if (i.status & NO_SRC) {*src = NONE;}
-	if (i.status & NO_DST) {*dst = NONE;}
 	/* dirty hack to not mix extended registers with not extended one for 1 byte opcode-based instructions */
-	if (i.status & IMPLICIT_SRC) {*src |= i.src.flags & MEMORY ? gp_registers[REG_PACK(i.src.reg & 0b111, reg_mode)] : gp_registers[REG_PACK(i.src.reg & 0b111, rm_mode)];}
-	if (i.status & IMPLICIT_DST) {*dst |= i.dst.flags & MEMORY ? gp_registers[REG_PACK(i.dst.reg & 0b111, reg_mode)] : gp_registers[REG_PACK(i.dst.reg & 0b111, rm_mode)];}
+	if (i.status & IMPLICIT_SRC) {if (i.src.flags & MEMORY) {*src |= gp_registers[REG_PACK(i.src.reg & 0b111, reg_mode)];}
+				     else 			{*src |= gp_registers[REG_PACK(i.src.reg & 0b111, rm_mode)];}}
+	if (i.status & IMPLICIT_DST) {if (i.dst.flags & MEMORY) {*dst |= gp_registers[REG_PACK(i.dst.reg & 0b111, reg_mode)];}
+				     else 			{*dst |= gp_registers[REG_PACK(i.dst.reg & 0b111, rm_mode)];}}
 	if (i.status & EXT)
 	{
 		if (!codelen--) return ; /* error if instruction is too long */
