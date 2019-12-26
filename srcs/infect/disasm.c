@@ -173,9 +173,9 @@ static void	disasm_instruction(const void *code, size_t codelen,
 
 	/* dirty hack to not mix extended registers with not extended one for 1 byte opcode-based instructions */
 	if (i.status & IMPLICIT_SRC) {if (i.src.flags & MEMORY) {*src |= gp_registers[REG_PACK(i.src.reg & 0b111, reg_mode)];}
-				     else 			{*src |= gp_registers[REG_PACK(i.src.reg & 0b111, rm_mode)];}}
+				      else 			{*src |= gp_registers[REG_PACK(i.src.reg & 0b111, rm_mode)];}}
 	if (i.status & IMPLICIT_DST) {if (i.dst.flags & MEMORY) {*dst |= gp_registers[REG_PACK(i.dst.reg & 0b111, reg_mode)];}
-				     else 			{*dst |= gp_registers[REG_PACK(i.dst.reg & 0b111, rm_mode)];}}
+				      else 			{*dst |= gp_registers[REG_PACK(i.dst.reg & 0b111, rm_mode)];}}
 	if (i.status & EXT)
 	{
 		if (!codelen--) return ; /* error if instruction is too long */
