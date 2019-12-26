@@ -1,11 +1,11 @@
 #include <sys/types.h>
 #include <stdint.h>
-#include <string.h>
+#include <stddef.h>
 
 #include "position_independent.h"
 #include "syscall.h"
 
-void	ft_bzero(void *ptr, size_t size)
+void	bzero(void *ptr, size_t size)
 {
 	char *tmp = ptr;
 
@@ -13,7 +13,7 @@ void	ft_bzero(void *ptr, size_t size)
 		tmp[i] = 0;
 }
 
-int	ft_memcmp(const void *s1, const void *s2, size_t n)
+int	memcmp(const void *s1, const void *s2, size_t n)
 {
 	size_t			i;
 	const unsigned char	*ch_s1;
@@ -31,7 +31,7 @@ int	ft_memcmp(const void *s1, const void *s2, size_t n)
 	return (0);
 }
 
-size_t	ft_strlen(const char *s)
+size_t	strlen(const char *s)
 {
 	char	*p;
 
@@ -41,7 +41,7 @@ size_t	ft_strlen(const char *s)
 	return (p - s);
 }
 
-void	*ft_memcpy(void *dst, void *src, size_t n)
+void	*memcpy(void *dst, void *src, size_t n)
 {
 	unsigned char *dest;
 	unsigned char *source;
@@ -57,7 +57,7 @@ void	*ft_memcpy(void *dst, void *src, size_t n)
 	return dst;
 }
 
-char	*ft_strcpy(char *dst, const char *src)
+char	*strcpy(char *dst, const char *src)
 {
 	int i = 0;
 
@@ -70,15 +70,15 @@ char	*ft_strcpy(char *dst, const char *src)
 	return dst;
 }
 
-char	*ft_strcat(char *dest, char *source)
+char	*strcat(char *dest, char *source)
 {
-	int len = ft_strlen(dest);
+	int len = strlen(dest);
 
-	ft_strcpy(dest + len, source);
+	strcpy(dest + len, source);
 	return dest;
 }
 
-char	*ft_strstr(const char *s1, const char *s2)
+char	*strstr(const char *s1, const char *s2)
 {
 	unsigned int	i;
 	unsigned int	j;
@@ -98,56 +98,32 @@ char	*ft_strstr(const char *s1, const char *s2)
 	return (NULL);
 }
 
-int             ft_putchar(char c)
+int             putchar(char c)
 {
-        return (famine_write(1, &c, 1));
+        return (sys_write(1, &c, 1));
 }
 
-int             ft_putstr(const char *s)
+int             putstr(const char *s)
 {
-        return (famine_write(1, s, ft_strlen(s)));
+        return (sys_write(1, s, strlen(s)));
 }
 
-void   		ft_putu64(uint64_t n)
+void   		putu64(uint64_t n)
 {
 	PD_ARRAY(char, letter, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F');
 
 	if (n > 15)
 	{
-		ft_putu64(n / 16);
-		ft_putu64(n % 16);
+		putu64(n / 16);
+		putu64(n % 16);
 	}
 	else
 	{
-		ft_putchar(letter[n]);
+		putchar(letter[n]);
 	}
 }
 
-void    ft_putnbr(int n)
-{
-	if (n == -2147483648)
-	{
-		ft_putstr("-214748364");
-		n = 8;
-	}
-	if (n < 0)
-	{
-		ft_putchar('-');
-		n = n * -1;
-	}
-	if (n > 9)
-	{
-		ft_putnbr(n / 10);
-		ft_putnbr(n % 10);
-	}
-	else
-	{
-		n = n + '0';
-		ft_putchar(n);
-	}
-}
-
-void            *ft_memset(void *b, int c, unsigned long len)
+void            *memset(void *b, int c, unsigned long len)
 {
 	unsigned long   m;
 	unsigned char   *r;
