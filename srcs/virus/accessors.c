@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/05 06:32:25 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/27 00:02:34 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 00:44:00 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ bool			free_accessor(struct safe_ptr *ref)
 {
 	if (ref->ptr)
 	{
-		if (sys_munmap(ref->ptr, ref->size))
+		if (sys_munmap(ref->ptr, ref->size) != 0)
 			return errors(ERR_SYS, _ERR_MUNMAP_FAILED);
 	}
 	return true;
@@ -91,7 +91,7 @@ bool			write_file(const struct safe_ptr accessor, \
 
 	if (fd < 0) return errors(ERR_SYS, _ERR_OPEN_FAILED);
 
-	if (sys_write(fd, accessor.ptr, accessor.size) == -1)
+	if (sys_write(fd, accessor.ptr, accessor.size) < 0)
 	{
 		sys_close(fd);
 		return errors(ERR_SYS, _ERR_CLOSE_FAILED);

