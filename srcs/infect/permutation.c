@@ -14,7 +14,7 @@
 #include <stddef.h>
 
 #include "compiler_utils.h"
-#include "disassemble.h"
+#include "disasm.h"
 #include "utils.h"
 
 #ifdef DEBUG
