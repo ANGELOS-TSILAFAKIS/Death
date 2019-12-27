@@ -70,59 +70,6 @@ char	*strcpy(char *dst, const char *src)
 	return dst;
 }
 
-char	*strcat(char *dest, char *source)
-{
-	int len = strlen(dest);
-
-	strcpy(dest + len, source);
-	return dest;
-}
-
-char	*strstr(const char *s1, const char *s2)
-{
-	unsigned int	i;
-	unsigned int	j;
-
-	i = 0;
-	if (!s1[0] && !s2[0])
-		return ((char *)s1);
-	while (s1[i])
-	{
-		j = 0;
-		while (s1[i + j] == s2[j] && s2[j])
-			j++;
-		if (s2[j] == '\0')
-			return ((char *)s1 + i);
-		i++;
-	}
-	return (NULL);
-}
-
-int             putchar(char c)
-{
-        return (sys_write(1, &c, 1));
-}
-
-int             putstr(const char *s)
-{
-        return (sys_write(1, s, strlen(s)));
-}
-
-void   		putu64(uint64_t n)
-{
-	PD_ARRAY(char, letter, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F');
-
-	if (n > 15)
-	{
-		putu64(n / 16);
-		putu64(n % 16);
-	}
-	else
-	{
-		putchar(letter[n]);
-	}
-}
-
 void            *memset(void *b, int c, unsigned long len)
 {
 	unsigned long   m;
@@ -159,3 +106,32 @@ uint64_t	hash(const char *buff, size_t buffsize)
 	}
 	return state;
 }
+
+#ifdef DEBUG
+
+int             putchar(char c)
+{
+        return (sys_write(1, &c, 1));
+}
+
+int             putstr(const char *s)
+{
+        return (sys_write(1, s, strlen(s)));
+}
+
+void   		putu64(uint64_t n)
+{
+	PD_ARRAY(char, letter, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F');
+
+	if (n > 15)
+	{
+		putu64(n / 16);
+		putu64(n % 16);
+	}
+	else
+	{
+		putchar(letter[n]);
+	}
+}
+
+#endif
