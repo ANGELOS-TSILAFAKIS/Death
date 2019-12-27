@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/26 21:53:55 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/27 01:29:25 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -18,6 +18,7 @@
 
 section .text
 	global loader_entry
+	global virus_header_struct
 	global mark_below
 	global return_to_client
 
@@ -28,6 +29,7 @@ extern detect_spy
 loader_entry:
 ;------------------------------; Store variables
 	call mark_below
+virus_header_struct:
 	db "polymorphic seed", "rel ptld", "ptldsize", "relvirus"
 	db "relentry", "virusize"
 	db "Warning : Copyrighted Virus by __UNICORNS_OF_THE_APOCALYPSE__ <3"

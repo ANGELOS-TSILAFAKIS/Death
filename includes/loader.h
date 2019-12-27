@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:38:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/27 00:13:49 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 01:24:52 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,9 @@
 # include <stddef.h>
 # include <sys/types.h>
 
-#define CALL_INSTR_SIZE		0x05
+/*
+** the virus header and its position int the loader's code
+*/
 
 struct			virus_header
 {
@@ -30,14 +32,16 @@ struct			virus_header
 	uint64_t	virus_size;
 }__attribute__((packed));
 
+void		virus_header_struct(void);
+
 /*
-** Anti debug
+** anti debug
 */
 
 bool		detect_spy(void);
 
 /*
-** Loader
+** loader
 */
 
 void		loader_entry(void);
@@ -45,7 +49,7 @@ void		mark_below(void);
 void		return_to_client(void);
 
 /*
-** Cypher and decypher
+** cypher and decypher
 */
 
 void		cypher(char *data, size_t size);
