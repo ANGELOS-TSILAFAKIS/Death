@@ -39,6 +39,10 @@ enum
 	XOR_RAX_IMM32,		// REX.W + 35 id XOR RAX, imm32
 	ADD_RAX_IMM32,		// REX.W + 05 id ADD RAX, imm32
 	SUB_RAX_IMM32,		// REX.W + 2D id SUB RAX, imm32
+
+	ROR_RM64_IMM8,		// REX.W + C1 /1 ib
+	ROL_RM64_IMM8,		// REX.W + C1 /0 ib
+	BSWAP_R64,		// REX.W + 0F C8+rd, +0 for rax
 	I_SIZE
 };
 
@@ -111,21 +115,27 @@ static void		encode_instruction(uint8_t *buffer,
 
 static struct x86_64_encode	select_instruction(uint64_t *seed, int8_t operation)
 {
-	struct x86_64_encode		instructions[I_SIZE];
-	instructions[XOR_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,0,0x83, 0b11,0b110,0b000, 0,0,0, 0,IMM_IB};
-	instructions[ADD_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,0,0x83, 0b11,0b000,0b000, 0,0,0, 0,IMM_IB};
-	instructions[SUB_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,0,0x83, 0b11,0b101,0b000, 0,0,0, 0,IMM_IB};
-	instructions[XOR_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,0,0x35, 0,0,0, 0,0,0, 0,IMM_ID};
-	instructions[ADD_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,0,0x05, 0,0,0, 0,0,0, 0,IMM_ID};
-	instructions[SUB_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,0,0x2d, 0,0,0, 0,0,0, 0,IMM_ID};
+	struct x86_64_encode	instructions[I_SIZE];
+	instructions[XOR_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,   0,0x83, 0b11,0b110,0b000, 0,0,0, 0,IMM_IB};
+	instructions[ADD_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,   0,0x83, 0b11,0b000,0b000, 0,0,0, 0,IMM_IB};
+	instructions[SUB_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,   0,0x83, 0b11,0b101,0b000, 0,0,0, 0,IMM_IB};
+	instructions[XOR_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,   0,0x35,    0,    0,    0, 0,0,0, 0,IMM_ID};
+	instructions[ADD_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,   0,0x05,    0,    0,    0, 0,0,0, 0,IMM_ID};
+	instructions[SUB_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,   0,0x2d,    0,    0,    0, 0,0,0, 0,IMM_ID};
+	instructions[ROR_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,   0,0xc1, 0b11,0b001,0b000, 0,0,0, 0,IMM_IB};
+	instructions[ROL_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,   0,0xc1, 0b11,0b000,0b000, 0,0,0, 0,IMM_IB};
+	instructions[BSWAP_R64]     = (struct x86_64_encode){3, 0b0100,0b1,0,0,0, 0,0x0f,0xc8,    0,    0,    0, 0,0,0, 0,     0};
 
-	int				instructions_match[I_SIZE];
+	int			instructions_match[I_SIZE];
 	instructions_match[XOR_RM64_IMM8] = XOR_RM64_IMM8;
 	instructions_match[ADD_RM64_IMM8] = SUB_RM64_IMM8;
 	instructions_match[SUB_RM64_IMM8] = ADD_RM64_IMM8;
 	instructions_match[XOR_RAX_IMM32] = XOR_RAX_IMM32;
 	instructions_match[ADD_RAX_IMM32] = SUB_RAX_IMM32;
 	instructions_match[SUB_RAX_IMM32] = ADD_RAX_IMM32;
+	instructions_match[ROR_RM64_IMM8] = ROL_RM64_IMM8;
+	instructions_match[ROL_RM64_IMM8] = ROR_RM64_IMM8;
+	instructions_match[BSWAP_R64]     = BSWAP_R64;
 
 	uint64_t	instruction = random_exrange(seed, I_BASE, I_SIZE);
 
