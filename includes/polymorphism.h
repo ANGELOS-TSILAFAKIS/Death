@@ -17,7 +17,7 @@
 # include <stdint.h>
 # include <stddef.h>
 
-bool		polymorphic_seed_engine(uint64_t son_seed[2], uint64_t client_id);
+uint64_t	polymorphic_seed_engine(uint64_t son_seed[2], uint64_t client_id);
 
 bool		generate_cypher(char *buffer, uint64_t seed, size_t size);
 bool		generate_decypher(char *buffer, uint64_t seed, size_t size);

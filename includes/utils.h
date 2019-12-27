@@ -27,8 +27,8 @@ uint64_t	checksum(const char *buff, size_t buffsize);
 uint64_t	hash(const char *buff, size_t buffsize);
 
 uint64_t	random(uint64_t *seed);
-uint64_t	random_inrange(uint64_t *seed, int64_t lower, int64_t upper);
-uint64_t	random_exrange(uint64_t *seed, int64_t lower, int64_t upper);
+uint64_t	random_inrange(uint64_t *seed, uint64_t lower, uint64_t upper);
+uint64_t	random_exrange(uint64_t *seed, uint64_t lower, uint64_t upper);
 
 # ifdef DEBUG
 
