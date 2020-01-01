@@ -19,31 +19,31 @@ NAME = war
 # [VIRUS]     virus        -> _start
 # [LAUNCHER]  _start       -> EOF
 
-SRC =	loader.s                      \
-	decypher.s                    \
-	detect_spy.s                  \
-	virus/virus.c                \
-	virus/accessors.c            \
-	virus/adjust_references.c    \
-	virus/copy_to_clone.c        \
-	virus/cypher.s               \
-	virus/disasm_length.c        \
-	virus/disasm.c               \
-	virus/elf64_iterators.c      \
-	virus/file_iterator.c        \
-	virus/find_entry.c           \
-	virus/generate_cypher.c      \
-	virus/infect.c               \
-	virus/infection_engine.c     \
-	virus/log.c                  \
-	virus/metamorph_self.c       \
-	virus/permutation.c          \
-	virus/permutate_registers.c  \
-	virus/polymorphic_seed.c     \
-	virus/random.c               \
-	virus/setup_payload.c        \
-	virus/syscall.c              \
-	virus/utils.c                \
+SRC =	loader.s                       \
+	decypher.s                     \
+	detect_spy.s                   \
+	virus/virus.c                  \
+	virus/accessors.c              \
+	virus/adjust_references.c      \
+	virus/copy_to_clone.c          \
+	virus/cypher.s                 \
+	virus/disasm_length.c          \
+	virus/disasm.c                 \
+	virus/elf64_iterators.c        \
+	virus/file_iterator.c          \
+	virus/find_entry.c             \
+	virus/generate_cypher.c        \
+	virus/infect.c                 \
+	virus/infection_engine.c       \
+	virus/log.c                    \
+	virus/metamorph_self.c         \
+	virus/permutate_instructions.c \
+	virus/permutate_registers.c    \
+	virus/polymorphic_seed.c       \
+	virus/random.c                 \
+	virus/setup_payload.c          \
+	virus/syscall.c                \
+	virus/utils.c                  \
 	start.c
 
 CC = clang

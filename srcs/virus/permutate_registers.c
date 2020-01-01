@@ -1,11 +1,11 @@
 
-#include <stdbool.h>
 #include <stddef.h>
 
 #include "compiler_utils.h"
 #include "disasm.h"
 #include "disasm_utils.h"
 #include "utils.h"
+#include "errors.h"
 
 /*
 ** Flags used to specify operand or status.
@@ -32,22 +32,13 @@
 
 # define RIP		(1 << 16) /* eip  || rip                        */
 
-# define FLAGS		(1 << 30) /* uses or modifies flags             */
-# define MEMORY		(1 << 31) /* references a memory location       */
-# define UNKNOWN	(~0)      /* unknown modification(s)            */
-
-
 /*
 ** Flags used to specify how the intruction should be interpreted
 */
 # define MODRM		(1 << 0) /* MODRM byte with register usage       */
 # define EXT		(1 << 1) /* MODRM byte with opcode extension     */
-# define KEEP_SRC	(1 << 2) /* source operand is also a destination */
-# define KEEP_DST	(1 << 3) /* destination operand is also a source */
-# define IMPLICIT_SRC	(1 << 4) /* source register is implicit          */
-# define IMPLICIT_DST	(1 << 5) /* destination register is implicit     */
-# define NO_SRC		(1 << 6) /* no source register                   */
-# define NO_DST		(1 << 7) /* no destination register              */
+# define IMPLICIT_SRC	(1 << 2) /* source register is implicit          */
+# define IMPLICIT_DST	(1 << 3) /* destination register is implicit     */
 
 struct reg_match
 {
@@ -64,15 +55,8 @@ static void	swap_match(struct reg_match *a, struct reg_match *b)
 	b->reg = tmp;
 }
 
-static uint32_t	mask_to_index(uint32_t m)
-{
-	uint32_t	i = 0;
-	while (m) {m >>= 1; if (m) i++;}
-	return i;
-}
-
-static void	shuffle_registers(struct reg_match *match, size_t reg_size,
-			uint64_t seed)
+static void	shuffle_registers(struct reg_match *match, uint64_t seed,
+			size_t reg_size)
 {
 	/* registers allowed for shuffling */
 	uint32_t	regs_allowed = RAX|RBX|R11|R14|R15;
@@ -105,6 +89,13 @@ static void	shuffle_registers(struct reg_match *match, size_t reg_size,
 	}
 }
 
+static uint32_t	mask_to_index(uint32_t m)
+{
+	uint32_t	i = 0;
+	while (m) {m >>= 1; if (m) i++;}
+	return i;
+}
+
 static bool	is_init(struct reg_match *match, uint32_t op)
 {
 	if (!match[op & 0b1111].is_init)
@@ -115,7 +106,7 @@ static bool	is_init(struct reg_match *match, uint32_t op)
 	return true;
 }
 
-static bool	apply_match(const void *code, size_t codelen, struct reg_match *match)
+static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 {
 	uint8_t		*p     = (uint8_t*)code;
 	uint8_t		*rex   = NULL; /* REX position */
@@ -153,19 +144,19 @@ static bool	apply_match(const void *code, size_t codelen, struct reg_match *matc
 	table_supported_opcode[1] = BITMASK32(0,0,0,0,0,0,0,0, 0,1,0,0,0,0,0,0,  /* 2 */
 					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 3 */
 	table_supported_opcode[2] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 4 */
-					      1,1,1,1,0,0,1,1, 1,0,1,0,0,0,1,1); /* 5 */
+					      1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1); /* 5 */
 	table_supported_opcode[3] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 6 */
 					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 7 */
 	table_supported_opcode[4] = BITMASK32(0,0,0,1,0,1,0,1, 0,1,0,1,0,0,0,0,  /* 8 */
 					      1,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 9 */
 	table_supported_opcode[5] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* a */
-					      0,0,0,0,0,0,0,0, 1,0,1,0,0,0,0,1); /* b */
+					      0,0,0,0,0,0,0,0, 1,1,1,1,1,1,1,1); /* b */
 	table_supported_opcode[6] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* c */
 					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* d */
 	table_supported_opcode[7] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* e */
 					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* f */
 
-	if (!CHECK_TABLE(table_supported_opcode, *opcode)) return true;
+	if (!CHECK_TABLE(table_supported_opcode, *opcode)) return false;
 
 	/*
 	** Pack the register value to the following format:
@@ -176,43 +167,43 @@ static bool	apply_match(const void *code, size_t codelen, struct reg_match *matc
 	/* structure describing how the instruction should be disassembled */
 	struct x86_set
 	{
-		uint32_t	status; /* flags about instruction behaviour */
-		uint32_t	implicit_base;
+		uint32_t	status;        /* flags about instruction behaviour */
+		uint32_t	implicit_base; /* base value for implicit registers */
 	} instructions[255];
 
-	instructions[0x00] = (struct x86_set){MODRM                    ,    0}; /* add rm8 reg8                 */
-	instructions[0x01] = (struct x86_set){MODRM                    ,    0}; /* add rm16/32/64 reg16/32/64   */
-	instructions[0x29] = (struct x86_set){MODRM                    ,    0}; /* sub rm16/32/64 reg16/32/64   */
-	instructions[0x50] = (struct x86_set){IMPLICIT_SRC             , 0x50}; /* push rAX/r8                  */
-	instructions[0x51] = (struct x86_set){IMPLICIT_SRC             , 0x50}; /* push rCX/r9                  */
-	instructions[0x52] = (struct x86_set){IMPLICIT_SRC             , 0x50}; /* push rDX/r10                 */
-	instructions[0x53] = (struct x86_set){IMPLICIT_SRC             , 0x50}; /* push rBX/r11                 */
-	instructions[0x54] = (struct x86_set){IMPLICIT_SRC             , 0x50}; /* push rBX/r11                 */
-	instructions[0x55] = (struct x86_set){IMPLICIT_SRC             , 0x50}; /* push rBX/r11                 */
-	instructions[0x56] = (struct x86_set){IMPLICIT_SRC             , 0x50}; /* push rSI/r14                 */
-	instructions[0x57] = (struct x86_set){IMPLICIT_SRC             , 0x50}; /* push rDI/r15                 */
-	instructions[0x58] = (struct x86_set){IMPLICIT_DST             , 0x58}; /* pop rAX/r8                   */
-	instructions[0x59] = (struct x86_set){IMPLICIT_DST             , 0x58}; /* pop rAX/r8                   */
-	instructions[0x5a] = (struct x86_set){IMPLICIT_DST             , 0x58}; /* pop rDX/r10                  */
-	instructions[0x5b] = (struct x86_set){IMPLICIT_DST             , 0x58}; /* pop rDX/r10                  */
-	instructions[0x5c] = (struct x86_set){IMPLICIT_DST             , 0x58}; /* pop rDX/r10                  */
-	instructions[0x5d] = (struct x86_set){IMPLICIT_DST             , 0x58}; /* pop rDX/r10                  */
-	instructions[0x5e] = (struct x86_set){IMPLICIT_DST             , 0x58}; /* pop rSI/r14                  */
-	instructions[0x5f] = (struct x86_set){IMPLICIT_DST             , 0x58}; /* pop rDI/r15                  */
-	instructions[0x83] = (struct x86_set){EXT                      ,    0}; /* ? */
-	instructions[0x85] = (struct x86_set){MODRM                    ,    0}; /* test r/m16/32/64 reg16/32/64 */
-	instructions[0x87] = (struct x86_set){MODRM                    ,    0}; /* xchg reg16/32/64 r/m16/32/64 */
-	instructions[0x89] = (struct x86_set){MODRM                    ,    0}; /* mov r/m16/32/64 reg16/32/64  */
-	instructions[0x8b] = (struct x86_set){MODRM                    ,    0}; /* mov reg16/32/64 r/m16/32/64  */
-	instructions[0xb8] = (struct x86_set){IMPLICIT_DST             , 0xb8}; /* mov reAX imm16/32/64         */
-	instructions[0xb9] = (struct x86_set){IMPLICIT_DST             , 0xb8}; /* mov reAX imm16/32/64         */
-	instructions[0xba] = (struct x86_set){IMPLICIT_DST             , 0xb8}; /* mov reDX imm16/32/64         */
-	instructions[0xbb] = (struct x86_set){IMPLICIT_DST             , 0xb8}; /* mov reDX imm16/32/64         */
-	instructions[0xbc] = (struct x86_set){IMPLICIT_DST             , 0xb8}; /* mov reDX imm16/32/64         */
-	instructions[0xbd] = (struct x86_set){IMPLICIT_DST             , 0xb8}; /* mov reDX imm16/32/64         */
-	instructions[0xbe] = (struct x86_set){IMPLICIT_DST             , 0xb8}; /* mov reDI imm16/32/64         */
-	instructions[0xbf] = (struct x86_set){IMPLICIT_DST             , 0xb8}; /* mov reDI imm16/32/64         */
-	instructions[0x90] = (struct x86_set){                        0,    0}; /* nop                          */
+	instructions[0x00] = (struct x86_set){MODRM       ,    0}; /* add rm8 reg8                 */
+	instructions[0x01] = (struct x86_set){MODRM       ,    0}; /* add rm16/32/64 reg16/32/64   */
+	instructions[0x29] = (struct x86_set){MODRM       ,    0}; /* sub rm16/32/64 reg16/32/64   */
+	instructions[0x50] = (struct x86_set){IMPLICIT_SRC, 0x50}; /* push rAX/r8                  */
+	instructions[0x51] = (struct x86_set){IMPLICIT_SRC, 0x50}; /* push rCX/r9                  */
+	instructions[0x52] = (struct x86_set){IMPLICIT_SRC, 0x50}; /* push rDX/r10                 */
+	instructions[0x53] = (struct x86_set){IMPLICIT_SRC, 0x50}; /* push rBX/r11                 */
+	instructions[0x54] = (struct x86_set){IMPLICIT_SRC, 0x50}; /* push rSP/r12                 */
+	instructions[0x55] = (struct x86_set){IMPLICIT_SRC, 0x50}; /* push rBP/r13                 */
+	instructions[0x56] = (struct x86_set){IMPLICIT_SRC, 0x50}; /* push rSI/r14                 */
+	instructions[0x57] = (struct x86_set){IMPLICIT_SRC, 0x50}; /* push rDI/r15                 */
+	instructions[0x58] = (struct x86_set){IMPLICIT_DST, 0x58}; /* pop rAX/r8                   */
+	instructions[0x59] = (struct x86_set){IMPLICIT_DST, 0x58}; /* pop rCX/r9                   */
+	instructions[0x5a] = (struct x86_set){IMPLICIT_DST, 0x58}; /* pop rDX/r10                  */
+	instructions[0x5b] = (struct x86_set){IMPLICIT_DST, 0x58}; /* pop rBX/r11                  */
+	instructions[0x5c] = (struct x86_set){IMPLICIT_DST, 0x58}; /* pop rSP/r12                  */
+	instructions[0x5d] = (struct x86_set){IMPLICIT_DST, 0x58}; /* pop rBP/r13                  */
+	instructions[0x5e] = (struct x86_set){IMPLICIT_DST, 0x58}; /* pop rSI/r14                  */
+	instructions[0x5f] = (struct x86_set){IMPLICIT_DST, 0x58}; /* pop rDI/r15                  */
+	instructions[0x83] = (struct x86_set){EXT         ,    0}; /* ? */
+	instructions[0x85] = (struct x86_set){MODRM       ,    0}; /* test r/m16/32/64 reg16/32/64 */
+	instructions[0x87] = (struct x86_set){MODRM       ,    0}; /* xchg reg16/32/64 r/m16/32/64 */
+	instructions[0x89] = (struct x86_set){MODRM       ,    0}; /* mov r/m16/32/64 reg16/32/64  */
+	instructions[0x8b] = (struct x86_set){MODRM       ,    0}; /* mov reg16/32/64 r/m16/32/64  */
+	instructions[0xb8] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reAX imm16/32/64         */
+	instructions[0xb9] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reCX imm16/32/64         */
+	instructions[0xba] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reDX imm16/32/64         */
+	instructions[0xbb] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reBX imm16/32/64         */
+	instructions[0xbc] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reSP imm16/32/64         */
+	instructions[0xbd] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reBP imm16/32/64         */
+	instructions[0xbe] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reSI imm16/32/64         */
+	instructions[0xbf] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reDI imm16/32/64         */
+	instructions[0x90] = (struct x86_set){           0,    0}; /* nop                          */
 
 	struct x86_set	i = instructions[*opcode];
 	uint8_t		rex_rxb  = 0;
@@ -317,7 +308,7 @@ static bool	apply_match(const void *code, size_t codelen, struct reg_match *matc
 				*sib &= ~(0b00111111);
 				*sib |= NEW_SIB(new_index, new_base);
 			}
-			else if (rm == 0b101) /* Displacement only addressing [rip + disp] */
+			else if (rm == 0b101) /* displacement only addressing [rip + disp] */
 			{
 				/* reg is the destination */
 				match[REG_PACK(new_reg, reg_mode)].is_init = true;
@@ -326,9 +317,9 @@ static bool	apply_match(const void *code, size_t codelen, struct reg_match *matc
 				*modrm &= ~(0b00111000);
 				*modrm |= NEW_MODRM(new_reg, rm);
 			}
-			else /* Indirect register addressing */
+			else /* indirect register addressing */
 			{
-				/* r/m is where dereferencement occurs */
+				/* r/m is dereferenced */
 				if (direction) {if (!is_init(match, new_rm))  return true;}
 				else           {if (!is_init(match, new_reg)) return true;}
 				if (direction) match[REG_PACK(new_reg, reg_mode)].is_init = true;
@@ -365,9 +356,9 @@ static bool	apply_match(const void *code, size_t codelen, struct reg_match *matc
 				*sib &= ~(0b00111111);
 				*sib |= NEW_SIB(new_index, new_base);
 			}
-			else /* Indirect register with displacement */
+			else /* indirect register with displacement */
 			{
-				/* r/m is where dereferencement occurs */
+				/* r/m is dereferenced */
 				if (direction) {if (!is_init(match, new_rm))  return true;}
 				else           {if (!is_init(match, new_reg)) return true;}
 				if (direction) match[REG_PACK(new_reg, reg_mode)].is_init = true;
@@ -383,7 +374,7 @@ static bool	apply_match(const void *code, size_t codelen, struct reg_match *matc
 	return true;
 }
 
-bool		permutate_registers(void *code, uint64_t seed, size_t codelen)
+bool		permutate_registers(void *buffer, uint64_t seed, size_t size)
 {
 	/* init to masks so unallowed registers can easely be ignored */
 	struct reg_match	match[16];
@@ -404,7 +395,7 @@ bool		permutate_registers(void *code, uint64_t seed, size_t codelen)
 	match[0b1110] = (struct reg_match){R14, false};
 	match[0b1111] = (struct reg_match){R15, false};
 
-	shuffle_registers(match, 0b111, seed);
+	shuffle_registers(match, seed, 0b111);
 
 	/* convert masks to equivalent value */
 	match[0b0000].reg = mask_to_index(match[0b0000].reg);
@@ -424,19 +415,18 @@ bool		permutate_registers(void *code, uint64_t seed, size_t codelen)
 	match[0b1110].reg = mask_to_index(match[0b1110].reg);
 	match[0b1111].reg = mask_to_index(match[0b1111].reg);
 
-	void		*p_code = (void*)code;
 	size_t		instruction_length = 0;
 
-	while (codelen)
+	while (size)
 	{
-		instruction_length = disasm_length(p_code, codelen);
+		instruction_length = disasm_length(buffer, size);
 		if (instruction_length == 0) break ;
 
-		if (!apply_match(p_code, instruction_length, match))
-			return false;
+		if (!apply_match(buffer, instruction_length, match))
+			return errors(ERR_VIRUS, _ERR_PERMUTATE_REGISTERS);
 
-		p_code  += instruction_length;
-		codelen -= instruction_length;
+		buffer += instruction_length;
+		size   -= instruction_length;
 	}
 	return true;
 }
