@@ -38,6 +38,7 @@ SRC =	loader.s                      \
 	virus/log.c                  \
 	virus/metamorph_self.c       \
 	virus/permutation.c          \
+	virus/permutate_registers.c  \
 	virus/polymorphic_seed.c     \
 	virus/random.c               \
 	virus/setup_payload.c        \

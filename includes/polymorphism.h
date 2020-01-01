@@ -23,5 +23,6 @@ bool		generate_cypher(char *buffer, uint64_t seed, size_t size);
 bool		generate_decypher(char *buffer, uint64_t seed, size_t size);
 
 bool		permutate_instructions(void *buffer, uint64_t seed, size_t size);
+bool		permutate_registers(void *code, uint64_t seed, size_t codelen);
 
 #endif
