@@ -6,7 +6,7 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/04/10 17:19:11 by agrumbac          #+#    #+#              #
-#    Updated: 2019/12/26 23:53:18 by anselme          ###   ########.fr        #
+#    Updated: 2020/01/04 19:04:04 by ichkamo          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,6 +22,7 @@ NAME = war
 SRC =	loader.s                       \
 	decypher.s                     \
 	detect_spy.s                   \
+	mprotect.s                     \
 	virus/virus.c                  \
 	virus/accessors.c              \
 	virus/adjust_references.c      \

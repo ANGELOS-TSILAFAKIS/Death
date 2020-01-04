@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:38:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/27 01:24:52 by anselme          ###   ########.fr       */
+/*   Updated: 2020/01/04 19:07:13 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,7 @@ bool		detect_spy(void);
 */
 
 void		loader_entry(void);
-void		mark_below(void);
-void		return_to_client(void);
-void		end_of_reg_permutable_code(void);
+void		loader_exit(void);
 
 /*
 ** cypher and decypher

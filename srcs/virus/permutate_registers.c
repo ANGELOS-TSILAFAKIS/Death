@@ -65,7 +65,8 @@ static void	shuffle_registers(struct reg_match *match, uint64_t seed,
 	/* registers allowed for shuffling */
 	// uint32_t	regs_allowed = RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R12|R13|R14|R15;
 	// uint32_t	regs_allowed = RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R14|R15;
-	uint32_t	regs_allowed = RCX|RDX|R8|R9|R10|R11;
+	// uint32_t	regs_allowed = RCX|RDX|R8|R9|R10|R11;
+	uint32_t	regs_allowed = R8|R9|R10|R11|R14|R15;
 
 	struct reg_match	*reg          = match;
 	struct reg_match	*reg_ext      = match + 8;
