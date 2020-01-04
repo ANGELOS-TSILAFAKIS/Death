@@ -12,6 +12,7 @@
 ** Although GP registers can have a 8-bit, 16-bit or 32-bit size we consider
 ** for this disassembler that the whole 64-bit register is affected.
 */
+# define REGS		0x00ff
 # define NONE		(0)       /* nothing                            */
 # define RAX		(1 << 0)  /* al   || ax   || eax  || rax        */
 # define RCX		(1 << 1)  /* cl   || cx   || ecx  || rcx        */
@@ -21,6 +22,8 @@
 # define RBP		(1 << 5)  /* ch   || bpl  || bp   || ebp || rbp */
 # define RSI		(1 << 6)  /* dh   || sil  || si   || esi || rsi */
 # define RDI		(1 << 7)  /* bh   || dil  || di   || edi || rdi */
+
+# define REGS_EXTENDED	0xff00
 # define R8		(1 << 8)  /* r8l  || r8w  || r8d  || r8         */
 # define R9		(1 << 9)  /* r9l  || r9w  || r9d  || r9         */
 # define R10		(1 << 10) /* r10l || r10w || r10d || r10        */
@@ -35,6 +38,7 @@
 /*
 ** Flags used to specify how the intruction should be interpreted
 */
+# define NONE		(0)      /* nothing to touch */
 # define MODRM		(1 << 0) /* MODRM byte with register usage       */
 # define EXT		(1 << 1) /* MODRM byte with opcode extension     */
 # define IMPLICIT_SRC	(1 << 2) /* source register is implicit          */
@@ -59,12 +63,14 @@ static void	shuffle_registers(struct reg_match *match, uint64_t seed,
 			size_t reg_size)
 {
 	/* registers allowed for shuffling */
-	uint32_t	regs_allowed = RAX|RBX|R11|R14|R15;
+	// uint32_t	regs_allowed = RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R12|R13|R14|R15;
+	// uint32_t	regs_allowed = RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R14|R15;
+	uint32_t	regs_allowed = RCX|RDX|R8|R9|R10|R11;
 
 	struct reg_match	*reg          = match;
 	struct reg_match	*reg_ext      = match + 8;
-	uint32_t		reg_avail     = regs_allowed & 0xff;
-	uint32_t		reg_avail_ext = regs_allowed & 0xff00;
+	uint32_t		reg_avail     = regs_allowed & REGS;
+	uint32_t		reg_avail_ext = regs_allowed & REGS_EXTENDED;
 	/* rax to rdi shuffle */
 	for (int i = reg_size - 1; i > 0; i--)
 	{
@@ -98,11 +104,11 @@ static uint32_t	mask_to_index(uint32_t m)
 
 static bool	is_init(struct reg_match *match, uint32_t op)
 {
-	if (!match[op & 0b1111].is_init)
-	{
-		match[op & 0b1111].is_init = true;
-		return false;
-	}
+	// if (!match[op & 0b1111].is_init)
+	// {
+		// match[op & 0b1111].is_init = true;
+		// return false;
+	// }
 	return true;
 }
 
@@ -156,7 +162,7 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 	table_supported_opcode[7] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* e */
 					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* f */
 
-	if (!CHECK_TABLE(table_supported_opcode, *opcode)) return false;
+	if (!CHECK_TABLE(table_supported_opcode, *opcode)) return true;
 
 	/*
 	** Pack the register value to the following format:
@@ -203,7 +209,7 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 	instructions[0xbd] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reBP imm16/32/64         */
 	instructions[0xbe] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reSI imm16/32/64         */
 	instructions[0xbf] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reDI imm16/32/64         */
-	instructions[0x90] = (struct x86_set){           0,    0}; /* nop                          */
+	instructions[0x90] = (struct x86_set){        NONE,    0}; /* nop                          */
 
 	struct x86_set	i = instructions[*opcode];
 	uint8_t		rex_rxb  = 0;
@@ -414,6 +420,25 @@ bool		permutate_registers(void *buffer, uint64_t seed, size_t size)
 	match[0b1101].reg = mask_to_index(match[0b1101].reg);
 	match[0b1110].reg = mask_to_index(match[0b1110].reg);
 	match[0b1111].reg = mask_to_index(match[0b1111].reg);
+
+	// putstr("\nRAX: "); putu64(match[0b0000].reg);
+	// putstr("\nRCX: "); putu64(match[0b0001].reg);
+	// putstr("\nRDX: "); putu64(match[0b0010].reg);
+	// putstr("\nRBX: "); putu64(match[0b0011].reg);
+	// putstr("\nRSP: "); putu64(match[0b0100].reg);
+	// putstr("\nRBP: "); putu64(match[0b0101].reg);
+	// putstr("\nRSI: "); putu64(match[0b0110].reg);
+	// putstr("\nRDI: "); putu64(match[0b0111].reg);
+	// putstr("\n");
+	// putstr("\nR8: ");  putu64(match[0b1000].reg);
+	// putstr("\nR9: ");  putu64(match[0b1001].reg);
+	// putstr("\nR10: "); putu64(match[0b1010].reg);
+	// putstr("\nR11: "); putu64(match[0b1011].reg);
+	// putstr("\nR12: "); putu64(match[0b1100].reg);
+	// putstr("\nR13: "); putu64(match[0b1101].reg);
+	// putstr("\nR14: "); putu64(match[0b1110].reg);
+	// putstr("\nR15: "); putu64(match[0b1111].reg);
+	// putstr("\n");
 
 	size_t		instruction_length = 0;
 

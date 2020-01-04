@@ -47,6 +47,7 @@ bool		detect_spy(void);
 void		loader_entry(void);
 void		mark_below(void);
 void		return_to_client(void);
+void		end_of_reg_permutable_code(void);
 
 /*
 ** cypher and decypher
