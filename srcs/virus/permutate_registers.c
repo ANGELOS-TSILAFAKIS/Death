@@ -36,6 +36,12 @@
 # define RIP		(1 << 16) /* eip  || rip                        */
 
 /*
+** define what registers can be swapped by permutator
+*/
+# define SWAPPABLE_REGISTERS	(RDI|RSI|R8|R9|R10|R11|R14|R15)
+// # define SWAPPABLE_REGISTERS	(RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R14|R15)
+
+/*
 ** Flags used to specify how the intruction should be interpreted
 */
 # define NONE		(0)      /* nothing to touch */
@@ -44,7 +50,7 @@
 # define IMPLICIT_SRC	(1 << 2) /* source register is implicit          */
 # define IMPLICIT_DST	(1 << 3) /* destination register is implicit     */
 
-static void	swap_match(uint32_t *a, uint32_t *b)
+static void	swap_register(uint32_t *a, uint32_t *b)
 {
 	uint32_t	tmp;
 
@@ -53,38 +59,28 @@ static void	swap_match(uint32_t *a, uint32_t *b)
 	*b = tmp;
 }
 
-static void	shuffle_registers(uint32_t *match, uint64_t seed,
-			size_t reg_size)
+static bool	can_swap(uint32_t reg)
 {
-	/* registers allowed for shuffling */
-	uint32_t	regs_allowed  = RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R14|R15;
-	// uint32_t	regs_allowed  = R8|R9|R10|R11|R14|R15;
+	return (reg & SWAPPABLE_REGISTERS);
+}
 
-	uint32_t	*reg          = match;
-	uint32_t	*reg_ext      = match + 8;
-	uint32_t	reg_avail     = regs_allowed & REGS;
-	uint32_t	reg_avail_ext = regs_allowed & REGS_EXTENDED;
-	/* rax to rdi shuffle */
-	for (int i = reg_size - 1; i > 0; i--)
+static void	shuffle_registers(uint32_t *reg, uint64_t seed)
+{
+	for (size_t i = 0; i < 42; i++)
 	{
-		uint64_t	random_seed = random(&seed);
-		uint64_t	j = random_inrange(&random_seed, 0, reg_size - 1);
+		// swap regular registers (rax -> rdi)
+		size_t	a     = random_inrange(&seed, 0, 0b0111);
+		size_t	b     = random_inrange(&seed, 0, 0b0111);
 
-		j = j % (i + 1);
+		if (can_swap(reg[a]) && can_swap(reg[b]))
+			swap_register(&reg[a], &reg[b]);
 
-		if ((reg[i] & reg_avail) && (reg[j] & reg_avail))
-			swap_match(&reg[i], &reg[j]);
-	}
-	/* r8 to r15 shuffle */
-	for (int i = reg_size - 1; i > 0; i--)
-	{
-		uint64_t	random_seed = random(&seed);
-		uint64_t	j = random_inrange(&random_seed, 0, reg_size - 1);
+		// swap extended registers (r8 -> r15)
+		size_t	ext_a = random_inrange(&seed, 0b1000, 0b1111);
+		size_t	ext_b = random_inrange(&seed, 0b1000, 0b1111);
 
-		j = j % (i + 1);
-
-		if ((reg_ext[i] & reg_avail_ext) && (reg_ext[j] & reg_avail_ext))
-			swap_match(&reg_ext[i], &reg_ext[j]);
+		if (can_swap(reg[ext_a]) && can_swap(reg[ext_b]))
+			swap_register(&reg[ext_a], &reg[ext_b]);
 	}
 }
 
@@ -355,7 +351,7 @@ bool		permutate_registers(void *buffer, uint64_t seed, size_t size)
 	match[0b1110] = R14;
 	match[0b1111] = R15;
 
-	shuffle_registers(match, seed, 0b111);
+	shuffle_registers(match, seed);
 
 	/* convert masks to equivalent value */
 	match[0b0000] = mask_to_index(match[0b0000]);
