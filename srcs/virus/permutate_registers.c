@@ -44,34 +44,26 @@
 # define IMPLICIT_SRC	(1 << 2) /* source register is implicit          */
 # define IMPLICIT_DST	(1 << 3) /* destination register is implicit     */
 
-struct reg_match
-{
-	uint32_t	reg;
-	bool		is_init;
-};
-
-static void	swap_match(struct reg_match *a, struct reg_match *b)
+static void	swap_match(uint32_t *a, uint32_t *b)
 {
 	uint32_t	tmp;
 
-	tmp = a->reg;
-	a->reg = b->reg;
-	b->reg = tmp;
+	tmp = *a;
+	*a = *b;
+	*b = tmp;
 }
 
-static void	shuffle_registers(struct reg_match *match, uint64_t seed,
+static void	shuffle_registers(uint32_t *match, uint64_t seed,
 			size_t reg_size)
 {
 	/* registers allowed for shuffling */
-	// uint32_t	regs_allowed = RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R12|R13|R14|R15;
-	// uint32_t	regs_allowed = RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R14|R15;
-	// uint32_t	regs_allowed = RCX|RDX|R8|R9|R10|R11;
-	uint32_t	regs_allowed = R8|R9|R10|R11|R14|R15;
+	// uint32_t	regs_allowed  = RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R14|R15;
+	uint32_t	regs_allowed  = R8|R9|R10|R11|R14|R15;
 
-	struct reg_match	*reg          = match;
-	struct reg_match	*reg_ext      = match + 8;
-	uint32_t		reg_avail     = regs_allowed & REGS;
-	uint32_t		reg_avail_ext = regs_allowed & REGS_EXTENDED;
+	uint32_t	*reg          = match;
+	uint32_t	*reg_ext      = match + 8;
+	uint32_t	reg_avail     = regs_allowed & REGS;
+	uint32_t	reg_avail_ext = regs_allowed & REGS_EXTENDED;
 	/* rax to rdi shuffle */
 	for (int i = reg_size - 1; i > 0; i--)
 	{
@@ -80,7 +72,7 @@ static void	shuffle_registers(struct reg_match *match, uint64_t seed,
 
 		j = j % (i + 1);
 
-		if ((reg[i].reg & reg_avail) && (reg[j].reg & reg_avail))
+		if ((reg[i] & reg_avail) && (reg[j] & reg_avail))
 			swap_match(&reg[i], &reg[j]);
 	}
 	/* r8 to r15 shuffle */
@@ -91,7 +83,7 @@ static void	shuffle_registers(struct reg_match *match, uint64_t seed,
 
 		j = j % (i + 1);
 
-		if ((reg_ext[i].reg & reg_avail_ext) && (reg_ext[j].reg & reg_avail_ext))
+		if ((reg_ext[i] & reg_avail_ext) && (reg_ext[j] & reg_avail_ext))
 			swap_match(&reg_ext[i], &reg_ext[j]);
 	}
 }
@@ -103,17 +95,7 @@ static uint32_t	mask_to_index(uint32_t m)
 	return i;
 }
 
-static bool	is_init(struct reg_match *match, uint32_t op)
-{
-	// if (!match[op & 0b1111].is_init)
-	// {
-		// match[op & 0b1111].is_init = true;
-		// return false;
-	// }
-	return true;
-}
-
-static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
+static bool	apply_match(void *code, size_t codelen, uint32_t *match)
 {
 	uint8_t		*p     = (uint8_t*)code;
 	uint8_t		*rex   = NULL; /* REX position */
@@ -125,7 +107,7 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 
 	/* prefix loop */
 	next_opcode:
-	if (!codelen--) return false; /* error if instruction is too long */
+	if (!codelen--) return errors(ERR_VIRUS, _ERR_INSTRUCTION_LENGTH); /* error if instruction is too long */
 	opcode = p++;
 
 	/* unused legacy / REX prefixes for register disassembler */
@@ -232,8 +214,7 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 		uint8_t	base        = i.implicit_base;
 		uint8_t	current_reg = *opcode - base;
 
-		uint32_t	op = match[REG_PACK(current_reg, !!(rex))].reg;
-		if (!is_init(match, op)) return true;
+		uint32_t	op = match[REG_PACK(current_reg, !!(rex))];
 
 		op &= 0b111;
 		*opcode = base;
@@ -244,8 +225,7 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 		uint8_t	base        = i.implicit_base;
 		uint8_t	current_reg = *opcode - base;
 
-		uint32_t	op = match[REG_PACK(current_reg, !!(rex))].reg;
-		match[REG_PACK(current_reg, !!(rex))].is_init = true;
+		uint32_t	op = match[REG_PACK(current_reg, !!(rex))];
 
 		op &= 0b111;
 		*opcode = base;
@@ -253,13 +233,12 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 	}
 	if (i.status & EXT)
 	{
-		if (!codelen--) return false; /* error if instruction is too long */
+		if (!codelen--) return errors(ERR_VIRUS, _ERR_INSTRUCTION_LENGTH); /* error if instruction is too long */
 		uint8_t		*modrm = p++;
 		uint8_t		reg    = (*modrm & 0b00111000) >> 3;
 		uint8_t		rm     = *modrm & 0b00000111;
 
-		uint8_t	new_rm         = match[REG_PACK(rm, rm_mode)].reg;
-		if (!is_init(match, new_rm)) return true;
+		uint8_t	new_rm         = match[REG_PACK(rm, rm_mode)];
 
 		new_rm &= 0b111;
 		*modrm &= ~(0b00111111);
@@ -268,23 +247,16 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 	/* MODRM byte management */
 	if (i.status & MODRM)
 	{
-		if (!codelen--) return false; /* error if instruction is too long */
+		if (!codelen--) return errors(ERR_VIRUS, _ERR_INSTRUCTION_LENGTH); /* error if instruction is too long */
 		uint8_t	*modrm  = p++;
 		uint8_t	mod     = (*modrm & 0b11000000) >> 6;
 		uint8_t	reg     = (*modrm & 0b00111000) >> 3;
 		uint8_t	rm      =  *modrm & 0b00000111;
-		uint8_t	new_reg = match[REG_PACK(reg, reg_mode)].reg;
-		uint8_t	new_rm  = match[REG_PACK(rm, rm_mode)].reg;
-
-		uint8_t		direction = *opcode & 0b10; /* d=1 memory to register (reg dest), d=0 register to memory (reg source) */
+		uint8_t	new_reg = match[REG_PACK(reg, reg_mode)];
+		uint8_t	new_rm  = match[REG_PACK(rm, rm_mode)];
 
 		if (mod == 0b11) /* direct register addressing */
 		{
-			if (direction) {if (!is_init(match, new_rm))  return true;}
-			else           {if (!is_init(match, new_reg)) return true;}
-			if (direction) match[REG_PACK(new_reg, reg_mode)].is_init = true;
-			else           match[REG_PACK(new_rm, rm_mode)].is_init = true;
-
 			new_rm  &= 0b111;
 			new_reg &= 0b111;
 			*modrm &= ~(0b00111111);
@@ -294,18 +266,14 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 		{
 			if (rm == 0b100) /* SIB */
 			{
-				if (!codelen--) return false; /* error if instruction is too long */
+				if (!codelen--) return errors(ERR_VIRUS, _ERR_INSTRUCTION_LENGTH); /* error if instruction is too long */
 				uint8_t	*sib      = p++;
 				uint8_t	index     = (*sib & 0b00111000) >> 3;
 				uint8_t	base      =  *sib & 0b00000111;
-				uint8_t	new_index = match[REG_PACK(index, rm_mode)].reg;
-				uint8_t	new_base  = match[REG_PACK(base, rm_mode)].reg;
+				uint8_t	new_index = match[REG_PACK(index, rm_mode)];
+				uint8_t	new_base  = match[REG_PACK(base, rm_mode)];
 
 				/* reg is the destination */
-				if (!is_init(match, index)) return true;
-				if (!is_init(match, base))  return true;
-				match[REG_PACK(new_reg, reg_mode)].is_init = true;
-
 				new_reg &= 0b111;
 				*modrm &= ~(0b00111000);
 				*modrm |= NEW_MODRM(new_reg, rm);
@@ -318,8 +286,6 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 			else if (rm == 0b101) /* displacement only addressing [rip + disp] */
 			{
 				/* reg is the destination */
-				match[REG_PACK(new_reg, reg_mode)].is_init = true;
-
 				new_reg &= 0b111;
 				*modrm &= ~(0b00111000);
 				*modrm |= NEW_MODRM(new_reg, rm);
@@ -327,11 +293,6 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 			else /* indirect register addressing */
 			{
 				/* r/m is dereferenced */
-				if (direction) {if (!is_init(match, new_rm))  return true;}
-				else           {if (!is_init(match, new_reg)) return true;}
-				if (direction) match[REG_PACK(new_reg, reg_mode)].is_init = true;
-				else           match[REG_PACK(new_rm, rm_mode)].is_init = true;
-
 				new_reg &= 0b111;
 				new_rm &= 0b111;
 				*modrm &= ~(0b00111111);
@@ -342,18 +303,14 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 		{
 			if (rm == 0b100) /* SIB with displacement */
 			{
-				if (!codelen--) return false; /* error if instruction is too long */
+				if (!codelen--) return errors(ERR_VIRUS, _ERR_INSTRUCTION_LENGTH); /* error if instruction is too long */
 				uint8_t	*sib      = p++;
 				uint8_t	index     = (*sib & 0b00111000) >> 3;
 				uint8_t	base      =  *sib & 0b00000111;
-				uint8_t	new_index = match[REG_PACK(index, rm_mode)].reg;
-				uint8_t	new_base  = match[REG_PACK(base, rm_mode)].reg;
+				uint8_t	new_index = match[REG_PACK(index, rm_mode)];
+				uint8_t	new_base  = match[REG_PACK(base, rm_mode)];
 
 				/* reg is the destination */
-				if (!is_init(match, index)) return true;
-				if (!is_init(match, base))  return true;
-				match[REG_PACK(new_reg, reg_mode)].is_init = true;
-
 				new_reg &= 0b111;
 				*modrm &= ~(0b00111000);
 				*modrm |= NEW_MODRM(new_reg, rm);
@@ -366,11 +323,6 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 			else /* indirect register with displacement */
 			{
 				/* r/m is dereferenced */
-				if (direction) {if (!is_init(match, new_rm))  return true;}
-				else           {if (!is_init(match, new_reg)) return true;}
-				if (direction) match[REG_PACK(new_reg, reg_mode)].is_init = true;
-				else           match[REG_PACK(new_rm, rm_mode)].is_init = true;
-
 				new_reg &= 0b111;
 				new_rm &= 0b111;
 				*modrm &= ~(0b00111111);
@@ -384,62 +336,43 @@ static bool	apply_match(void *code, size_t codelen, struct reg_match *match)
 bool		permutate_registers(void *buffer, uint64_t seed, size_t size)
 {
 	/* init to masks so unallowed registers can easely be ignored */
-	struct reg_match	match[16];
-	match[0b0000] = (struct reg_match){RAX, false};
-	match[0b0001] = (struct reg_match){RCX, false};
-	match[0b0010] = (struct reg_match){RDX, false};
-	match[0b0011] = (struct reg_match){RBX, false};
-	match[0b0100] = (struct reg_match){RSP, false};
-	match[0b0101] = (struct reg_match){RBP, false};
-	match[0b0110] = (struct reg_match){RSI, false};
-	match[0b0111] = (struct reg_match){RDI, false};
-	match[0b1000] = (struct reg_match){R8,  false};
-	match[0b1001] = (struct reg_match){R9,  false};
-	match[0b1010] = (struct reg_match){R10, false};
-	match[0b1011] = (struct reg_match){R11, false};
-	match[0b1100] = (struct reg_match){R12, false};
-	match[0b1101] = (struct reg_match){R13, false};
-	match[0b1110] = (struct reg_match){R14, false};
-	match[0b1111] = (struct reg_match){R15, false};
+	uint32_t	match[16];
+	match[0b0000] = RAX;
+	match[0b0001] = RCX;
+	match[0b0010] = RDX;
+	match[0b0011] = RBX;
+	match[0b0100] = RSP;
+	match[0b0101] = RBP;
+	match[0b0110] = RSI;
+	match[0b0111] = RDI;
+	match[0b1000] = R8 ;
+	match[0b1001] = R9 ;
+	match[0b1010] = R10;
+	match[0b1011] = R11;
+	match[0b1100] = R12;
+	match[0b1101] = R13;
+	match[0b1110] = R14;
+	match[0b1111] = R15;
 
 	shuffle_registers(match, seed, 0b111);
 
 	/* convert masks to equivalent value */
-	match[0b0000].reg = mask_to_index(match[0b0000].reg);
-	match[0b0001].reg = mask_to_index(match[0b0001].reg);
-	match[0b0010].reg = mask_to_index(match[0b0010].reg);
-	match[0b0011].reg = mask_to_index(match[0b0011].reg);
-	match[0b0100].reg = mask_to_index(match[0b0100].reg);
-	match[0b0101].reg = mask_to_index(match[0b0101].reg);
-	match[0b0110].reg = mask_to_index(match[0b0110].reg);
-	match[0b0111].reg = mask_to_index(match[0b0111].reg);
-	match[0b1000].reg = mask_to_index(match[0b1000].reg);
-	match[0b1001].reg = mask_to_index(match[0b1001].reg);
-	match[0b1010].reg = mask_to_index(match[0b1010].reg);
-	match[0b1011].reg = mask_to_index(match[0b1011].reg);
-	match[0b1100].reg = mask_to_index(match[0b1100].reg);
-	match[0b1101].reg = mask_to_index(match[0b1101].reg);
-	match[0b1110].reg = mask_to_index(match[0b1110].reg);
-	match[0b1111].reg = mask_to_index(match[0b1111].reg);
-
-	// putstr("\nRAX: "); putu64(match[0b0000].reg);
-	// putstr("\nRCX: "); putu64(match[0b0001].reg);
-	// putstr("\nRDX: "); putu64(match[0b0010].reg);
-	// putstr("\nRBX: "); putu64(match[0b0011].reg);
-	// putstr("\nRSP: "); putu64(match[0b0100].reg);
-	// putstr("\nRBP: "); putu64(match[0b0101].reg);
-	// putstr("\nRSI: "); putu64(match[0b0110].reg);
-	// putstr("\nRDI: "); putu64(match[0b0111].reg);
-	// putstr("\n");
-	// putstr("\nR8: ");  putu64(match[0b1000].reg);
-	// putstr("\nR9: ");  putu64(match[0b1001].reg);
-	// putstr("\nR10: "); putu64(match[0b1010].reg);
-	// putstr("\nR11: "); putu64(match[0b1011].reg);
-	// putstr("\nR12: "); putu64(match[0b1100].reg);
-	// putstr("\nR13: "); putu64(match[0b1101].reg);
-	// putstr("\nR14: "); putu64(match[0b1110].reg);
-	// putstr("\nR15: "); putu64(match[0b1111].reg);
-	// putstr("\n");
+	match[0b0000] = mask_to_index(match[0b0000]);
+	match[0b0001] = mask_to_index(match[0b0001]);
+	match[0b0010] = mask_to_index(match[0b0010]);
+	match[0b0011] = mask_to_index(match[0b0011]);
+	match[0b0100] = mask_to_index(match[0b0100]);
+	match[0b0101] = mask_to_index(match[0b0101]);
+	match[0b0110] = mask_to_index(match[0b0110]);
+	match[0b0111] = mask_to_index(match[0b0111]);
+	match[0b1000] = mask_to_index(match[0b1000]);
+	match[0b1001] = mask_to_index(match[0b1001]);
+	match[0b1010] = mask_to_index(match[0b1010]);
+	match[0b1011] = mask_to_index(match[0b1011]);
+	match[0b1100] = mask_to_index(match[0b1100]);
+	match[0b1101] = mask_to_index(match[0b1101]);
+	match[0b1110] = mask_to_index(match[0b1110]);
+	match[0b1111] = mask_to_index(match[0b1111]);
 
 	size_t		instruction_length = 0;
 
@@ -449,7 +382,7 @@ bool		permutate_registers(void *buffer, uint64_t seed, size_t size)
 		if (instruction_length == 0) break ;
 
 		if (!apply_match(buffer, instruction_length, match))
-			return errors(ERR_VIRUS, _ERR_PERMUTATE_REGISTERS);
+			return errors(ERR_THROW, _ERR_PERMUTATE_REGISTERS);
 
 		buffer += instruction_length;
 		size   -= instruction_length;

