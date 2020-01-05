@@ -87,7 +87,7 @@ static void	disasm_instruction(const void *code, size_t codelen,
 					      1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1); /* 5 */
 	table_supported_opcode[3] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 6 */
 					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 7 */
-	table_supported_opcode[4] = BITMASK32(0,0,0,1,0,1,0,1, 0,1,0,1,0,0,0,0,  /* 8 */
+	table_supported_opcode[4] = BITMASK32(0,1,0,1,0,1,0,1, 0,1,0,1,0,0,0,0,  /* 8 */
 					      1,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 9 */
 	table_supported_opcode[5] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* a */
 					      0,0,0,0,0,0,0,0, 1,1,1,1,1,1,1,1); /* b */
@@ -159,11 +159,13 @@ static void	disasm_instruction(const void *code, size_t codelen,
 	instructions[0x5d] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_SRC, {MEMORY,0b100,    0}, {     0,0b101,    0}}; /* pop rBP/r13                  */
 	instructions[0x5e] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_SRC, {MEMORY,0b100,    0}, {     0,0b110,    0}}; /* pop rSI/r14                  */
 	instructions[0x5f] = (struct x86_set){IMPLICIT_SRC|IMPLICIT_DST|KEEP_SRC, {MEMORY,0b100,    0}, {     0,0b111,    0}}; /* pop rDI/r15                  */
-	instructions[0x83] = (struct x86_set){EXT|NO_SRC|KEEP_DST               , {     0,    0,0b101}, { FLAGS,    0,0b101}}; /* ? */
+	instructions[0x81] = (struct x86_set){EXT|NO_SRC|KEEP_DST               , {     0,    0,0b101}, { FLAGS,    0,0b101}}; /* add(0b000) && sub(0b101)     */
+	instructions[0x83] = (struct x86_set){EXT|NO_SRC|KEEP_DST               , {     0,    0,0b000}, { FLAGS,    0,0b000}}; /* add(0b000)                   */
 	instructions[0x85] = (struct x86_set){MODRM|KEEP_SRC                    , {     0,    0,    0}, { FLAGS,    0,    0}}; /* test r/m16/32/64 reg16/32/64 */
 	instructions[0x87] = (struct x86_set){MODRM|KEEP_SRC|KEEP_DST           , {     0,    0,    0}, {     0,    0,    0}}; /* xchg reg16/32/64 r/m16/32/64 */
 	instructions[0x89] = (struct x86_set){MODRM                             , {     0,    0,    0}, {     0,    0,    0}}; /* mov r/m16/32/64 reg16/32/64  */
 	instructions[0x8b] = (struct x86_set){MODRM|KEEP_SRC                    , {     0,    0,    0}, {     0,    0,    0}}; /* mov reg16/32/64 r/m16/32/64  */
+	instructions[0x90] = (struct x86_set){NO_SRC|NO_DST                     , {     0,    0,    0}, {     0,    0,    0}}; /* nop                          */
 	instructions[0xb8] = (struct x86_set){NO_SRC|IMPLICIT_DST               , {     0,    0,    0}, {     0,0b000,    0}}; /* mov reAX imm16/32/64         */
 	instructions[0xb9] = (struct x86_set){NO_SRC|IMPLICIT_DST               , {     0,    0,    0}, {     0,0b001,    0}}; /* mov reCX imm16/32/64         */
 	instructions[0xba] = (struct x86_set){NO_SRC|IMPLICIT_DST               , {     0,    0,    0}, {     0,0b010,    0}}; /* mov reDX imm16/32/64         */
@@ -172,7 +174,6 @@ static void	disasm_instruction(const void *code, size_t codelen,
 	instructions[0xbd] = (struct x86_set){NO_SRC|IMPLICIT_DST               , {     0,    0,    0}, {     0,0b101,    0}}; /* mov reBP imm16/32/64         */
 	instructions[0xbe] = (struct x86_set){NO_SRC|IMPLICIT_DST               , {     0,    0,    0}, {     0,0b110,    0}}; /* mov reSI imm16/32/64         */
 	instructions[0xbf] = (struct x86_set){NO_SRC|IMPLICIT_DST               , {     0,    0,    0}, {     0,0b111,    0}}; /* mov reDI imm16/32/64         */
-	instructions[0x90] = (struct x86_set){NO_SRC|NO_DST                     , {     0,    0,    0}, {     0,    0,    0}}; /* nop                          */
 
 	struct x86_set		i = instructions[opcode];       /* get instruction         */
 	uint8_t			rex_rxb  = rex & 0b00000111;    /* retrieve rex modes      */

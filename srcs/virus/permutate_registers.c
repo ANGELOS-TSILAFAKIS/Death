@@ -57,8 +57,8 @@ static void	shuffle_registers(uint32_t *match, uint64_t seed,
 			size_t reg_size)
 {
 	/* registers allowed for shuffling */
-	// uint32_t	regs_allowed  = RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R14|R15;
-	uint32_t	regs_allowed  = R8|R9|R10|R11|R14|R15;
+	uint32_t	regs_allowed  = RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R14|R15;
+	// uint32_t	regs_allowed  = R8|R9|R10|R11|R14|R15;
 
 	uint32_t	*reg          = match;
 	uint32_t	*reg_ext      = match + 8;
@@ -136,7 +136,7 @@ static bool	apply_match(void *code, size_t codelen, uint32_t *match)
 					      1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1); /* 5 */
 	table_supported_opcode[3] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 6 */
 					      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 7 */
-	table_supported_opcode[4] = BITMASK32(0,0,0,1,0,1,0,1, 0,1,0,1,0,0,0,0,  /* 8 */
+	table_supported_opcode[4] = BITMASK32(0,1,0,1,0,1,0,1, 0,1,0,1,0,0,0,0,  /* 8 */
 					      1,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 9 */
 	table_supported_opcode[5] = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* a */
 					      0,0,0,0,0,0,0,0, 1,1,1,1,1,1,1,1); /* b */
@@ -179,11 +179,13 @@ static bool	apply_match(void *code, size_t codelen, uint32_t *match)
 	instructions[0x5d] = (struct x86_set){IMPLICIT_DST, 0x58}; /* pop rBP/r13                  */
 	instructions[0x5e] = (struct x86_set){IMPLICIT_DST, 0x58}; /* pop rSI/r14                  */
 	instructions[0x5f] = (struct x86_set){IMPLICIT_DST, 0x58}; /* pop rDI/r15                  */
-	instructions[0x83] = (struct x86_set){EXT         ,    0}; /* ? */
+	instructions[0x81] = (struct x86_set){EXT         ,    0}; /* add(0b000) && sub(0b101)     */
+	instructions[0x83] = (struct x86_set){EXT         ,    0}; /* add(0b000)                   */
 	instructions[0x85] = (struct x86_set){MODRM       ,    0}; /* test r/m16/32/64 reg16/32/64 */
 	instructions[0x87] = (struct x86_set){MODRM       ,    0}; /* xchg reg16/32/64 r/m16/32/64 */
 	instructions[0x89] = (struct x86_set){MODRM       ,    0}; /* mov r/m16/32/64 reg16/32/64  */
 	instructions[0x8b] = (struct x86_set){MODRM       ,    0}; /* mov reg16/32/64 r/m16/32/64  */
+	instructions[0x90] = (struct x86_set){NONE        ,    0}; /* nop                          */
 	instructions[0xb8] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reAX imm16/32/64         */
 	instructions[0xb9] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reCX imm16/32/64         */
 	instructions[0xba] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reDX imm16/32/64         */
@@ -192,7 +194,6 @@ static bool	apply_match(void *code, size_t codelen, uint32_t *match)
 	instructions[0xbd] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reBP imm16/32/64         */
 	instructions[0xbe] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reSI imm16/32/64         */
 	instructions[0xbf] = (struct x86_set){IMPLICIT_DST, 0xb8}; /* mov reDI imm16/32/64         */
-	instructions[0x90] = (struct x86_set){        NONE,    0}; /* nop                          */
 
 	struct x86_set	i = instructions[*opcode];
 	uint8_t		rex_rxb  = 0;
