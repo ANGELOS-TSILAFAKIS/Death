@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:38:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2020/01/05 15:50:36 by ichkamo          ###   ########.fr       */
+/*   Updated: 2020/01/12 18:56:19 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,5 +64,11 @@ void		decypher(char *data, size_t size);
 
 void		cypher_end(void);
 void		decypher_end(void);
+
+/*
+** end of virus (cf Makefile)
+*/
+
+void		_start(void);
 
 #endif

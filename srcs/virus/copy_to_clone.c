@@ -6,11 +6,12 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/13 14:58:36 by agrumbac          #+#    #+#             */
-/*   Updated: 2020/01/12 17:50:48 by ichkamo          ###   ########.fr       */
+/*   Updated: 2020/01/12 19:02:00 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "accessors.h"
+#include "loader.h"
 #include "utils.h"
 #include "errors.h"
 
@@ -51,13 +52,6 @@ bool		copy_to_clone(struct safe_ptr clone_ref, struct safe_ptr original_ref, \
 	}
 	return true;
 }
-
-/*
-** copy_loader_to_clone
-*/
-
-#include "loader.h"
-#include "virus.h"
 
 bool		copy_loader_to_clone(struct safe_ptr clone_ref, size_t end_last_sect)
 {
