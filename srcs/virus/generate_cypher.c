@@ -70,14 +70,15 @@ struct	x86_64_encode
 static void		encode_instruction(uint8_t *buffer,
 				struct x86_64_encode i, uint64_t *seed)
 {
-	uint64_t	immediate = random_inrange(seed, 0x1, 0x7fffffff);
+	uint64_t	immediate = random_inrange(seed, 0x1, 0x7fffff);
 	uint8_t		operand_size = i.immediate;
 
 	if (operand_size == IMM_IB) immediate &= 0x7f;
 	else if (operand_size == IMM_IW) immediate &= 0x7fff;
 	else if (operand_size == IMM_ID) immediate &= 0x7fffffff;
 	else if (operand_size == IMM_IO) immediate &= 0x7fffffffffffffff;
-	else immediate &= 0x7fffffffffffffff;
+	else immediate &= 0x7fffff;
+
 
 	/* REX prefix */
 	*buffer |= ENCODE_VALUE(i.prefix_rex, 0x07, 0x04);
