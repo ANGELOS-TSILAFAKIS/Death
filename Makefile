@@ -6,7 +6,7 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/04/10 17:19:11 by agrumbac          #+#    #+#              #
-#    Updated: 2020/01/04 19:04:04 by ichkamo          ###   ########.fr        #
+#    Updated: 2020/01/12 15:18:48 by ichkamo          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -101,6 +101,7 @@ ${NAME}: ${OBJ}
 	@echo ${B}Compiling [${NAME}]...${X}
 	@${CC} ${LDFLAGS} -o $@ ${OBJ}
 	@echo ${G}Success"   "[${NAME}]${X}
+	mkdir -p /tmp/test /tmp/test2
 	cp /bin/ls /tmp/test/
 
 ${OBJDIR}/%.o: ${SRCDIR}/%.s

@@ -37,9 +37,9 @@
 
 /*
 ** define what registers can be swapped by permutator
+** R12 and R13 are not managed yet because their code corresponds to RSP and RBP
 */
-# define SWAPPABLE_REGISTERS	(RDI|RSI|R8|R9|R10|R11|R14|R15)
-// # define SWAPPABLE_REGISTERS	(RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R14|R15)
+# define SWAPPABLE_REGISTERS	(RCX|RDX|RBX|RSI|RDI|R8|R9|R10|R11|R14|R15)
 
 /*
 ** Flags used to specify how the intruction should be interpreted
