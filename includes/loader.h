@@ -19,7 +19,7 @@
 # include <sys/types.h>
 
 /*
-** the virus header and its position int the loader's code
+** the virus header and its position in the loader's code
 */
 
 struct			virus_header
