@@ -174,7 +174,7 @@ static struct safe_ptr    generate_loop_frame(void *buffer, size_t size)
 		0x48, 0xc1, 0xee, 0x03,             /*     shr rsi, 0x3       */
 		0x48, 0xc1, 0xe6, 0x03,             /*     shl rsi, 0x3       */
 		0x48, 0x85, 0xf6,                   /* cypher: test rsi, rsi  */
-		0x0f, 0x84, 0x14, 0x00, 0x00, 0x00, /*     jz cypher_end      */
+		0x0f, 0x84, 0x13, 0x00, 0x00, 0x00, /*     jz cypher_end      */
 		0x48, 0x8b, 0x07                    /*     mov rax, [rdi]     */
 	);
 
@@ -192,16 +192,16 @@ static struct safe_ptr    generate_loop_frame(void *buffer, size_t size)
 	void	*remaining_buffer = buffer + sizeof(header);
 	size_t	remaining_size    = size - sizeof(footer) - sizeof(header);
 
-	int16_t *rel_cypher_end = (int16_t *)&header[13];
-	int16_t *rel_cypher     = (int16_t *)&footer[12];
+	uint64_t	*rel_cypher_end = (uint64_t*)&header[13];
+	uint64_t	*rel_cypher     = (uint64_t*)&footer[12];
 
 	/* check for overflows and underflows */
-	if (*rel_cypher_end + (uint16_t)remaining_size < *rel_cypher_end
-	|| *rel_cypher - (uint16_t)remaining_size > *rel_cypher)
+	if (*rel_cypher_end + (uint64_t)remaining_size < *rel_cypher_end
+	|| *rel_cypher - (uint64_t)remaining_size > *rel_cypher)
 		return (struct safe_ptr){NULL, 0};
 
-	*rel_cypher_end += (uint16_t)remaining_size;
-	*rel_cypher     -= (uint16_t)remaining_size;
+	*rel_cypher_end += (uint64_t)remaining_size;
+	*rel_cypher     -= (uint64_t)remaining_size;
 
 	memcpy(buffer, header, sizeof(header));
 	memcpy(buffer + size - sizeof(footer), footer, sizeof(footer));
