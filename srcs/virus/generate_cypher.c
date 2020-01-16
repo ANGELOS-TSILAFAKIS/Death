@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 20:54:46 by anselme           #+#    #+#             */
-/*   Updated: 2020/01/13 20:48:42 by spolowy          ###   ########.fr       */
+/*   Updated: 2020/01/16 23:03:31 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,9 @@
 #include "utils.h"
 #include "errors.h"
 #include "position_independent.h"
+
+/* ask your mom */
+#define BIT32_OVERFLOW	(~(uint64_t)~(uint32_t)0)
 
 #define CYPHER		0
 #define DECYPHER	1
@@ -192,16 +195,16 @@ static struct safe_ptr    generate_loop_frame(void *buffer, size_t size)
 	void	*remaining_buffer = buffer + sizeof(header);
 	size_t	remaining_size    = size - sizeof(footer) - sizeof(header);
 
-	uint64_t	*rel_cypher_end = (uint64_t*)&header[13];
-	uint64_t	*rel_cypher     = (uint64_t*)&footer[12];
+	uint32_t	*rel_cypher_end = (uint32_t*)&header[13];
+	uint32_t	*rel_cypher     = (uint32_t*)&footer[12];
 
 	/* check for overflows and underflows */
-	if (*rel_cypher_end + (uint64_t)remaining_size < *rel_cypher_end
-	|| *rel_cypher - (uint64_t)remaining_size > *rel_cypher)
+	if ((*rel_cypher_end + remaining_size) & BIT32_OVERFLOW
+	|| (*rel_cypher - remaining_size) > *rel_cypher)
 		return (struct safe_ptr){NULL, 0};
 
-	*rel_cypher_end += (uint64_t)remaining_size;
-	*rel_cypher     -= (uint64_t)remaining_size;
+	*rel_cypher_end += (uint32_t)remaining_size;
+	*rel_cypher     -= (uint32_t)remaining_size;
 
 	memcpy(buffer, header, sizeof(header));
 	memcpy(buffer + size - sizeof(footer), footer, sizeof(footer));
