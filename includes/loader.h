@@ -1,26 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   famine.h                                           :+:      :+:    :+:   */
+/*   loader.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:38:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/13 09:11:32 by anselme          ###   ########.fr       */
+/*   Updated: 2020/01/12 18:56:19 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FAMINE_H
-# define FAMINE_H
+#ifndef LOADER_H
+# define LOADER_H
 
-# include <limits.h>
-# include <linux/elf.h>
 # include <stdbool.h>
 # include <stdint.h>
 # include <stddef.h>
 # include <sys/types.h>
 
-struct client_info
+/*
+** the virus header and its position in the loader's code
+*/
+
+struct			virus_header
 {
 	uint64_t	seed[2];
 	uint64_t	relative_pt_load_address;
@@ -30,22 +32,31 @@ struct client_info
 	uint64_t	virus_size;
 }__attribute__((packed));
 
+void		virus_header_struct(void);
+
 /*
-** famine
+** anti debug
 */
 
 bool		detect_spy(void);
+void		detect_spy_end(void);
 
 /*
-** virus
+** loader
 */
 
-void		famine_entry(void);
-void		virus(uint64_t seed[2]);
-void		infect_files_in(const char *path, uint64_t seed[2]);
+void		loader_entry(void);
+void		loader_exit(void);
 
 /*
-** encryption
+** wrap_mprotect
+*/
+
+void		wrap_mprotect(void);
+void		wrap_mprotect_end(void);
+
+/*
+** cypher and decypher
 */
 
 void		cypher(char *data, size_t size);
@@ -53,5 +64,11 @@ void		decypher(char *data, size_t size);
 
 void		cypher_end(void);
 void		decypher_end(void);
+
+/*
+** end of virus (cf Makefile)
+*/
+
+void		_start(void);
 
 #endif
