@@ -23,11 +23,13 @@
 #define IMPLICIT_DST	(1 << 7)  /* destination register is implicit        */
 #define NONE_SRC	(1 << 8)  /* no final source operand                 */
 #define NONE_DST	(1 << 9)  /* no final destination operand            */
+#define PROMOTE_SRC	(1 << 10) /* source register code Rx promotion       */
+#define PROMOTE_DST	(1 << 11) /* destination register code Rx promotion  */
 /*
 ** Opcode fields
 */
-#define FLD_R 		(1 << 10) /* register code added to primary opcode   */
-#define FLD_D		(1 << 11) /* direction of data operation             */
+#define FLD_R 		(1 << 12) /* register code added to primary opcode   */
+#define FLD_D		(1 << 13) /* direction of data operation             */
 
 struct x64_set
 {
@@ -51,68 +53,68 @@ static struct x64_set	map_single(uint8_t *p, uint8_t opcode, size_t codelen)
 
 	bzero(instructions, sizeof(instructions));
 
-	instructions[0x00] = (struct x64_set){MODRM|FLD_D|KEEP_DST                    ,FLAGS     ,         0}; /* add    r/m8        r8                 */
-	instructions[0x01] = (struct x64_set){MODRM|FLD_D|KEEP_DST                    ,FLAGS     ,         0}; /* add    r/m16/32/64 r16/32/64          */
-	instructions[0x03] = (struct x64_set){MODRM|FLD_D|KEEP_DST                    ,FLAGS     ,         0}; /* add    r16/32/64   r/m16/32/64        */
-	instructions[0x05] = (struct x64_set){IMPLICIT_DST|KEEP_DST                   ,FLAGS|RAX ,         0}; /* add    rAX         imm16/32           */
-	instructions[0x09] = (struct x64_set){MODRM|FLD_D|KEEP_DST                    ,FLAGS     ,         0}; /* or     r/m16/32/64 r16/32/64          */
-	instructions[0x0b] = (struct x64_set){MODRM|FLD_D|KEEP_DST                    ,FLAGS     ,         0}; /* or     r16/32/64   r/m16/32/64        */
-	instructions[0x21] = (struct x64_set){MODRM|FLD_D|KEEP_DST                    ,FLAGS     ,         0}; /* and    r16/32/64   r/m16/32/64        */
-	instructions[0x23] = (struct x64_set){MODRM|FLD_D|KEEP_DST                    ,FLAGS     ,         0}; /* and    r16/32/64   r/m16/32/64        */
-	instructions[0x24] = (struct x64_set){IMPLICIT_DST|KEEP_DST                   ,FLAGS|RAX ,         0}; /* and    al          imm8               */
-	instructions[0x25] = (struct x64_set){IMPLICIT_DST|KEEP_DST                   ,FLAGS|RAX ,         0}; /* and    rAX         imm16/32           */
-	instructions[0x29] = (struct x64_set){MODRM|FLD_D|KEEP_DST                    ,FLAGS     ,         0}; /* sub    r/m16/32/64 r16/32/64          */
-	instructions[0x2b] = (struct x64_set){MODRM|FLD_D|KEEP_DST                    ,FLAGS     ,         0}; /* sub    r16/32/64   r/m16/32/64        */
-	instructions[0x31] = (struct x64_set){MODRM|FLD_D|KEEP_DST                    ,FLAGS     ,         0}; /* xor    r/m16/32/64 r16/32/64          */
-	instructions[0x33] = (struct x64_set){MODRM|FLD_D|KEEP_DST                    ,FLAGS     ,         0}; /* xor    r16/32/64   r/m16/32/64        */
-	instructions[0x39] = (struct x64_set){MODRM|FLD_D|KEEP_DST|NONE_DST|KEEP_DST  ,FLAGS     ,         0}; /* cmp    r/m16/32/64 r16/32/64          */
-	instructions[0x3b] = (struct x64_set){MODRM|FLD_D|KEEP_DST|NONE_DST|KEEP_DST  ,FLAGS     ,         0}; /* cmp    r16/32/64   r/m16/32/64        */
-	instructions[0x3d] = (struct x64_set){IMPLICIT_SRC|KEEP_DST|NONE_DST          ,FLAGS     ,RAX       }; /* cmp    rAX         imm16/32           */
-	instructions[0x50] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST,MEMORY|RSP,RAX       }; /* push   rAX/r8                         */
-	instructions[0x51] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST,MEMORY|RSP,RCX       }; /* push   rCX/r9                         */
-	instructions[0x52] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST,MEMORY|RSP,RDX       }; /* push   rDX/r10                        */
-	instructions[0x53] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST,MEMORY|RSP,RBX       }; /* push   rBX/r11                        */
-	instructions[0x54] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST,MEMORY|RSP,RSP       }; /* push   rSP/r12                        */
-	instructions[0x55] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST,MEMORY|RSP,RBP       }; /* push   rBP/r13                        */
-	instructions[0x56] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST,MEMORY|RSP,RSI       }; /* push   rSI/r14                        */
-	instructions[0x57] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST,MEMORY|RSP,RDI       }; /* push   rDI/r15                        */
-	instructions[0x58] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC,RAX       ,MEMORY|RSP}; /* pop    rAX/r8                         */
-	instructions[0x59] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC,RCX       ,MEMORY|RSP}; /* pop    rCX/r9                         */
-	instructions[0x5a] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC,RDX       ,MEMORY|RSP}; /* pop    rDX/r10                        */
-	instructions[0x5b] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC,RBX       ,MEMORY|RSP}; /* pop    rBX/r11                        */
-	instructions[0x5c] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC,RSP       ,MEMORY|RSP}; /* pop    rSP/r12                        */
-	instructions[0x5d] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC,RBP       ,MEMORY|RSP}; /* pop    rBP/r13                        */
-	instructions[0x5e] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC,RSI       ,MEMORY|RSP}; /* pop    rSI/r14                        */
-	instructions[0x5f] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC,RDI       ,MEMORY|RSP}; /* pop    rDI/r15                        */
-	instructions[0x63] = (struct x64_set){MODRM|FLD_D                             ,         0,         0}; /* movsxd r32/64      r/m32              */
-	instructions[0x6b] = (struct x64_set){MODRM                                   ,FLAGS     ,         0}; /* imul   r16/32/64   r/m16/32/64   imm8 */
-	instructions[0x80] = (struct x64_set){EXTENSION                               ,         0,         0}; /*                                       */
-	instructions[0x81] = (struct x64_set){EXTENSION                               ,         0,         0}; /*                                       */
-	instructions[0x83] = (struct x64_set){EXTENSION                               ,         0,         0}; /*                                       */
-	instructions[0x85] = (struct x64_set){MODRM|KEEP_SRC|NONE_DST                 ,FLAGS     ,         0}; /* test   r/m16/32/64 reg16/32/64        */
-	instructions[0x87] = (struct x64_set){MODRM|KEEP_SRC|KEEP_DST                 ,         0,         0}; /* xchg   reg16/32/64 r/m16/32/64        */
-	instructions[0x88] = (struct x64_set){MODRM|FLD_D                             ,         0,         0}; /* mov    r/m8        r8                 */
-	instructions[0x89] = (struct x64_set){MODRM|FLD_D                             ,         0,         0}; /* mov    r/m16/32/64 r16/32/64          */
-	instructions[0x8a] = (struct x64_set){MODRM|FLD_D                             ,         0,         0}; /* mov    r8          r/m8               */
-	instructions[0x8b] = (struct x64_set){MODRM|FLD_D                             ,         0,         0}; /* mov    r16/32/64   r/m16/32/64        */
-	instructions[0x8d] = (struct x64_set){MODRM                                   ,         0,MEMORY    }; /* lea    r16/32/64   m                  */
-	instructions[0x99] = (struct x64_set){IMPLICIT_DST|IMPLICIT_SRC               ,RDX       ,RAX       }; /* cqo                                   */
-	instructions[0xa8] = (struct x64_set){IMPLICIT_SRC|NONE_DST                   ,FLAGS     ,RAX       }; /* test   al          imm8               */
-	instructions[0xb0] = (struct x64_set){FLD_R|IMPLICIT_DST                      ,RAX       ,         0}; /* mov    rAX         imm8               */
-	instructions[0xb8] = (struct x64_set){FLD_R|IMPLICIT_DST                      ,RAX       ,         0}; /* mov    reAX        imm16/32/64        */
-	instructions[0xb9] = (struct x64_set){FLD_R|IMPLICIT_DST                      ,RCX       ,         0}; /* mov    reCX        imm16/32/64        */
-	instructions[0xba] = (struct x64_set){FLD_R|IMPLICIT_DST                      ,RDX       ,         0}; /* mov    reDX        imm16/32/64        */
-	instructions[0xbb] = (struct x64_set){IMPLICIT_DST|NONE_SRC                   ,RBX       ,         0}; /* mov    reBX        imm16/32/64        */
-	instructions[0xbc] = (struct x64_set){IMPLICIT_DST|NONE_SRC                   ,RSP       ,         0}; /* mov    reSP        imm16/32/64        */
-	instructions[0xbd] = (struct x64_set){IMPLICIT_DST|NONE_SRC                   ,RBP       ,         0}; /* mov    reBP        imm16/32/64        */
-	instructions[0xbe] = (struct x64_set){FLD_R|IMPLICIT_DST                      ,RSI       ,         0}; /* mov    RSI         imm16/32/64        */
-	instructions[0xbf] = (struct x64_set){FLD_R|IMPLICIT_DST                      ,RDI       ,         0}; /* mov    RDI         imm16/32/64        */
-	instructions[0xc1] = (struct x64_set){EXTENSION                               ,         0,         0}; /*                                       */
-	instructions[0xc6] = (struct x64_set){EXTENSION                               ,         0,         0}; /*                                       */
-	instructions[0xc7] = (struct x64_set){EXTENSION                               ,         0,         0}; /*                                       */
-	instructions[0xd3] = (struct x64_set){EXTENSION                               ,         0,         0}; /*                                       */
-	instructions[0xf6] = (struct x64_set){EXTENSION                               ,         0,         0}; /*                                       */
-	instructions[0xf7] = (struct x64_set){EXTENSION                               ,         0,         0}; /*                                       */
+	instructions[0x00] = (struct x64_set){MODRM|FLD_D|KEEP_DST                                ,FLAGS     ,         0}; /* add    r/m8        r8                 */
+	instructions[0x01] = (struct x64_set){MODRM|FLD_D|KEEP_DST                                ,FLAGS     ,         0}; /* add    r/m16/32/64 r16/32/64          */
+	instructions[0x03] = (struct x64_set){MODRM|FLD_D|KEEP_DST                                ,FLAGS     ,         0}; /* add    r16/32/64   r/m16/32/64        */
+	instructions[0x05] = (struct x64_set){IMPLICIT_DST|KEEP_DST                               ,FLAGS|RAX ,         0}; /* add    rAX         imm16/32           */
+	instructions[0x09] = (struct x64_set){MODRM|FLD_D|KEEP_DST                                ,FLAGS     ,         0}; /* or     r/m16/32/64 r16/32/64          */
+	instructions[0x0b] = (struct x64_set){MODRM|FLD_D|KEEP_DST                                ,FLAGS     ,         0}; /* or     r16/32/64   r/m16/32/64        */
+	instructions[0x21] = (struct x64_set){MODRM|FLD_D|KEEP_DST                                ,FLAGS     ,         0}; /* and    r16/32/64   r/m16/32/64        */
+	instructions[0x23] = (struct x64_set){MODRM|FLD_D|KEEP_DST                                ,FLAGS     ,         0}; /* and    r16/32/64   r/m16/32/64        */
+	instructions[0x24] = (struct x64_set){IMPLICIT_DST|KEEP_DST                               ,FLAGS|RAX ,         0}; /* and    al          imm8               */
+	instructions[0x25] = (struct x64_set){IMPLICIT_DST|KEEP_DST                               ,FLAGS|RAX ,         0}; /* and    rAX         imm16/32           */
+	instructions[0x29] = (struct x64_set){MODRM|FLD_D|KEEP_DST                                ,FLAGS     ,         0}; /* sub    r/m16/32/64 r16/32/64          */
+	instructions[0x2b] = (struct x64_set){MODRM|FLD_D|KEEP_DST                                ,FLAGS     ,         0}; /* sub    r16/32/64   r/m16/32/64        */
+	instructions[0x31] = (struct x64_set){MODRM|FLD_D|KEEP_DST                                ,FLAGS     ,         0}; /* xor    r/m16/32/64 r16/32/64          */
+	instructions[0x33] = (struct x64_set){MODRM|FLD_D|KEEP_DST                                ,FLAGS     ,         0}; /* xor    r16/32/64   r/m16/32/64        */
+	instructions[0x39] = (struct x64_set){MODRM|FLD_D|KEEP_DST|NONE_DST|KEEP_DST              ,FLAGS     ,         0}; /* cmp    r/m16/32/64 r16/32/64          */
+	instructions[0x3b] = (struct x64_set){MODRM|FLD_D|KEEP_DST|NONE_DST|KEEP_DST              ,FLAGS     ,         0}; /* cmp    r16/32/64   r/m16/32/64        */
+	instructions[0x3d] = (struct x64_set){IMPLICIT_SRC|KEEP_DST|NONE_DST                      ,FLAGS     ,RAX       }; /* cmp    rAX         imm16/32           */
+	instructions[0x50] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST|PROMOTE_SRC,MEMORY|RSP,RAX       }; /* push   rAX/r8                         */
+	instructions[0x51] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST|PROMOTE_SRC,MEMORY|RSP,RCX       }; /* push   rCX/r9                         */
+	instructions[0x52] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST|PROMOTE_SRC,MEMORY|RSP,RDX       }; /* push   rDX/r10                        */
+	instructions[0x53] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST|PROMOTE_SRC,MEMORY|RSP,RBX       }; /* push   rBX/r11                        */
+	instructions[0x54] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST|PROMOTE_SRC,MEMORY|RSP,RSP       }; /* push   rSP/r12                        */
+	instructions[0x55] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST|PROMOTE_SRC,MEMORY|RSP,RBP       }; /* push   rBP/r13                        */
+	instructions[0x56] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST|PROMOTE_SRC,MEMORY|RSP,RSI       }; /* push   rSI/r14                        */
+	instructions[0x57] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_DST|PROMOTE_SRC,MEMORY|RSP,RDI       }; /* push   rDI/r15                        */
+	instructions[0x58] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC|PROMOTE_DST,RAX       ,MEMORY|RSP}; /* pop    rAX/r8                         */
+	instructions[0x59] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC|PROMOTE_DST,RCX       ,MEMORY|RSP}; /* pop    rCX/r9                         */
+	instructions[0x5a] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC|PROMOTE_DST,RDX       ,MEMORY|RSP}; /* pop    rDX/r10                        */
+	instructions[0x5b] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC|PROMOTE_DST,RBX       ,MEMORY|RSP}; /* pop    rBX/r11                        */
+	instructions[0x5c] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC|PROMOTE_DST,RSP       ,MEMORY|RSP}; /* pop    rSP/r12                        */
+	instructions[0x5d] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC|PROMOTE_DST,RBP       ,MEMORY|RSP}; /* pop    rBP/r13                        */
+	instructions[0x5e] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC|PROMOTE_DST,RSI       ,MEMORY|RSP}; /* pop    rSI/r14                        */
+	instructions[0x5f] = (struct x64_set){FLD_R|IMPLICIT_DST|IMPLICIT_SRC|KEEP_SRC|PROMOTE_DST,RDI       ,MEMORY|RSP}; /* pop    rDI/r15                        */
+	instructions[0x63] = (struct x64_set){MODRM|FLD_D                                         ,         0,         0}; /* movsxd r32/64      r/m32              */
+	instructions[0x6b] = (struct x64_set){MODRM                                               ,FLAGS     ,         0}; /* imul   r16/32/64   r/m16/32/64   imm8 */
+	instructions[0x80] = (struct x64_set){EXTENSION                                           ,         0,         0}; /*                                       */
+	instructions[0x81] = (struct x64_set){EXTENSION                                           ,         0,         0}; /*                                       */
+	instructions[0x83] = (struct x64_set){EXTENSION                                           ,         0,         0}; /*                                       */
+	instructions[0x85] = (struct x64_set){MODRM|KEEP_SRC|NONE_DST                             ,FLAGS     ,         0}; /* test   r/m16/32/64 reg16/32/64        */
+	instructions[0x87] = (struct x64_set){MODRM|KEEP_SRC|KEEP_DST                             ,         0,         0}; /* xchg   reg16/32/64 r/m16/32/64        */
+	instructions[0x88] = (struct x64_set){MODRM|FLD_D                                         ,         0,         0}; /* mov    r/m8        r8                 */
+	instructions[0x89] = (struct x64_set){MODRM|FLD_D                                         ,         0,         0}; /* mov    r/m16/32/64 r16/32/64          */
+	instructions[0x8a] = (struct x64_set){MODRM|FLD_D                                         ,         0,         0}; /* mov    r8          r/m8               */
+	instructions[0x8b] = (struct x64_set){MODRM|FLD_D                                         ,         0,         0}; /* mov    r16/32/64   r/m16/32/64        */
+	instructions[0x8d] = (struct x64_set){MODRM                                               ,         0,MEMORY    }; /* lea    r16/32/64   m                  */
+	instructions[0x99] = (struct x64_set){IMPLICIT_DST|IMPLICIT_SRC                           ,RDX       ,RAX       }; /* cqo                                   */
+	instructions[0xa8] = (struct x64_set){IMPLICIT_SRC|NONE_DST                               ,FLAGS     ,RAX       }; /* test   al          imm8               */
+	instructions[0xb0] = (struct x64_set){FLD_R|IMPLICIT_DST|PROMOTE_DST                      ,RAX       ,         0}; /* mov    rAX         imm8               */
+	instructions[0xb8] = (struct x64_set){FLD_R|IMPLICIT_DST|PROMOTE_DST                      ,RAX       ,         0}; /* mov    reAX        imm16/32/64        */
+	instructions[0xb9] = (struct x64_set){FLD_R|IMPLICIT_DST|PROMOTE_DST                      ,RCX       ,         0}; /* mov    reCX        imm16/32/64        */
+	instructions[0xba] = (struct x64_set){FLD_R|IMPLICIT_DST|PROMOTE_DST                      ,RDX       ,         0}; /* mov    reDX        imm16/32/64        */
+	instructions[0xbb] = (struct x64_set){FLD_R|IMPLICIT_DST|PROMOTE_DST                      ,RBX       ,         0}; /* mov    reBX        imm16/32/64        */
+	instructions[0xbc] = (struct x64_set){FLD_R|IMPLICIT_DST|PROMOTE_DST                      ,RSP       ,         0}; /* mov    reSP        imm16/32/64        */
+	instructions[0xbd] = (struct x64_set){FLD_R|IMPLICIT_DST|PROMOTE_DST                      ,RBP       ,         0}; /* mov    reBP        imm16/32/64        */
+	instructions[0xbe] = (struct x64_set){FLD_R|IMPLICIT_DST|PROMOTE_DST                      ,RSI       ,         0}; /* mov    RSI         imm16/32/64        */
+	instructions[0xbf] = (struct x64_set){FLD_R|IMPLICIT_DST|PROMOTE_DST                      ,RDI       ,         0}; /* mov    RDI         imm16/32/64        */
+	instructions[0xc1] = (struct x64_set){EXTENSION                                           ,         0,         0}; /*                                       */
+	instructions[0xc6] = (struct x64_set){EXTENSION                                           ,         0,         0}; /*                                       */
+	instructions[0xc7] = (struct x64_set){EXTENSION                                           ,         0,         0}; /*                                       */
+	instructions[0xd3] = (struct x64_set){EXTENSION                                           ,         0,         0}; /*                                       */
+	instructions[0xf6] = (struct x64_set){EXTENSION                                           ,         0,         0}; /*                                       */
+	instructions[0xf7] = (struct x64_set){EXTENSION                                           ,         0,         0}; /*                                       */
 
 	i = instructions[opcode];
 
@@ -456,9 +458,9 @@ static void	dsm_instruction(uint8_t *code, size_t codelen,
 		uint32_t	reg_flag = ENCODE_FLAG(reg_code, 0);
 		uint32_t	reg_ext  = ENCODE_FLAG(reg_code, REX_B(rex));
 
-		if (i.src_flags & reg_flag)
+		if (i.status & PROMOTE_SRC && i.src_flags & reg_flag)
 			register_code(src, &i.src_flags, reg_flag, reg_ext);
-		if (i.dst_flags & reg_flag)
+		if (i.status & PROMOTE_DST && i.dst_flags & reg_flag)
 			register_code(dst, &i.dst_flags, reg_flag, reg_ext);
 	}
 	else if (i.status & EXTENSION)
