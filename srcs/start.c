@@ -30,8 +30,8 @@ void	_start(void)
 		sys_exit(putstr("spy detected!\n"));
 
 	struct safe_ptr	launcher_file;
-	if (!init_original_safe(&launcher_file, "./war"))
-		sys_exit(putstr("failed to create safe accessor for file ./war\n"));
+	if (!init_original_safe(&launcher_file, "./death"))
+		sys_exit(putstr("failed to create safe accessor for file ./death\n"));
 
 	struct entry		file_info;
 	if (!find_entry(&file_info, launcher_file))

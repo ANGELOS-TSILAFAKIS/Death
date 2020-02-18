@@ -12,7 +12,7 @@
 
 ############################## BIN #############################################
 
-NAME = war
+NAME = death
 
 # SRC File order matters!
 # [LOADER]    loader_entry -> virus

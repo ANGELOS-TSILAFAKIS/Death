@@ -20,14 +20,14 @@ function compile()
     else
         make re -C ..
     fi
-    cp -f ../war .
+    cp -f ../death .
 }
 
 function diff()
 {
     cp -f /bin/pwd /tmp/test/pwd1
     cp -f /bin/pwd /tmp/test/pwd2
-    ./war
+    ./death
     xxd /tmp/test/pwd1 > pwd1.x
     xxd /tmp/test/pwd2 > pwd2.x
     vimdiff pwd1.x pwd2.x

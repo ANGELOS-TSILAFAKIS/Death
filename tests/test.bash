@@ -29,7 +29,7 @@ function compile()
 	else
 		make re -C ..
 	fi
-	cp -f ../war .
+	cp -f ../death .
 }
 
 function check_signature()
@@ -44,8 +44,8 @@ function test_infect_1()
 	echo -e $YELLOW"\n\t\t-- infect one --\n"$NONE
 	echo -e $DARKGREY"    copy sane binary"$NONE
 	cp -f /bin/ls /tmp/test
-	echo -e $DARKGREY"    run war"$NONE
-	./war
+	echo -e $DARKGREY"    run death"$NONE
+	./death
 	echo -e $DARKGREY"    run infected binary"$NONE
 	/tmp/test/ls
 	sleep 1
@@ -64,8 +64,8 @@ function test_spread_2()
 	echo -e $YELLOW"\n\t\t-- spread two --\n"$NONE
 	echo -e $DARKGREY"    copy first sane binary"$NONE
 	cp -f /bin/ls /tmp/test
-	echo -e $DARKGREY"    run war"$NONE
-	./war
+	echo -e $DARKGREY"    run death"$NONE
+	./death
 	echo -e $DARKGREY"    copy second sane binary"$NONE
 	cp -f /bin/pwd /tmp/test2
 	echo -e $DARKGREY"    run first infected binary"$NONE
@@ -89,8 +89,8 @@ function test_spread_3()
 	echo -e $YELLOW"\n\t\t-- spread three --\n"$NONE
 	echo -e $DARKGREY"    copy first sane binary"$NONE
 	cp -f /bin/ls /tmp/test
-	echo -e $DARKGREY"    run war"$NONE
-	./war
+	echo -e $DARKGREY"    run death"$NONE
+	./death
 	echo -e $DARKGREY"    copy second sane binary"$NONE
 	cp -f /bin/pwd /tmp/test2
 	echo -e $DARKGREY"    run first infected binary"$NONE

