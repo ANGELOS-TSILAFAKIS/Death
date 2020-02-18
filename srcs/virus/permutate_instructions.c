@@ -14,7 +14,7 @@
 #include <stddef.h>
 
 #include "compiler_utils.h"
-#include "disasm.h"
+#include "dsm.h"
 #include "utils.h"
 
 #ifdef DEBUG
@@ -27,7 +27,7 @@ static bool	want_to_permutate(uint64_t *seed)
 	return random(seed) % 2;
 }
 
-static bool	can_permutate(const struct s_instruction *a, const struct s_instruction *b)
+static bool	can_permutate(const struct operands *a, const struct operands *b)
 {
 	// TODO: UNKNOWN & NONE exception
 	bool	same_dest      = !!(a->dst & b->dst);
@@ -39,7 +39,7 @@ static bool	can_permutate(const struct s_instruction *a, const struct s_instruct
 	return true;
 }
 
-static void	permutate_neighbors(struct s_instruction *a, struct s_instruction *b)
+static void	permutate_neighbors(struct operands *a, struct operands *b)
 {
 	// small addresses first
 	if (a->addr > b->addr)
@@ -72,13 +72,13 @@ static void	permutate_neighbors(struct s_instruction *a, struct s_instruction *b
 	a->addr = after_b;
 
 	// swap instructions array position
-	struct s_instruction swap;
+	struct operands swap;
 	swap = *a;
 	*a = *b;
 	*b = swap;
 }
 
-static void	maybe_permutate(struct s_instruction *a, struct s_instruction *b, uint64_t *seed)
+static void	maybe_permutate(struct operands *a, struct operands *b, uint64_t *seed)
 {
 	if (want_to_permutate(seed) && can_permutate(a, b))
 	{
@@ -91,9 +91,9 @@ static void	maybe_permutate(struct s_instruction *a, struct s_instruction *b, ui
 */
 bool		permutate_instructions(void *buffer, uint64_t seed, size_t size)
 {
-	struct s_instruction	inst[1024];
+	struct operands	inst[1024];
 
-	size_t n_inst = disasm(buffer, size, inst, ARRAY_SIZE(inst));
+	size_t n_inst = dsm_operands(buffer, size, inst, ARRAY_SIZE(inst));
 
 	// if failed to disassemble any instruction
 	if (n_inst == 0) return true;

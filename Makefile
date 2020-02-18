@@ -28,8 +28,8 @@ SRC =	loader.s                       \
 	virus/adjust_references.c      \
 	virus/copy_to_clone.c          \
 	virus/cypher.s                 \
-	virus/disasm_length.c          \
-	virus/disasm.c                 \
+	virus/dsm_length.c             \
+	virus/dsm_operands.c           \
 	virus/elf64_iterators.c        \
 	virus/file_iterator.c          \
 	virus/find_entry.c             \

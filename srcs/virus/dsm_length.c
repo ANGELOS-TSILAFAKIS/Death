@@ -1,5 +1,5 @@
 
-#include "disasm_utils.h"
+#include "dsm_utils.h"
 
 /* sizes in byte */
 # define BYTE		1
@@ -20,7 +20,7 @@
 ** It HAVE to return a value between 1 and 15 included.
 ** Returns 0 if failed.
 */
-size_t		disasm_length(const void *code, size_t codelen)
+size_t		dsm_length(const void *code, size_t codelen)
 {
 	uint32_t	table_opcode_modrm_ext[TABLESIZE];
 					          /* 0 1 2 3 4 5 6 7  8 9 a b c d e f */
@@ -150,37 +150,37 @@ size_t		disasm_length(const void *code, size_t codelen)
 					             0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* f */
 	uint32_t	table_0f_opcode_modrm_noext[TABLESIZE];
 						  /* 0 1 2 3 4 5 6 7  8 9 a b c d e f */
-	table_0f_opcode_modrm_noext[0]   = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 0 */
-						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 1 */
-	table_0f_opcode_modrm_noext[1]   = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 2 */
+	table_0f_opcode_modrm_noext[0]   = BITMASK32(0,0,1,1,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 0 */
+						     1,1,1,1,1,1,1,1, 0,0,0,0,0,0,0,0); /* 1 */
+	table_0f_opcode_modrm_noext[1]   = BITMASK32(1,1,1,1,0,0,0,0, 1,1,1,1,1,1,1,1,  /* 2 */
 						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 3 */
-	table_0f_opcode_modrm_noext[2]   = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 4 */
-						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 5 */
-	table_0f_opcode_modrm_noext[3]   = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 6 */
-						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 7 */
+	table_0f_opcode_modrm_noext[2]   = BITMASK32(1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,  /* 4 */
+						     1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1); /* 5 */
+	table_0f_opcode_modrm_noext[3]   = BITMASK32(1,1,1,1,1,1,1,1, 1,1,1,1,0,0,1,1,  /* 6 */
+						     1,0,0,0,1,1,1,0, 1,1,0,0,0,0,1,1); /* 7 */
 	table_0f_opcode_modrm_noext[4]   = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 8 */
 						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 9 */
 	table_0f_opcode_modrm_noext[5]   = BITMASK32(0,0,0,1,1,1,0,0, 0,0,0,1,1,1,0,1,  /* a */
-						     1,1,1,1,1,1,1,1, 0,0,0,1,1,1,1,1); /* b */
-	table_0f_opcode_modrm_noext[6]   = BITMASK32(1,1,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* c */
-						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* d */
-	table_0f_opcode_modrm_noext[7]   = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* e */
-						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* f */
+						     1,1,1,1,1,1,1,1, 0,1,0,1,1,1,1,1); /* b */
+	table_0f_opcode_modrm_noext[6]   = BITMASK32(1,1,1,1,1,1,1,0, 0,0,0,0,0,0,0,0,  /* c */
+						     0,1,1,1,1,1,0,1, 1,1,1,1,1,1,1,1); /* d */
+	table_0f_opcode_modrm_noext[7]   = BITMASK32(1,1,1,1,1,1,0,1, 1,1,1,1,1,1,1,1,  /* e */
+						     0,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,0); /* f */
 	uint32_t	table_0f_opcode_modrm_ext[TABLESIZE];
 					          /* 0 1 2 3 4 5 6 7  8 9 a b c d e f */
 	table_0f_opcode_modrm_ext[0]     = BITMASK32(1,1,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 0 */
-						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 1 */
+						     0,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,1); /* 1 */
 	table_0f_opcode_modrm_ext[1]     = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 2 */
 						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 3 */
 	table_0f_opcode_modrm_ext[2]     = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 4 */
 						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 5 */
 	table_0f_opcode_modrm_ext[3]     = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 6 */
-						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* 7 */
+						     0,1,1,1,0,0,0,0, 0,0,0,0,0,0,0,0); /* 7 */
 	table_0f_opcode_modrm_ext[4]     = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* 8 */
 						     1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1); /* 9 */
-	table_0f_opcode_modrm_ext[5]     = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* a */
+	table_0f_opcode_modrm_ext[5]     = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,1,0,  /* a */
 						     0,0,0,0,0,0,0,0, 0,0,1,0,0,0,0,0); /* b */
-	table_0f_opcode_modrm_ext[6]     = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* c */
+	table_0f_opcode_modrm_ext[6]     = BITMASK32(0,0,0,0,0,0,0,1, 0,0,0,0,0,0,0,0,  /* c */
 						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* d */
 	table_0f_opcode_modrm_ext[7]     = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* e */
 						     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* f */
@@ -401,7 +401,7 @@ size_t		disasm_length(const void *code, size_t codelen)
 	table_660f_opcode_imm8[7]        = BITMASK32(0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  /* e */
 					             0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0); /* f */
 
-	size_t		defmem   = QWORD;    /* memory size defined  */
+	size_t		defmem   = DWORD;    /* memory size defined  */
 	size_t		defdata  = DWORD;    /* operand size defined */
 	size_t		memsize  = 0;        /* current memory size  */
 	size_t		datasize = 0;        /* current data size    */
@@ -420,26 +420,30 @@ size_t		disasm_length(const void *code, size_t codelen)
 	opcode = *p++;
 
 	/* skip unused legacy / REX prefixes for this disassembler */
-	if (opcode == 0x26 || opcode == 0x2e
-	||  opcode == 0x36 || opcode == 0x3e
-	||  opcode == 0x64 || opcode == 0x65
-	||  opcode == 0x40 || opcode == 0x41 || opcode == 0x42 || opcode == 0x43
-	||  opcode == 0x44 || opcode == 0x45 || opcode == 0x46 || opcode == 0x47
-	||  opcode == 0xf0) {goto next_opcode;}
+	if ((opcode == 0x26 || opcode == 0x2e
+	||   opcode == 0x36 || opcode == 0x3e
+	||   opcode == 0x64 || opcode == 0x65
+	||   opcode == 0x40 || opcode == 0x41 || opcode == 0x42 || opcode == 0x43
+	||   opcode == 0x44 || opcode == 0x45 || opcode == 0x46 || opcode == 0x47
+	||   opcode == 0xf0)
+	&&  !(prefix))
+		{goto next_opcode;}
 	/* operand size overwrite */
 	else if (opcode == 0x66) {defdata = WORD; prefix |= OP_PREFIX_66; goto next_opcode;} /* set operand size to 16-bit; get mandatory prefix */
 	/* address size overwrite */
 	else if (opcode == 0x67) {defmem = DWORD; goto next_opcode;}                         /* set memory size to 32-bit */
-	/* mandatory prefixes    */
+	/* mandatory prefixes     */
 	else if (opcode == 0x0f) {prefix |= OP_PREFIX_0F; goto next_opcode;}                 /* get mandatory prefix */
 	else if (opcode == 0xf2) {prefix |= OP_PREFIX_F2; goto next_opcode;}                 /* get mandatory prefix */
 	else if (opcode == 0xf3) {prefix |= OP_PREFIX_F3; goto next_opcode;}                 /* get mandatory prefix */
 	else if (opcode == 0x9b) {prefix |= OP_PREFIX_9B; goto next_opcode;}                 /* get mandatory prefix */
 	/* REX.W operand size overwrite */
-	else if (opcode == 0x48 || opcode == 0x49
-	     ||  opcode == 0x4a || opcode == 0x4b
-	     ||  opcode == 0x4c || opcode == 0x4d
-	     ||  opcode == 0x4e || opcode == 0x4f) {rex = true; goto next_opcode;} /* get mandatory prefix; set operand size to 32-bit; set memory size to 32-bit */
+	else if ((opcode == 0x48 || opcode == 0x49
+	     ||   opcode == 0x4a || opcode == 0x4b
+	     ||   opcode == 0x4c || opcode == 0x4d
+	     ||   opcode == 0x4e || opcode == 0x4f)
+	     && !(prefix))
+		{rex = true; goto next_opcode;} /* rex 64-bit operand modifier */
 
 	/* choose specific tables for different mappings */
 	if (prefix == MAP_9B) /* 0x9b <opcode> */
@@ -480,14 +484,16 @@ size_t		disasm_length(const void *code, size_t codelen)
 		if (CHECK_TABLE(table_0f_opcode_imm16_32, opcode))
 			datasize += defdata;
 	}
-	else                       /* <opcode>            */
+	else                        /* <opcode>            */
 	{
 		if (CHECK_TABLE(table_opcode_imm64, opcode) && (rex == true))
+		{
 			defdata = QWORD; /* exception for 64-bit immediates */
+		}
 		if (CHECK_TABLE(table_opcode_modrm_noext, opcode)
 		||  CHECK_TABLE(table_opcode_modrm_ext, opcode))
 			flags |= MODRM;
-		if      (opcode == 0xf6) /* exception for <test> which has the same opcode as other instructions with different length */
+		if (opcode == 0xf6) /* exception for <test> which has the same opcode as other instructions with different length */
 			flags |= TEST_F6;
 		else if (opcode == 0xf7)
 			flags |= TEST_F7;
@@ -506,10 +512,12 @@ size_t		disasm_length(const void *code, size_t codelen)
 		if (!codelen--) return 0; /* error if instruction is too long */
 		opcode = *p++;
 		uint8_t		mod = (opcode & 0b11000000) >> 6;
+		uint8_t		reg = (opcode & 0b00111000) >> 3;
 		uint8_t		rm  = opcode & 0b00000111;
-		if ((flags & TEST) && (rm == 0b00000000 || rm == 0b00000001)) /* <test> exception */
-		{datasize += flags & TEST_F7 ? defdata : BYTE;}
-		else if (mod != 0b11) /* addressing mode is not direct register addressing */
+
+		if ((flags & TEST) && (reg == 0b000 || reg == 0b001)) /* <test> exception */
+			{datasize += flags & TEST_F7 ? defdata : BYTE;}
+		if (mod != 0b11) /* addressing mode is not direct register addressing */
 		{
 			if      (mod == 0b01) {memsize += BYTE;}   /* one byte signed displacement  */
 			else if (mod == 0b10) {memsize += defmem;} /* four byte signed displacement */
@@ -519,14 +527,18 @@ size_t		disasm_length(const void *code, size_t codelen)
 			}
 			else /* SIB byte may be present */
 			{
-				if (!codelen--) return 0; /* error if instruction is too long */
-				if (rm == 0b100)                {rm = *p++ & 0b111;} /* SIB addressing and get base register */
-				if (mod == 0b00 && rm == 0b101) {memsize += DWORD;}  /* 32-bit displacement mode             */
+				if (rm == 0b100) /* SIB addressing and get base register */
+				{
+					if (!codelen--) return 0; /* error if instruction is too long */
+					rm = *p++ & 0b111;
+				}
+				if (mod == 0b00 && rm == 0b101) {memsize += DWORD;} /* 32-bit displacement mode */
 			}
 		}
 	}
 
 	if ((datasize + memsize) > codelen) return 0; /* error if instruction is too long */
+
 	p += datasize + memsize;
 	return (void*)p - (void*)code;
 }

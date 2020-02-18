@@ -2,7 +2,7 @@
 #ifndef _DISASM_UTILS_H
 # define _DISASM_UTILS_H
 
-# include "disasm.h"
+# include "dsm.h"
 
 /*
 ** opcode prefixes

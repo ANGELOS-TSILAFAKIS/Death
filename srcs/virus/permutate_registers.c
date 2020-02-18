@@ -2,8 +2,8 @@
 #include <stddef.h>
 
 #include "compiler_utils.h"
-#include "disasm.h"
-#include "disasm_utils.h"
+#include "dsm.h"
+#include "dsm_utils.h"
 #include "utils.h"
 #include "errors.h"
 
@@ -12,28 +12,28 @@
 ** Although GP registers can have a 8-bit, 16-bit or 32-bit size we consider
 ** for this disassembler that the whole 64-bit register is affected.
 */
-# define REGS		0x00ff
-# define NONE		(0)       /* nothing                            */
-# define RAX		(1 << 0)  /* al   || ax   || eax  || rax        */
-# define RCX		(1 << 1)  /* cl   || cx   || ecx  || rcx        */
-# define RDX		(1 << 2)  /* dl   || dx   || edx  || rdx        */
-# define RBX		(1 << 3)  /* bl   || bx   || ebx  || rbx        */
-# define RSP		(1 << 4)  /* ah   || spl  || sp   || esp || rsp */
-# define RBP		(1 << 5)  /* ch   || bpl  || bp   || ebp || rbp */
-# define RSI		(1 << 6)  /* dh   || sil  || si   || esi || rsi */
-# define RDI		(1 << 7)  /* bh   || dil  || di   || edi || rdi */
-
-# define REGS_EXTENDED	0xff00
-# define R8		(1 << 8)  /* r8l  || r8w  || r8d  || r8         */
-# define R9		(1 << 9)  /* r9l  || r9w  || r9d  || r9         */
-# define R10		(1 << 10) /* r10l || r10w || r10d || r10        */
-# define R11		(1 << 11) /* r11l || r11w || r11d || r11        */
-# define R12		(1 << 12) /* r12l || r12w || r12d || r12        */
-# define R13		(1 << 13) /* r13l || r13w || r13d || r13        */
-# define R14		(1 << 14) /* r14l || r14w || r14d || r14        */
-# define R15		(1 << 15) /* r15l || r15w || r15d || r15        */
-
-# define RIP		(1 << 16) /* eip  || rip                        */
+// # define REGS		0x00ff
+// # define NONE		(0)       /* nothing                            */
+// # define RAX		(1 << 0)  /* al   || ax   || eax  || rax        */
+// # define RCX		(1 << 1)  /* cl   || cx   || ecx  || rcx        */
+// # define RDX		(1 << 2)  /* dl   || dx   || edx  || rdx        */
+// # define RBX		(1 << 3)  /* bl   || bx   || ebx  || rbx        */
+// # define RSP		(1 << 4)  /* ah   || spl  || sp   || esp || rsp */
+// # define RBP		(1 << 5)  /* ch   || bpl  || bp   || ebp || rbp */
+// # define RSI		(1 << 6)  /* dh   || sil  || si   || esi || rsi */
+// # define RDI		(1 << 7)  /* bh   || dil  || di   || edi || rdi */
+//
+// # define REGS_EXTENDED	0xff00
+// # define R8		(1 << 8)  /* r8l  || r8w  || r8d  || r8         */
+// # define R9		(1 << 9)  /* r9l  || r9w  || r9d  || r9         */
+// # define R10		(1 << 10) /* r10l || r10w || r10d || r10        */
+// # define R11		(1 << 11) /* r11l || r11w || r11d || r11        */
+// # define R12		(1 << 12) /* r12l || r12w || r12d || r12        */
+// # define R13		(1 << 13) /* r13l || r13w || r13d || r13        */
+// # define R14		(1 << 14) /* r14l || r14w || r14d || r14        */
+// # define R15		(1 << 15) /* r15l || r15w || r15d || r15        */
+//
+// # define RIP		(1 << 16) /* eip  || rip                        */
 
 /*
 ** define what registers can be swapped by permutator
@@ -374,7 +374,7 @@ bool		permutate_registers(void *buffer, uint64_t seed, size_t size)
 
 	while (size)
 	{
-		instruction_length = disasm_length(buffer, size);
+		instruction_length = dsm_length(buffer, size);
 		if (instruction_length == 0) break ;
 
 		if (!apply_match(buffer, instruction_length, match))
