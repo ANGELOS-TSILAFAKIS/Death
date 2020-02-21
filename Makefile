@@ -23,6 +23,7 @@ SRC =	loader.s                       \
 	decypher.s                     \
 	detect_spy.s                   \
 	mprotect.s                     \
+	write_original_chunk.s         \
 	virus/virus.c                  \
 	virus/accessors.c              \
 	virus/adjust_references.c      \

