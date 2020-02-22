@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 03:38:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2020/01/12 18:56:19 by ichkamo          ###   ########.fr       */
+/*   Updated: 2020/02/22 21:49:58 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,6 @@
 struct			virus_header
 {
 	uint64_t	seed[2];
-	uint64_t	relative_pt_load_address;
-	uint64_t	pt_load_size;
-	uint64_t	relative_virus_address;
-	uint64_t	relative_entry_address;
-	uint64_t	virus_size;
 }__attribute__((packed));
 
 void		virus_header_struct(void);
@@ -46,24 +41,8 @@ void		detect_spy_end(void);
 */
 
 void		loader_entry(void);
+void		jump_back_to_client(void);
 void		loader_exit(void);
-
-/*
-** wrap_mprotect
-*/
-
-void		wrap_mprotect(void);
-void		wrap_mprotect_end(void);
-
-/*
-** cypher and decypher
-*/
-
-void		cypher(char *data, size_t size);
-void		decypher(char *data, size_t size);
-
-void		cypher_end(void);
-void		decypher_end(void);
 
 /*
 ** end of virus (cf Makefile)

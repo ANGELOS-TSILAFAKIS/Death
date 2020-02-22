@@ -2,7 +2,7 @@
 #include "compiler_utils.h"
 #include "accessors.h"
 #include "utils.h"
-#include "dsm_utils.h"
+#include "disasm_utils.h"
 
 #define REX_R(rex)	(!!(rex & 0b100)) /* MODRM (R)eg field                         */
 #define REX_X(rex)	(!!(rex & 0b010)) /* SIB inde(X) field                         */
@@ -497,7 +497,7 @@ static void	dsm_instruction(uint8_t *code, size_t codelen,
 	if (i.status & NONE_DST) {*dst &= ~(0xffff);}
 }
 
-size_t		dsm_operands(const void *code, size_t codelen,
+size_t		disasm_operands(const void *code, size_t codelen,
 			struct operands *buf, size_t buflen)
 {
 	void		*p_code = (void*)code;
@@ -506,7 +506,7 @@ size_t		dsm_operands(const void *code, size_t codelen,
 
 	while (codelen && buflen)
 	{
-		instruction_length = dsm_length(p_code, codelen);
+		instruction_length = disasm_length(p_code, codelen);
 		if (instruction_length == 0) break ;
 		dsm_instruction(p_code, codelen, &p_buf->src, &p_buf->dst);
 		p_buf->addr   = p_code;

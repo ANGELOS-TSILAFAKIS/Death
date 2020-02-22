@@ -6,12 +6,12 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/14 18:48:28 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/26 21:17:21 by anselme          ###   ########.fr       */
+/*   Updated: 2020/02/22 22:36:11 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef DSM_H
-# define DSM_H
+#ifndef DISASM_H
+# define DISASM_H
 
 # include <sys/types.h>
 # include <stdint.h>
@@ -65,8 +65,8 @@ struct operands
 /*
 ** disassembly functions
 */
-size_t		dsm_length(const void *code, size_t codelen);
-size_t		dsm_operands(const void *code, size_t codelen,
+size_t		disasm_length(const void *code, size_t codelen);
+size_t		disasm_operands(const void *code, size_t codelen,
 			struct operands *buf, size_t buflen);
 
 #endif

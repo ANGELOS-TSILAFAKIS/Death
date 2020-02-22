@@ -14,7 +14,7 @@
 #include <stddef.h>
 
 #include "compiler_utils.h"
-#include "dsm.h"
+#include "disasm.h"
 #include "utils.h"
 
 #ifdef DEBUG
@@ -93,7 +93,7 @@ bool		permutate_instructions(void *buffer, uint64_t seed, size_t size)
 {
 	struct operands	inst[1024];
 
-	size_t n_inst = dsm_operands(buffer, size, inst, ARRAY_SIZE(inst));
+	size_t n_inst = disasm_operands(buffer, size, inst, ARRAY_SIZE(inst));
 
 	// if failed to disassemble any instruction
 	if (n_inst == 0) return true;

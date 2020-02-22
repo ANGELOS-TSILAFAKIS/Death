@@ -2,8 +2,8 @@
 #include <stddef.h>
 
 #include "compiler_utils.h"
-#include "dsm.h"
-#include "dsm_utils.h"
+#include "disasm.h"
+#include "disasm_utils.h"
 #include "utils.h"
 #include "errors.h"
 
@@ -346,7 +346,7 @@ bool		permutate_registers(void *buffer, uint64_t seed, size_t size)
 
 	while (size)
 	{
-		instruction_length = dsm_length(buffer, size);
+		instruction_length = disasm_length(buffer, size);
 		if (instruction_length == 0) break ;
 
 		if (!apply_match(buffer, instruction_length, match))

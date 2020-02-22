@@ -1,5 +1,5 @@
 
-#include "dsm_utils.h"
+#include "disasm_utils.h"
 
 /* sizes in byte */
 # define BYTE		1
@@ -20,7 +20,7 @@
 ** It HAVE to return a value between 1 and 15 included.
 ** Returns 0 if failed.
 */
-size_t		dsm_length(const void *code, size_t codelen)
+size_t		disasm_length(const void *code, size_t codelen)
 {
 	uint32_t	table_opcode_modrm_ext[TABLESIZE];
 					          /* 0 1 2 3 4 5 6 7  8 9 a b c d e f */

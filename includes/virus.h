@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/04 04:27:47 by agrumbac          #+#    #+#             */
-/*   Updated: 2020/01/12 18:56:05 by ichkamo          ###   ########.fr       */
+/*   Updated: 2020/02/22 22:53:27 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,11 +57,11 @@ bool		infection_engine(struct safe_ptr clone_ref, struct safe_ptr original_ref);
 */
 
 bool		find_entry(struct entry *file_entry, struct safe_ptr ref);
-bool		setup_payload(struct safe_ptr ref, const struct entry *clone_entry, uint64_t son_seed[2]);
+bool		setup_virus_header(struct safe_ptr ref, size_t end_of_last_section, uint64_t son_seed[2]);
 bool		adjust_references(struct safe_ptr ref, size_t shift_amount, size_t end_of_last_section);
 bool		copy_to_clone(struct safe_ptr clone_ref, struct safe_ptr original_ref, \
 			size_t end_last_sect, size_t shift_amount, size_t original_size);
-bool		copy_loader_to_clone(struct safe_ptr clone_ref, size_t end_last_sect);
+bool		copy_loader_to_clone(struct safe_ptr clone_ref, const struct entry *original_entry);
 bool		metamorph_self(struct safe_ptr clone, size_t loader_off, \
 			uint64_t son_seed[2], uint64_t client_id);
 

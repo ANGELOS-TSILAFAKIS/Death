@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/07 01:53:00 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/12/27 00:56:39 by anselme          ###   ########.fr       */
+/*   Updated: 2020/02/22 22:45:59 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,10 @@
 #  define _ERR_NO_CLONE_FILE_BEGIN     PD_ARRAY(char,_err_text,'\033','[','3','3','m','n','o',' ','c','l','o','n','e',' ','f','i','l','e',' ','b','e','g','i','n','n','i','n','g','\n','\033','[','0','m',0)
 #  define _ERR_NO_ORIGINAL_FILE_END    PD_ARRAY(char,_err_text,'\033','[','3','3','m','n','o',' ','o','r','i','g','i','n','a','l',' ','f','i','l','e',' ','e','n','d','\n','\033','[','0','m',0)
 #  define _ERR_NO_CLONE_FILE_END       PD_ARRAY(char,_err_text,'\033','[','3','3','m','n','o',' ','c','l','o','n','e',' ','f','i','l','e',' ','e','n','d','\n','\033','[','0','m',0)
-#  define _ERR_GEN_LOOP_FRAME          PD_ARRAY(char,_err_text,'\033','[','3','3','m','g','e','n',' ','l','o','o','p',' ','f','r','a','m','e','\n','\033','[','0','m',0)
 #  define _ERR_NO_SECT_IN_ENTRY_SEG    PD_ARRAY(char,_err_text,'\033','[','3','3','m','n','o',' ','s','e','c','t',' ','i','n',' ','e','n','t','r','y','_','s','e','g','\n','\033','[','0','m',0)
 #  define _ERR_ADJUST_REFERENCES       PD_ARRAY(char,_err_text,'\033','[','3','3','m','a','d','j','u','s','t','_','r','e','f','e','r','e','n','c','e','s','\n','\033','[','0','m',0)
 #  define _ERR_COPY_TO_CLONE           PD_ARRAY(char,_err_text,'\033','[','3','3','m','c','o','p','y','_','t','o','_','c','l','o','n','e','\n','\033','[','0','m',0)
+#  define _ERR_COPY_LOADER_TO_CLONE    PD_ARRAY(char,_err_text,'\033','[','3','3','m','c','o','p','y','_','l','o','a','d','e','r','_','t','o','_','c','l','o','n','e','\n','\033','[','0','m',0)
 #  define _ERR_FIND_ENTRY              PD_ARRAY(char,_err_text,'\033','[','3','3','m','f','i','n','d','_','e','n','t','r','y','\n','\033','[','0','m',0)
 #  define _ERR_INFECT                  PD_ARRAY(char,_err_text,'\033','[','3','3','m','i','n','f','e','c','t','\n','\033','[','0','m',0)
 #  define _ERR_IMPOSSIBLE              PD_ARRAY(char,_err_text,'\033','[','3','3','m','i','m','p','o','s','s','i','b','l','e','\n','\033','[','0','m',0)

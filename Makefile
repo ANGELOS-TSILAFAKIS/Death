@@ -6,7 +6,7 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/04/10 17:19:11 by agrumbac          #+#    #+#              #
-#    Updated: 2020/02/16 19:31:33 by ichkamo          ###   ########.fr        #
+#    Updated: 2020/02/22 22:34:46 by ichkamo          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,20 +20,17 @@ NAME = death
 # [LAUNCHER]  _start       -> EOF
 
 SRC =	loader.s                       \
-	decypher.s                     \
 	detect_spy.s                   \
-	mprotect.s                     \
 	virus/virus.c                  \
 	virus/accessors.c              \
 	virus/adjust_references.c      \
+	virus/copy_loader_to_clone.c   \
 	virus/copy_to_clone.c          \
-	virus/cypher.s                 \
-	virus/dsm_length.c             \
-	virus/dsm_operands.c           \
+	virus/disasm_length.c          \
+	virus/disasm_operands.c        \
 	virus/elf64_iterators.c        \
 	virus/file_iterator.c          \
 	virus/find_entry.c             \
-	virus/generate_cypher.c        \
 	virus/infect.c                 \
 	virus/infection_engine.c       \
 	virus/log.c                    \
@@ -42,7 +39,7 @@ SRC =	loader.s                       \
 	virus/permutate_registers.c    \
 	virus/polymorphic_seed.c       \
 	virus/random.c                 \
-	virus/setup_payload.c          \
+	virus/setup_virus_header.c     \
 	virus/syscall.c                \
 	virus/utils.c                  \
 	start.c
